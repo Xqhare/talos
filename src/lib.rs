@@ -1,6 +1,7 @@
 use std::io::Write;
 
 use builder::TalosBuilder;
+use constants::ansi::TO_TOP_LEFT;
 use error::TalosResult;
 use render::Canvas;
 use terminal::term_io::TerminalIO;
@@ -33,8 +34,14 @@ impl Talos {
     }
 
     pub fn present(&mut self) -> TalosResult<()> {
-        self.terminal.write_all(&self.canvas.buffer)?;
-        self.terminal.flush()?;
+        write!(self.terminal, "{}", TO_TOP_LEFT)?;
+        for row in self.canvas.buffer.iter() {
+            for cell in row.iter() {
+                write!(self.terminal, "{}", cell.char)?;
+            }
+            write!(self.terminal, "\r\n")?;
+        }
+        self.terminal.stdout().flush()?;
         Ok(())
     }
 }

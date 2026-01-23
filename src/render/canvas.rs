@@ -1,28 +1,37 @@
 use crate::constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 
+use super::{CCell, Style};
+
 pub struct Canvas {
-    // The buffer described in your README
-    pub buffer: Vec<u8>, 
+    pub buffer: Vec<Vec<CCell>>,
+    width: u16,
+    height: u16,
 }
 
 impl Canvas {
-    pub fn new() -> Self {
-        Self { buffer: Vec::with_capacity(4096) }
+    pub fn new(width: u16, height: u16) -> Self {
+        let w = width as usize;
+        let h = height as usize;
+        Self {
+            buffer: vec![
+                vec![
+                    CCell { 
+                        char: ' ', 
+                        style: Style::default() 
+                    }; 
+                    w]; 
+                h],
+            width,
+            height,
+        }
     }
     
     pub fn clear(&mut self) {
-        self.buffer.clear();
-        // Maybe write the "Clear Screen" ANSI code into the buffer here
-        self.buffer.extend_from_slice(CLEAR_ALL.as_bytes());
-        self.buffer.extend_from_slice(TO_TOP_LEFT.as_bytes());
+        for row in self.buffer.iter_mut() {
+            for cell in row.iter_mut() {
+                *cell = CCell::default();
+            }
+        }
     }
 }
 
-// Allow widgets to write directly into the canvas
-impl std::io::Write for Canvas {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.buffer.extend_from_slice(buf);
-        Ok(buf.len())
-    }
-    fn flush(&mut self) -> std::io::Result<()> { Ok(()) }
-}
