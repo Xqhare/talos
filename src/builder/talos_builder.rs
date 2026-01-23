@@ -25,9 +25,9 @@ impl TalosBuilder {
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         
         Ok(Talos {
+            size: terminal.size()?,
             terminal,
             canvas: Canvas::new(),
-            size: terminal.size()?,
         })
     }
 }
