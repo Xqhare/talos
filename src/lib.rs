@@ -10,6 +10,7 @@ mod terminal;
 mod builder;
 mod render;
 mod constants;
+mod sys;
 
 pub type Width = u16;
 pub type Height = u16;

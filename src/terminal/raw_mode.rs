@@ -1,7 +1,11 @@
-use std::{io, mem, os::fd};
+use std::os::fd;
+use std::sync::Once;
 
+use crate::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
 use crate::error::TalosResult;
 
+use crate::sys::os::enable_rawmode;
+use crate::sys::unix::drop_rawmode;
 
 pub struct RawMode {
     original_termios: libc::termios,
@@ -10,41 +14,28 @@ pub struct RawMode {
 
 impl RawMode {
     pub fn enable(fd_stdin: fd::RawFd) -> TalosResult<RawMode> {
-        unsafe {
-            let mut termios = mem::zeroed();
-
-            if libc::tcgetattr(fd_stdin, &mut termios) == -1 {
-                return Err(io::Error::last_os_error().into())
-            }
-
-            let original_termios = termios;
-
-            // Turn off software flow control, carriage return translation
-            termios.c_iflag &= !(libc::IGNBRK | libc::BRKINT | libc::PARMRK | libc::ISTRIP | libc::INLCR | libc::IGNCR | libc::ICRNL | libc::IXON);
-
-            // Turn off output processing
-            termios.c_oflag &= !libc::OPOST;
-            
-            // Turn off echoing, canonical mode (line-by-line), and signals (Ctrl+C)
-            termios.c_lflag &= !(libc::ECHO | libc::ECHONL | libc::ICANON | libc::ISIG | libc::IEXTEN);
-            
-            // Control flags: Set 8 bits per char
-            termios.c_cflag &= !(libc::CSIZE | libc::PARENB);
-            termios.c_cflag |= libc::CS8;
-
-            if libc::tcsetattr(fd_stdin, libc::TCSAFLUSH, &termios) == -1 {
-                return Err(io::Error::last_os_error().into());
-            }
-
-            Ok(RawMode { original_termios, fd_stdin })
-        }
+        // Install panic hook - ALWAYS CALL BEFORE `enable_rawmode`
+        install_panic_hook();
+        let (original_termios, fd_stdin) = enable_rawmode(fd_stdin)?;
+        Ok(RawMode { original_termios, fd_stdin })
     }
 }
 
 impl Drop for RawMode {
     fn drop(&mut self) {
-        unsafe {
-            libc::tcsetattr(self.fd_stdin, libc::TCSAFLUSH, &self.original_termios);
-        }
+        drop_rawmode(self.fd_stdin, &self.original_termios);
     }
+}
+
+static INIT: Once = Once::new();
+
+fn install_panic_hook() {
+    INIT.call_once(|| {
+        let def_hook = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |info| {
+            let _ = print!("{}", EXIT_ALT_SCREEN);
+            let _ = print!("{}", SHOW_CURSOR);
+            def_hook(info);
+        }));
+    });
 }

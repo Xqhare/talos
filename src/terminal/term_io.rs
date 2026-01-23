@@ -1,9 +1,9 @@
 use std::io::{self, Write};
-use std::mem;
 use std::os::fd::AsRawFd;
 use crate::error::TalosResult;
 
-use crate::constants::ansi::{CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT}
+use crate::constants::ansi::{CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT};
+use crate::sys::unix::terminal_size;
 
 use super::raw_mode::RawMode;
 
@@ -17,8 +17,9 @@ impl TerminalIO {
     pub fn new(hide_cursor: bool, alternate_screen: bool) -> TalosResult<TerminalIO> {
 
         let stdin = io::stdin();
-        let raw_mode = RawMode::enable(stdin.as_raw_fd())?;
         let mut stdout = io::stdout();
+
+        let raw_mode = RawMode::enable(stdin.as_raw_fd())?;
 
         // Enter Alternate Screen 
         // Clear Screen & Home Cursor
@@ -49,13 +50,7 @@ impl TerminalIO {
     }
 
     pub fn size(&self) -> TalosResult<(u16, u16)> {
-        unsafe {
-            let mut winsize: libc::winsize = mem::zeroed();
-            if libc::ioctl(self.stdout.as_raw_fd(), libc::TIOCGWINSZ, &mut winsize) == -1 {
-                return Err(io::Error::last_os_error().into())
-            }
-            Ok((winsize.ws_row, winsize.ws_col))
-        }
+        terminal_size(self.stdout.as_raw_fd())
     }
 }
 
@@ -63,6 +58,7 @@ impl Drop for TerminalIO {
     fn drop(&mut self) {
         // 1. Exit Alternate Screen
         // 2. Show Cursor
+        // Also wtf am I supposed to do with errors in here
         let _ = write!(self.stdout, "{}", EXIT_ALT_SCREEN);
         let _ = write!(self.stdout, "{}", SHOW_CURSOR);
         let _ = self.stdout.flush();
@@ -79,3 +75,4 @@ impl Write for TerminalIO {
         self.stdout.flush()
     }
 }
+
