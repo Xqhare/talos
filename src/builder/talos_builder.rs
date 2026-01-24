@@ -23,11 +23,14 @@ impl TalosBuilder {
     pub fn build(self) -> TalosResult<Talos> {
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
+        let size = terminal.size()?;
         
         Ok(Talos {
-            size: terminal.size()?,
             terminal,
-            canvas: Canvas::new(),
+            canvas: Canvas::new(size.0, size.1),
+            size,
+            current_buffer: None,
+            previous_buffer: None
         })
     }
 }
