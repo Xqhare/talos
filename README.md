@@ -1,7 +1,7 @@
 # Talos
 A simple, (almost) no dependency, TUI immediate mode unix toolkit.
 
-It can be used to create an ui for any kind of application.
+It can be used to create a simple TUI for any kind of application.
 
 ## Naming
 In Greek mythology, `Talos`, was a giant automaton made of bronze to protect Europa in Crete from pirates and invaders. He circled the island's shores three times daily.
@@ -20,3 +20,6 @@ A basic layout engine.
 All constructions will be done using the builder pattern.
 
 The developer experience should be as simple, intuitive and fast as I can make it.
+
+UTF is not supported. Talos uses old school code pages. (Windows-1252, CP437).
+User can provide their own, but have to ensure that every displayed character has the same width of one. 
