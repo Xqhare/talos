@@ -12,9 +12,11 @@ In Greek mythology, `Talos`, was a giant automaton made of bronze to protect Eur
 I need to enter and exit RawMode.
 
 A small ANSI Engine will be used to create the output.
-The engine will use Canvas - a `Vec<u8>` to store the output and call `write()` once per frame after frame creation.
+The engine will use Canvas - a way to store the output and call `write()` once per frame after frame creation.
 The engine will have a `Widget` trait.
 
 A basic layout engine.
 
 All constructions will be done using the builder pattern.
+
+The developer experience should be as simple, intuitive and fast as I can make it.
