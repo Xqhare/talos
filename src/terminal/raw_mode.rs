@@ -3,9 +3,7 @@ use std::sync::Once;
 
 use crate::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
 use crate::error::TalosResult;
-
-use crate::sys::os::enable_rawmode;
-use crate::sys::unix::drop_rawmode;
+use crate::sys::{disable_raw_mode, enable_raw_mode};
 
 pub struct RawMode {
     original_termios: libc::termios,
@@ -16,14 +14,14 @@ impl RawMode {
     pub fn enable(fd_stdin: fd::RawFd) -> TalosResult<RawMode> {
         // Install panic hook - ALWAYS CALL BEFORE `enable_rawmode`
         install_panic_hook();
-        let (original_termios, fd_stdin) = enable_rawmode(fd_stdin)?;
+        let (original_termios, fd_stdin) = enable_raw_mode(fd_stdin)?;
         Ok(RawMode { original_termios, fd_stdin })
     }
 }
 
 impl Drop for RawMode {
     fn drop(&mut self) {
-        drop_rawmode(self.fd_stdin, &self.original_termios);
+        disable_raw_mode(self.fd_stdin, &self.original_termios);
     }
 }
 
