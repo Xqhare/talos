@@ -43,7 +43,6 @@ impl Talos {
         // TODO: Intercept `SIGWINCH` and update terminal size
         
         let mut buffer = Vec::new();
-        write!(buffer, "{}", CLEAR_ALL)?;
         write!(buffer, "{}", TO_TOP_LEFT)?;
 
         for y in 0..self.size.1 {
@@ -72,7 +71,6 @@ impl Talos {
             self.terminal.stdout().write(&diff)?;
         }
 
-        self.terminal.stdout().write(&buffer)?;
         Ok(())
     }
 
