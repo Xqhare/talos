@@ -49,13 +49,19 @@ impl Talos {
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
                 let ccell = self.canvas.get_ccell(x, y);
-                write!(buffer, "{}", ccell.to_string())?;
+                let styled_char = {
+                    // TODO: Add Style
+                    self.codex.resolve(ccell.char)
+                };
+                write!(buffer, "{}", styled_char)?;
             }
             write!(buffer, "\n")?;
         }
 
         // if prev buffer is some, take the diff with current buffer and write only changed
         // cells
+        //
+        // This is wrong, I can feel it
         if let Some(prev_buffer) = self.previous_buffer.as_ref() {
             let mut diff = Vec::new();
             for i in 0..buffer.len() {
