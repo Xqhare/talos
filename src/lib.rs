@@ -3,7 +3,7 @@ use std::io::Write;
 use builder::TalosBuilder;
 use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
-use render::Canvas;
+use render::{Canvas, Codex};
 use terminal::term_io::TerminalIO;
 
 mod error;
@@ -19,6 +19,7 @@ pub type Height = u16;
 pub struct Talos {
     terminal: TerminalIO,
     canvas: Canvas,
+    codex: Codex,
     // Terminal Size
     /// Width, Height
     size: (Width, Height),
@@ -67,5 +68,9 @@ impl Talos {
 
         self.terminal.stdout().write(&buffer)?;
         Ok(())
+    }
+
+    pub fn codex(&mut self) -> &mut Codex {
+        &mut self.codex
     }
 }
