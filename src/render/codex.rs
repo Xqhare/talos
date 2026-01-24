@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{constants::pages::{Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH}, error::{TalosError, TalosResult}};
+use crate::{constants::pages::{validate_page, Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH}, error::{TalosError, TalosResult}};
 
 use super::Glyph;
 
@@ -28,19 +28,15 @@ impl Codex {
         codex
     }
 
-    pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()>{
+    pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
         if self.pages[id as usize].is_some() {
             return Err(TalosError::PageIdInUse(id));
         }
+        validate_page(&page)?;
+
         self.pages[id as usize] = Some(page);
 
-        for (index, &symbol) in page.iter().enumerate() {
-            // Only the first char is used - There is not more space, by design!
-            if let Some(ch) = symbol.chars().next() {
-                let glyph_id = ((id as u16) << 8) | (index as u16);
-                self.reverse_map.entry(ch).or_insert(glyph_id);
-            }
-        }
+        self.update_cache(id, page);
 
         Ok(())
     }
@@ -57,5 +53,14 @@ impl Codex {
 
     pub fn lookup(&self, ch: char) -> Glyph {
         self.reverse_map.get(&ch).copied().unwrap_or(UNKNOWN_CHAR_GLYPH)
+    }
+
+    fn update_cache(&mut self, id: u8, page: &'static Page) {
+        for (index, &symbol) in page.iter().enumerate() {
+            if let Some(ch) = symbol.chars().next() {
+                let glyph_id = ((id as u16) << 8) | (index as u16);
+                self.reverse_map.entry(ch).or_insert(glyph_id);
+            }
+        }
     }
 }
