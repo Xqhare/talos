@@ -27,6 +27,10 @@ pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> 
         termios.c_cflag &= !(libc::CSIZE | libc::PARENB);
         termios.c_cflag |= libc::CS8;
 
+        // Non blocking read - I hope
+        termios.c_cc[libc::VMIN] = 0;
+        termios.c_cc[libc::VTIME] = 0;
+
         if libc::tcsetattr(fd_stdin, libc::TCSAFLUSH, &termios) == -1 {
             return Err(io::Error::last_os_error().into());
         }
