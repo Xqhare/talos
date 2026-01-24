@@ -1,7 +1,42 @@
-use super::Page;
+use super::{Page, UNKNOWN_CHAR};
 
 
 pub const WIN_1252: Page = [
-
-];
+    // 0x00 - 0x0F (Control Codes)
+    UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, "\n", UNKNOWN_CHAR, UNKNOWN_CHAR, "\r", UNKNOWN_CHAR, UNKNOWN_CHAR,
+    // 0x10 - 0x1F (Control Codes)
+    UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR, UNKNOWN_CHAR,
     
+    // 0x20 - 0x2F (Standard ASCII)
+    " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    // 0x30 - 0x3F
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+    // 0x40 - 0x4F
+    "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+    // 0x50 - 0x5F
+    "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_",
+    // 0x60 - 0x6F
+    "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+    // 0x70 - 0x7F
+    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", UNKNOWN_CHAR,
+
+    // 0x80 - 0x8F (Win-1252 Extensions: Euro, Ellipsis, Daggers)
+    "€", UNKNOWN_CHAR, "‚", "ƒ", "„", "…", "†", "‡", "ˆ", "‰", "Š", "‹", "Œ", UNKNOWN_CHAR, "Ž", UNKNOWN_CHAR,
+    // 0x90 - 0x9F (Win-1252 Extensions: Smart Quotes, Trademark)
+    UNKNOWN_CHAR, "‘", "’", "“", "”", "•", "–", "—", "˜", "™", "š", "›", "œ", UNKNOWN_CHAR, "ž", "Ÿ",
+    
+    // 0xA0 - 0xAF (NBSP, Inverted Punctuation, Currency)
+    "\u{00A0}", "¡", "¢", "£", "¤", "¥", "¦", "§", "¨", "©", "ª", "«", "¬", "\u{00AD}", "®", "¯",
+    // 0xB0 - 0xBF (Degree, Superscripts, Fractions)
+    "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½", "¾", "¿",
+    
+    // 0xC0 - 0xCF (Accented Uppercase)
+    "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï",
+    // 0xD0 - 0xDF
+    "Ð", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "×", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "Þ", "ß",
+    
+    // 0xE0 - 0xEF (Accented Lowercase)
+    "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï",
+    // 0xF0 - 0xFF
+    "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "÷", "ø", "ù", "ú", "û", "ü", "ý", "þ", "ÿ",
+];
