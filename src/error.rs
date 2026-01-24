@@ -1,10 +1,12 @@
 
 pub type TalosResult<T> = std::result::Result<T, TalosError>;
 
+#[derive(Debug)]
 pub enum TalosError {
     IOError(std::io::Error),
     InvalidArgument,
     InvalidState,
+    PageIdInUse(u8),
 }
 
 impl From<std::io::Error> for TalosError {
@@ -19,6 +21,7 @@ impl std::fmt::Display for TalosError {
             TalosError::IOError(e) => write!(f, "IOError: {}", e),
             TalosError::InvalidArgument => write!(f, "InvalidArgument"),
             TalosError::InvalidState => write!(f, "InvalidState"),
+            TalosError::PageIdInUse(id) => write!(f, "Page ID '{}' already in use", id),
         }
     }
 }
