@@ -1,9 +1,9 @@
-use std::io::Write;
+use std::io::{Write, Read};
 
 use builder::TalosBuilder;
-use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
+use constants::ansi::TO_TOP_LEFT;
 use error::TalosResult;
-use render::{Canvas, Codex};
+use render::{CCell, Canvas, Codex};
 use terminal::term_io::TerminalIO;
 
 mod error;
@@ -23,8 +23,10 @@ pub struct Talos {
     // Terminal Size
     /// Width, Height
     size: (Width, Height),
-    current_buffer: Option<Vec<u8>>,
-    previous_buffer: Option<Vec<u8>>,
+    previous_buffer: Vec<CCell>,
+
+    output_buffer: Vec<u8>,
+    max_poll_input_buffer: u16
 }
 
 impl Talos {
@@ -33,45 +35,73 @@ impl Talos {
     }
 
     pub fn begin_frame(&mut self) {
-        if self.current_buffer.is_some() {
-            self.previous_buffer = self.current_buffer.take();
-        }
         self.canvas.clear();
     }
 
     pub fn present(&mut self) -> TalosResult<()> {
         // TODO: Intercept `SIGWINCH` and update terminal size
         
-        let mut buffer = Vec::new();
-        write!(buffer, "{}", TO_TOP_LEFT)?;
+        self.output_buffer.clear();
+
+        write!(self.output_buffer, "{}", TO_TOP_LEFT)?;
 
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
-                let ccell = self.canvas.get_ccell(x, y);
-                let styled_char = {
-                    // TODO: Add Style
-                    self.codex.resolve(ccell.char)
-                };
-                write!(buffer, "{}", styled_char)?;
-            }
-            write!(buffer, "\n")?;
-        }
+                let buffer_index = (x + y * self.size.0) as usize;
 
-        // if prev buffer is some, take the diff with current buffer and write only changed
-        // cells
-        //
-        // This is wrong, I can feel it
-        if let Some(prev_buffer) = self.previous_buffer.as_ref() {
-            let mut diff = Vec::new();
-            for i in 0..buffer.len() {
-                if prev_buffer[i] != buffer[i] {
-                    diff.push(buffer[i]);
+                if self.canvas.buffer[buffer_index] != self.previous_buffer[buffer_index] {
+                    // update cursor to current position
+                    write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
+                    let ccell = self.canvas.get_ccell(x, y);
+                    let styled_char = {
+                        // TODO: Add Style
+                        self.codex.resolve(ccell.char)
+                    };
+                    write!(self.output_buffer, "{}", styled_char)?;
                 }
             }
-            self.terminal.stdout().write(&diff)?;
         }
 
+        self.terminal.stdout().write_all(&self.output_buffer)?;
+        self.terminal.stdout().flush()?;
+
+        self.previous_buffer = self.canvas.buffer.clone();
+
         Ok(())
+    }
+
+    pub fn poll_input(&mut self) -> TalosResult<Option<Vec<u8>>> {
+        let mut buffer = [0u8; 32];
+
+        let read_bytes = match self.terminal.stdin().read(&mut buffer) {
+            Ok(0) => return Ok(None),
+            Ok(n) => n,
+            Err(e) => if e.kind() == std::io::ErrorKind::WouldBlock {
+                return Ok(None)
+            } else {
+                return Err(e.into())
+            }
+        };
+
+        if read_bytes <= buffer.len() {
+            return Ok(Some(buffer[0..read_bytes].to_vec()))
+        } else {
+            let mut large_input = Vec::with_capacity(256);
+            large_input.extend_from_slice(&buffer);
+
+            let mut large_buffer = [0u8; 128];
+
+            loop {
+                match self.terminal.stdin().read(&mut large_buffer) {
+                    Ok(0) => return Ok(Some(large_input)),
+                    Ok(n) => large_input.extend_from_slice(&large_buffer[0..n]),
+                    Err(e) => return Err(e.into())
+                }
+                if large_input.len() > self.max_poll_input_buffer as usize {
+                    return Ok(Some(large_input))
+                }
+            }
+        }
     }
 
     pub fn codex(&mut self) -> &mut Codex {
