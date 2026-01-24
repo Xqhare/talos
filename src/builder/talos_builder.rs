@@ -1,4 +1,4 @@
-use crate::{error::TalosResult, render::Canvas, terminal::term_io::TerminalIO, Talos};
+use crate::{error::TalosResult, render::{Canvas, Codex}, terminal::term_io::TerminalIO, Talos};
 
 pub struct TalosBuilder {
     hide_cursor: bool,
@@ -24,11 +24,13 @@ impl TalosBuilder {
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         let size = terminal.size()?;
+        let codex = Codex::new();
         
         Ok(Talos {
             terminal,
             canvas: Canvas::new(size.0, size.1),
             size,
+            codex,
             current_buffer: None,
             previous_buffer: None
         })
