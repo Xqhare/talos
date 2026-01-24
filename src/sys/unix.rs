@@ -35,7 +35,7 @@ pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> 
     }
 }
 
-pub fn drop_rawmode(fd_stdin: fd::RawFd, original_termios: &libc::termios) {
+pub fn disable_rawmode(fd_stdin: fd::RawFd, original_termios: &libc::termios) {
     unsafe {
         libc::tcsetattr(fd_stdin, libc::TCSAFLUSH, original_termios);
     }
