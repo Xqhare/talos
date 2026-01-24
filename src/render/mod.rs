@@ -1,9 +1,13 @@
+mod codex;
+pub use codex::Codex;
 
 mod canvas;
 pub use canvas::Canvas;
 
-mod cell;
-pub use cell::CCell;
+mod ccell;
+pub use ccell::CCell;
 
 mod style;
 pub use style::Style;
+
+pub type Glyph = u16;
