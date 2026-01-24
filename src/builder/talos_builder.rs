@@ -28,7 +28,7 @@ impl TalosBuilder {
         
         Ok(Talos {
             terminal,
-            canvas: Canvas::new(size.0, size.1),
+            canvas: Canvas::new(size.1, size.0),
             size,
             codex,
             current_buffer: None,
