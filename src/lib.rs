@@ -46,20 +46,27 @@ impl Talos {
 
         write!(self.output_buffer, "{}", TO_TOP_LEFT)?;
 
+        let mut prev_cell: u16 = 0;
+
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
                 let buffer_index = (x + y * self.size.0) as usize;
 
                 if self.canvas.buffer[buffer_index] != self.previous_buffer[buffer_index] {
-                    // update cursor to current position
-                    write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
                     let ccell = self.canvas.get_ccell(x, y);
                     let styled_char = {
                         // TODO: Add Style
                         self.codex.resolve(ccell.char)
                     };
-                    write!(self.output_buffer, "{}", styled_char)?;
+                    // update cursor to current position - check if prev cell
+                    // is to the left, if yes just write the char
+                    if x - prev_cell == 1 {
+                        write!(self.output_buffer, "{}", styled_char)?;
+                    } else {
+                        write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
+                    }
                 }
+                prev_cell = x;
             }
         }
 
@@ -79,6 +86,8 @@ impl Talos {
         Ok(())
     }
 
+    // TODO: Add input parser that converts the bytes to:
+    // `Event::Key(Key::UP)`, `Event::Char('a')`,
     pub fn poll_input(&mut self) -> TalosResult<Option<Vec<u8>>> {
         let _ = self.handle_signals()?;
         let mut buffer = [0u8; 32];
@@ -93,7 +102,7 @@ impl Talos {
             }
         };
 
-        if read_bytes <= buffer.len() {
+        if read_bytes < buffer.len() {
             return Ok(Some(buffer[0..read_bytes].to_vec()))
         } else {
             let mut large_input = Vec::with_capacity(256);
