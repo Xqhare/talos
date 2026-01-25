@@ -1,9 +1,10 @@
-use std::io::{Write, Read};
+use std::{io::{Read, Write}, os::fd::AsRawFd};
 
 use builder::TalosBuilder;
-use constants::ansi::TO_TOP_LEFT;
+use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
 use render::{CCell, Canvas, Codex};
+use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
 
 mod error;
@@ -39,7 +40,7 @@ impl Talos {
     }
 
     pub fn present(&mut self) -> TalosResult<()> {
-        // TODO: Intercept `SIGWINCH` and update terminal size
+        let _resized = self.handle_signals()?;
         
         self.output_buffer.clear();
 
@@ -62,6 +63,14 @@ impl Talos {
             }
         }
 
+        if self.handle_signals()? {
+            // Resized! - Just show one blank frame - should be imperceivable anyways
+            self.output_buffer.clear();
+            write!(self.terminal.stdout(), "{}", CLEAR_ALL)?;
+            self.terminal.stdout().flush()?;
+            return Ok(())
+        }
+
         self.terminal.stdout().write_all(&self.output_buffer)?;
         self.terminal.stdout().flush()?;
 
@@ -71,6 +80,7 @@ impl Talos {
     }
 
     pub fn poll_input(&mut self) -> TalosResult<Option<Vec<u8>>> {
+        let _ = self.handle_signals()?;
         let mut buffer = [0u8; 32];
 
         let read_bytes = match self.terminal.stdin().read(&mut buffer) {
@@ -106,5 +116,27 @@ impl Talos {
 
     pub fn codex(&mut self) -> &mut Codex {
         &mut self.codex
+    }
+
+    fn handle_signals(&mut self) -> TalosResult<bool> {
+        if check_terminate() {
+            // We need to shut down now - No state will be saved, just restore the terminal
+            self.terminal.restore()?;
+            return Ok(true)
+        }
+
+        if check_resize() {
+            let new_size = self.terminal.size()?;
+            self.size = new_size;
+
+            self.canvas = Canvas::new(self.size.0, self.size.1);
+            let len = (self.size.0 as usize) * (self.size.1 as usize);
+            self.previous_buffer = vec![CCell::default(); len];
+            self.output_buffer.clear();
+            self.output_buffer.reserve(len * 10);
+            return Ok(true);
+        }
+
+        Ok(false)
     }
 }

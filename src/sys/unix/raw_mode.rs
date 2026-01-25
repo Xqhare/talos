@@ -1,8 +1,6 @@
 
 use std::{io, mem, os::fd};
-
 use crate::error::TalosResult;
-
 
 pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> {
     unsafe {
@@ -42,15 +40,5 @@ pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> 
 pub fn disable_rawmode(fd_stdin: fd::RawFd, original_termios: &libc::termios) {
     unsafe {
         libc::tcsetattr(fd_stdin, libc::TCSAFLUSH, original_termios);
-    }
-}
-
-pub fn terminal_size(fd_stdout: fd::RawFd) -> TalosResult<(u16, u16)> {
-    unsafe {
-        let mut winsize: libc::winsize = mem::zeroed();
-        if libc::ioctl(fd_stdout, libc::TIOCGWINSZ, &mut winsize) == -1 {
-            return Err(io::Error::last_os_error().into())
-        }
-        Ok((winsize.ws_row, winsize.ws_col))
     }
 }

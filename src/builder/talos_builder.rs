@@ -1,6 +1,6 @@
 use std::u16;
 
-use crate::{error::TalosResult, render::{CCell, Canvas, Codex}, terminal::term_io::TerminalIO, Talos};
+use crate::{error::TalosResult, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos};
 
 pub struct TalosBuilder {
     hide_cursor: bool,
@@ -36,6 +36,7 @@ impl TalosBuilder {
     }
 
     pub fn build(self) -> TalosResult<Talos> {
+        register_signal_handlers()?;
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         let size = terminal.size()?;

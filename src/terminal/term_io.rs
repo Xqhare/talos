@@ -10,7 +10,7 @@ use super::raw_mode::RawMode;
 pub struct TerminalIO {
     stdin: io::Stdin,
     stdout: io::Stdout,
-    _raw_mode: RawMode,
+    raw_mode: RawMode,
 }
 
 impl TerminalIO {
@@ -37,8 +37,12 @@ impl TerminalIO {
         Ok(TerminalIO {
             stdin,
             stdout,
-            _raw_mode: raw_mode,
+            raw_mode: raw_mode,
         })
+    }
+
+    pub fn restore(&mut self) -> TalosResult<()> {
+        todo!("this")
     }
 
     pub fn stdin(&mut self) -> &mut io::Stdin {
