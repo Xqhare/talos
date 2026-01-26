@@ -49,7 +49,7 @@ impl Talos {
 
         write!(self.output_buffer, "{}", TO_TOP_LEFT)?;
 
-        let mut prev_cell: u16 = 0;
+        let mut prev_x_cell: u16 = 0;
 
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
@@ -57,19 +57,17 @@ impl Talos {
 
                 if self.canvas.buffer[buffer_index] != self.previous_buffer[buffer_index] {
                     let ccell = self.canvas.get_ccell(x, y);
-                    let styled_char = {
-                        // TODO: Add Style
-                        self.codex.resolve(ccell.char)
-                    };
-                    // update cursor to current position - check if prev cell
-                    // is to the left, if yes just write the char
-                    if x - prev_cell == 1 {
-                        write!(self.output_buffer, "{}", styled_char)?;
-                    } else {
+
+                    // Cursor handling
+                    if x - prev_x_cell != 1 {
                         write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
                     }
+                    
+                    // Write styled char
+                    ccell.style.generate(&mut self.output_buffer);
+                    write!(self.output_buffer, "{}", self.codex.resolve(ccell.char))?;
                 }
-                prev_cell = x;
+                prev_x_cell = x;
             }
         }
 
