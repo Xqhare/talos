@@ -6,6 +6,7 @@ pub struct TalosBuilder {
     hide_cursor: bool,
     alternate_screen: bool,
     max_poll_input_buffer: u16,
+    set_up_panic_handler: bool
 }
 
 impl Default for TalosBuilder {
@@ -14,6 +15,7 @@ impl Default for TalosBuilder {
             hide_cursor: true, 
             alternate_screen: true,
             max_poll_input_buffer: 4096,
+            set_up_panic_handler: true,
         }
     }
 }
@@ -35,8 +37,16 @@ impl TalosBuilder {
         self
     }
 
+    /// Disables the panic handler hook
+    pub fn without_panic_handler(mut self) -> Self {
+        self.set_up_panic_handler = false;
+        self
+    }
+
     pub fn build(self) -> TalosResult<Talos> {
-        register_signal_handlers()?;
+        if self.set_up_panic_handler {
+            register_signal_handlers()?;
+        }
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         let size = terminal.size()?;
