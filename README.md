@@ -6,6 +6,11 @@ It can be used to create a simple TUI for any kind of application.
 ## Naming
 In Greek mythology, `Talos`, was a giant automaton made of bronze to protect Europa in Crete from pirates and invaders. He circled the island's shores three times daily.
 
+## Motivation
+This project is educational in nature. I hope it may prove useful to myself in the future.\
+I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.\
+To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width`.
+
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
 
@@ -21,5 +26,9 @@ All constructions will be done using the builder pattern.
 
 The developer experience should be as simple, intuitive and fast as I can make it.
 
-UTF is not supported. Talos uses old school code pages. (Windows-1252, CP437).
+While Windows and Mac support are not planned at all, the architecture should be at least somewhat extendable if I ever change my mind.
+
+Talos emulates the use of old school code pages.
+Windows-1252 and CP437 by default.
 User can provide their own, but have to ensure that every displayed character has the same width of one. 
+This is done for simplicity in the code.
