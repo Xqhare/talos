@@ -29,45 +29,28 @@ impl Style {
     }
 
     /// Generates an ANSI control sequence from the style
-    pub fn generate(self) -> String {
-        let beginning = CONTROL_SEQUENCE_INTRO;
+    ///
+    /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
+    pub fn generate(self, output_buffer: &mut Vec<u8>) {
 
-        let fg = if let Some(fg) = self.fg {
-            Some(handle_fg(fg))
-        } else {
-            None
-        };
-        let bg = if let Some(bg) = self.bg {
-            Some(handle_bg(bg))  
-        } else {
-            None
-        };
-
-        let mut attrs = Vec::new();
-        if self.bold { attrs.push(1) }
-        if self.dim { attrs.push(2) }
-        if self.italic { attrs.push(3) }
-        if self.underline { attrs.push(4) }
-        if self.blink_slow { attrs.push(5) }
-        if self.reverse_colours { attrs.push(7) }
-        if self.hidden { attrs.push(8) }
-        if self.strikethrough { attrs.push(9) }
-
-        // Could this be done better? - Again a heap allocation of a string - this time im
-        // not sure if this is a problem or could be solved better
-        let mut result = String::from(beginning);
-        if let Some(fg) = fg {
-            result.push_str(&fg);
+        output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
+        if let Some(fg) = self.fg {
+            handle_fg(fg, output_buffer);
+            output_buffer.extend_from_slice(b";");
         }
-        if let Some(bg) = bg {
-            result.push_str(&bg);
+        if let Some(bg) = self.bg {
+            handle_bg(bg, output_buffer);
+            output_buffer.extend_from_slice(b";");
         }
-        if !attrs.is_empty() {
-            result.push_str(&format!(";{}", attrs.iter().map(|x| format!("{}", x)).collect::<Vec<String>>().join(";")));
-        }
-        result.push_str("m");
-
-        result
+        if self.bold { output_buffer.extend_from_slice(b"1;") }
+        if self.dim { output_buffer.extend_from_slice(b"2;") }
+        if self.italic { output_buffer.extend_from_slice(b"3;") }
+        if self.underline { output_buffer.extend_from_slice(b"4;") }
+        if self.blink_slow { output_buffer.extend_from_slice(b"5;") }
+        if self.reverse_colours { output_buffer.extend_from_slice(b"7;") }
+        if self.hidden { output_buffer.extend_from_slice(b"8;") }
+        if self.strikethrough { output_buffer.extend_from_slice(b"9;") }
+        output_buffer.extend_from_slice(b"m");
     }
 }
 
