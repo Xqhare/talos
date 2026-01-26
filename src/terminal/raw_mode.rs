@@ -1,5 +1,6 @@
 use std::os::fd;
 use std::sync::Once;
+use std::io::{Write};
 
 use crate::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
 use crate::error::TalosResult;
@@ -31,8 +32,10 @@ fn install_panic_hook() {
     INIT.call_once(|| {
         let def_hook = std::panic::take_hook();
         std::panic::set_hook(Box::new(move |info| {
-            let _ = print!("{}", EXIT_ALT_SCREEN);
-            let _ = print!("{}", SHOW_CURSOR);
+            let mut std_err = std::io::stderr();
+            let _ = std_err.write_all(EXIT_ALT_SCREEN.as_bytes());
+            let _ = std_err.write_all(SHOW_CURSOR.as_bytes());
+            let _ = std_err.flush();
             def_hook(info);
         }));
     });
