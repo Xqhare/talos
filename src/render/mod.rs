@@ -1,3 +1,6 @@
+mod colour;
+pub use colour::Colour;
+
 mod codex;
 pub use codex::Codex;
 
