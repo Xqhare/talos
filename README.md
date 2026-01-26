@@ -28,7 +28,7 @@ The developer experience should be as simple, intuitive and fast as I can make i
 
 While Windows and Mac support are not planned at all, the architecture should be at least somewhat extendable if I ever change my mind.
 
-Talos emulates the use of old school code pages.
+Talos emulates the use of old school code pages. While this decision has major downsides, it not only simplifies but also adds the weird flair each of my projects needs and is one of the core tenants of Talos.
 Windows-1252 and CP437 by default.
 User can provide their own, but have to ensure that every displayed character has the same width of one. 
 This is done for simplicity in the code.
