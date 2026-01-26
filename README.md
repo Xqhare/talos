@@ -32,3 +32,5 @@ Talos emulates the use of old school code pages. While this decision has major d
 Windows-1252 and CP437 by default.
 User can provide their own, but have to ensure that every displayed character has the same width of one. 
 This is done for simplicity in the code.
+
+Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
