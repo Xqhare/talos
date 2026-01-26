@@ -1,4 +1,4 @@
-use std::{io::{Read, Write}, os::fd::AsRawFd};
+use std::io::{Read, Write};
 
 use builder::TalosBuilder;
 use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
@@ -13,6 +13,9 @@ mod builder;
 mod render;
 mod constants;
 mod sys;
+
+pub use render::Colour;
+pub use render::Style;
 
 pub type Width = u16;
 pub type Height = u16;
