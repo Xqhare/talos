@@ -1,10 +1,6 @@
 
 use crate::{
-    Talos,
-    error::TalosResult,
-    render::{CCell, Canvas, Codex},
-    sys::register_signal_handlers,
-    terminal::term_io::TerminalIO,
+    error::TalosResult, input::Parser, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos
 };
 
 pub struct TalosBuilder {
@@ -79,6 +75,10 @@ impl TalosBuilder {
 
         let poll_input_buffer = vec![0u8; self.poll_input_buffer_size];
 
+        let event_buffer = Vec::with_capacity(self.poll_input_buffer_size);
+
+        let parser = Parser::new();
+
         Ok(Talos {
             terminal,
             canvas: Canvas::new(size.1, size.0),
@@ -89,6 +89,8 @@ impl TalosBuilder {
             max_poll_input_buffer: self.max_poll_input_buffer,
             buffer_linear_growth_step: self.buffer_linear_growth_step,
             poll_input_buffer,
+            event_buffer,
+            parser,
         })
     }
 }
