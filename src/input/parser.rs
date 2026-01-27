@@ -4,9 +4,14 @@ use std::str;
 
 // TODO: Rework - this is a mess of copied (how old school of me) and vibed code
 //
-// 1. Probably move to a buffer like for polling the bytes
+// 1. Probably move to a buffer like for polling the input bytes
 // 2. Do I need to add a better text handler? Passed in I get UTF-8 bytes, but internally I use
 //    Glyphs - do I convert here or check for validity or naw?
+// 3. A lot of if nesting -> State machine?
+//      - ANSI seems to follow a structure:
+//          - \x1b
+//          - [ or O
+//          - More specific chars
 pub fn parse_byte_stream(bytes: &[u8]) -> TalosResult<Vec<Event>> {
     let mut events = Vec::new();
     let mut i = 0;
