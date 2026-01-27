@@ -5,8 +5,8 @@ use std::str;
 // TODO: Rework - this is a mess of copied (how old school of me) and vibed code
 //
 // 1. Probably move to a buffer like for polling the bytes
-// 2. Do I need to add a better text handler? Passed in I get UTF-8 bytes, but internaly I use
-//    Glyphs - do I convert here?
+// 2. Do I need to add a better text handler? Passed in I get UTF-8 bytes, but internally I use
+//    Glyphs - do I convert here or check for validity or naw?
 pub fn parse_byte_stream(bytes: &[u8]) -> TalosResult<Vec<Event>> {
     let mut events = Vec::new();
     let mut i = 0;
@@ -44,7 +44,7 @@ pub fn parse_byte_stream(bytes: &[u8]) -> TalosResult<Vec<Event>> {
         }
 
         // Handle Control Characters (0x00 - 0x1F)
-        if byte < 32 {
+        if byte < 32 || byte == 127 {
             match byte {
                 // Signals
                 3 => events.push(Event::Signal(Signal::Interrupt)), // Ctrl+C
