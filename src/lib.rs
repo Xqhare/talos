@@ -1,8 +1,10 @@
-use std::io::{Read, Write};
+use std::io::Write;
 
 use builder::TalosBuilder;
 use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
+use input::poll_input_into_events;
+use input::Event;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
@@ -13,6 +15,7 @@ mod builder;
 mod render;
 mod constants;
 mod sys;
+mod input;
 
 pub use render::Colour;
 pub use render::Style;
@@ -87,45 +90,18 @@ impl Talos {
         Ok(())
     }
 
-    // TODO: Add input parser that converts the bytes to:
-    // `Event::Key(Key::UP)`, `Event::Char('a')`,
-    pub fn poll_input(&mut self) -> TalosResult<Option<Vec<u8>>> {
-        let _ = self.handle_signals()?;
-        let mut buffer = [0u8; 32];
-
-        let read_bytes = match self.terminal.stdin().read(&mut buffer) {
-            Ok(0) => return Ok(None),
-            Ok(n) => n,
-            Err(e) => if e.kind() == std::io::ErrorKind::WouldBlock {
-                return Ok(None)
-            } else {
-                return Err(e.into())
-            }
-        };
-
-        if read_bytes < buffer.len() {
-            return Ok(Some(buffer[0..read_bytes].to_vec()))
-        } else {
-            let mut large_input = Vec::with_capacity(256);
-            large_input.extend_from_slice(&buffer);
-
-            let mut large_buffer = [0u8; 128];
-
-            loop {
-                match self.terminal.stdin().read(&mut large_buffer) {
-                    Ok(0) => return Ok(Some(large_input)),
-                    Ok(n) => large_input.extend_from_slice(&large_buffer[0..n]),
-                    Err(e) => return Err(e.into())
-                }
-                if large_input.len() > self.max_poll_input_buffer as usize {
-                    return Ok(Some(large_input))
-                }
-            }
-        }
-    }
-
     pub fn codex(&mut self) -> &mut Codex {
         &mut self.codex
+    }
+
+    /// Returns all input events since the last call.
+    /// If there is no input, returns None.
+    ///
+    /// Eagerly evaluates all bytes read, and returns an `Event::Unknown` if
+    /// the bytes cannot be parsed.
+    pub fn poll_input(&mut self) -> TalosResult<Option<Vec<Event>>> {
+        let _ = self.handle_signals()?;
+        poll_input_into_events(&mut self.terminal.stdin(), self.max_poll_input_buffer)
     }
 
     fn handle_signals(&mut self) -> TalosResult<bool> {
