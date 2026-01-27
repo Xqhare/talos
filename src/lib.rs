@@ -111,20 +111,16 @@ impl Talos {
 
         self.event_buffer.clear();
 
-        if let Some(bytes) = self.input_bytes()? {
-            self.parser.parse(bytes, &mut self.event_buffer)?;
-        }
-
-        Ok(Some(self.event_buffer.as_slice()))
-    }
-
-    fn input_bytes(&mut self) -> TalosResult<Option<&[u8]>> {
-        poll_input_bytes(
+        if let Some(bytes) = poll_input_bytes(
             &mut self.terminal.stdin(),
             &mut self.poll_input_buffer,
             self.max_poll_input_buffer,
             self.buffer_linear_growth_step,
-        )
+        )? {
+            self.parser.parse(bytes, &mut self.event_buffer)?;
+        }
+
+        Ok(Some(self.event_buffer.as_slice()))
     }
 
     fn handle_signals(&mut self) -> TalosResult<bool> {
