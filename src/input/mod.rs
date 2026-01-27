@@ -1,24 +1,13 @@
 use std::{io::Read, cmp::min};
 
 mod event;
-pub use event::{Event, Key, Signal};
+pub use event::{Event, KeyEvent, KeyCode, KeyModifiers};
 mod parser;
-use parser::parse_byte_stream;
+pub use parser::Parser;
 
 use crate::error::TalosResult;
 
-pub fn poll_input_into_events<R: Read>(
-    std_in: &mut R,
-    poll_input_buffer: &mut Vec<u8>,
-    max_poll_input_buffer: usize,
-    buffer_linear_growth_step: usize
-) -> TalosResult<Option<Vec<Event>>> {
-    poll_input_bytes(std_in, poll_input_buffer, max_poll_input_buffer, buffer_linear_growth_step)?
-        .map(parse_byte_stream)
-        .transpose()
-}
-
-fn poll_input_bytes<'a, R: Read>(
+pub fn poll_input_bytes<'a, R: Read>(
     std_in: &mut R,
     poll_input_buffer: &'a mut Vec<u8>,
     max_poll_input_buffer: usize,
