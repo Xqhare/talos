@@ -35,6 +35,8 @@ This is done for simplicity in the code.
 
 Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
 
+Support for mouse input is planned at a much later - stable - state.
+
 ### Code Pages
 
 There are a total of 256 possible code pages. 2 are reserved for windows-1252 and cp437.
