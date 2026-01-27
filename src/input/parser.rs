@@ -1,167 +1,315 @@
 use crate::error::TalosResult;
-use super::{Event, Key, Signal};
-use std::str;
+use super::{Event, KeyEvent, KeyCode, KeyModifiers};
 
-// TODO: Rework - this is a mess of copied (how old school of me) and vibed code
-//
-// 1. Probably move to a buffer like for polling the input bytes
-// 2. Do I need to add a better text handler? Passed in I get UTF-8 bytes, but internally I use
-//    Glyphs - do I convert here or check for validity or naw?
-// 3. A lot of if nesting -> State machine?
-//      - ANSI seems to follow a structure:
-//          - \x1b
-//          - [ or O
-//          - More specific chars
-pub fn parse_byte_stream(bytes: &[u8]) -> TalosResult<Vec<Event>> {
-    let mut events = Vec::new();
-    let mut i = 0;
+/// A stateful parser that turns a stream of bytes into Input Events.
+///
+/// It maintains an internal buffer to handle cases where an escape sequence
+/// or multi-byte character is split across multiple `poll` calls.
+pub struct Parser {
+    /// Holds bytes that were read but not yet fully parsed.
+    pending_buffer: Vec<u8>,
+}
 
-    while i < bytes.len() {
-        let byte = bytes[i];
+impl Parser {
+    pub fn new() -> Self {
+        Self {
+            pending_buffer: Vec::with_capacity(32),
+        }
+    }
 
-        // Handle Escape Sequences (starting with \x1b)
+    /// Appends new bytes to the internal buffer and parses as many complete events as possible.
+    pub fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()> {
+        self.pending_buffer.extend_from_slice(new_bytes);
+
+        let mut bytes_consumed = 0;
+        let mut i = 0;
+
+        while i < self.pending_buffer.len() {
+            let slice = &self.pending_buffer[i..];
+
+            // 1. Try to parse a complete event from the current position
+            if let Some((event, len)) = self.try_parse_one(slice) {
+                if let Some(ev) = event {
+                    output.push(ev);
+                }
+                i += len;
+                bytes_consumed = i;
+            } else {
+                // 2. Check if we need to wait for more data
+                if self.is_potential_incomplete_sequence(slice) {
+                    break;
+                }
+
+                // 3. Unknown/Invalid byte. Consume to prevent infinite loops.
+                // We wrap it in Unknown so the user can see what's happening if needed.
+                output.push(Event::Unknown(vec![slice[0]]));
+                i += 1;
+                bytes_consumed = i;
+            }
+        }
+
+        // 4. Cleanup processed bytes
+        if bytes_consumed > 0 {
+            self.pending_buffer.drain(0..bytes_consumed);
+        }
+
+        Ok(())
+    }
+
+    /// Attempts to parse exactly one event from the front of the slice.
+    fn try_parse_one(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {
+        if slice.is_empty() {
+            return None;
+        }
+
+        let byte = slice[0];
+
+        // --- 1. Handle Escape Sequences (\x1b) ---
         if byte == 0x1B {
-            if i + 1 < bytes.len() {
-                let next = bytes[i + 1];
-                
-                // CSI Sequences: \x1b [ ...
-                if next == b'[' {
-                    if let Some((event, consumed)) = parse_csi(&bytes[i..]) {
-                        events.push(event);
-                        i += consumed;
-                        continue;
-                    }
-                }
-                // SS3 Sequences: \x1b O ... (often F1-F4)
-                else if next == b'O' {
-                     if let Some((event, consumed)) = parse_ss3(&bytes[i..]) {
-                        events.push(event);
-                        i += consumed;
-                        continue;
-                    }
-                }
+            if let Some(res) = self.parse_csi(slice) {
+                return Some(res);
             }
-            
-            // If strictly just \x1b or unknown sequence, treat as Esc key
-            events.push(Event::Key(Key::Esc));
-            i += 1;
-            continue;
+            if let Some(res) = self.parse_ss3(slice) {
+                return Some(res);
+            }
+
+            // Fallback: Just \x1b alone
+            if slice.len() == 1 {
+                return None; // Wait for potential following chars
+            }
+
+            // If we are here, it's \x1b followed by something that isn't [ or O.
+            // Treat strictly as Esc key.
+            return Some((
+                Some(Event::KeyEvent(KeyEvent::new(KeyCode::Esc, KeyModifiers::default()))),
+                1
+            ));
         }
 
-        // Handle Control Characters (0x00 - 0x1F)
+        // --- 2. Handle Control Characters (0x00 - 0x1F, 0x7F) ---
         if byte < 32 || byte == 127 {
-            match byte {
-                // Signals
-                3 => events.push(Event::Signal(Signal::Interrupt)), // Ctrl+C
-                26 => events.push(Event::Signal(Signal::Suspend)),  // Ctrl+Z
-                28 => events.push(Event::Signal(Signal::Quit)),     // Ctrl+\
-                
-                // Standard Control Keys
-                13 | 10 => events.push(Event::Key(Key::Enter)),     // CR or LF
-                127 | 8 => events.push(Event::Key(Key::Backspace)), // DEL or BS
-                9 => events.push(Event::Key(Key::Tab)),             // Tab
-                
-                _ => {} // Ignore other obscure control codes for now
+            let (code, modifiers) = match byte {
+                13 | 10 => (KeyCode::Enter, KeyModifiers::default()),
+                9 => (KeyCode::Tab, KeyModifiers::default()),
+                127 | 8 => (KeyCode::Backspace, KeyModifiers::default()),
+                // Map Ctrl+A (1) through Ctrl+Z (26)
+                1..=26 => {
+                    let ch = (byte + 96) as char; // 1 -> 'a', 3 -> 'c'
+                    (KeyCode::Char(ch), KeyModifiers { ctrl: true, ..KeyModifiers::default() })
+                },
+                // ESC (27) is handled above. 
+                // 0 and 28-31 are less standard, ignore or map to Unknown?
+                // For now, map to Unknown via the None return.
+                _ => return None, 
+            };
+            
+            // Fix "none" flag logic
+            let final_mods = sanitize_modifiers(modifiers);
+            return Some((Some(Event::KeyEvent(KeyEvent::new(code, final_mods))), 1));
+        }
+
+        // --- 3. Handle UTF-8 Characters ---
+        if let Some((ch, len)) = self.parse_utf8_char(slice) {
+            return Some((
+                Some(Event::KeyEvent(KeyEvent::new(KeyCode::Char(ch), KeyModifiers::default()))),
+                len
+            ));
+        }
+
+        None
+    }
+
+    /// Parses CSI (Control Sequence Introducer) sequences: `\x1b [ P1;P2... Final`
+    fn parse_csi(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {
+        if slice.len() < 2 || slice[0] != 0x1B || slice[1] != b'[' {
+            return None;
+        }
+
+        let mut idx = 2;
+        let mut params = Vec::new();
+        let mut current_param = 0u16;
+        let mut has_param = false;
+
+        // Parse Parameters
+        while idx < slice.len() {
+            let b = slice[idx];
+            match b {
+                b'0'..=b'9' => {
+                    current_param = current_param.saturating_mul(10).saturating_add((b - b'0') as u16);
+                    has_param = true;
+                }
+                b';' => {
+                    params.push(current_param);
+                    current_param = 0;
+                    has_param = false; 
+                }
+                0x30..=0x3F => { /* Intermediate bytes, ignore */ }
+                _ => break, // Reached final byte
             }
-            i += 1;
-            continue;
+            idx += 1;
         }
 
-        // UTF-8 input text
-        if let Some((ch, len)) = parse_utf8_char(&bytes[i..]) {
-            events.push(Event::Char(ch));
-            i += len;
-        } else {
-            i += 1;
+        if idx >= slice.len() {
+            return None; // Incomplete
         }
-    }
 
-    Ok(events)
-}
+        if has_param {
+            params.push(current_param);
+        }
 
-/// Parse "Control Sequence Introducer" (CSI) - \x1b[...
-fn parse_csi(slice: &[u8]) -> Option<(Event, usize)> {
-    // Minimal safety check: needs at least ESC + [ + Command
-    if slice.len() < 3 || slice[0] != 0x1B || slice[1] != b'[' { 
-        return None; 
-    }
+        let final_byte = slice[idx];
+        let consumed = idx + 1;
 
-    match slice[2] {
-        b'A' => return Some((Event::Key(Key::Up), 3)),
-        b'B' => return Some((Event::Key(Key::Down), 3)),
-        b'C' => return Some((Event::Key(Key::Right), 3)),
-        b'D' => return Some((Event::Key(Key::Left), 3)),
-        b'H' => return Some((Event::Key(Key::Home), 3)),
-        b'F' => return Some((Event::Key(Key::End), 3)),
-        _ => {}
-    }
+        // --- Determine Modifiers ---
+        // Defaults to 1 (None). 
+        // For Key sequences (A, B, etc): Modifiers are usually the 2nd param (index 1).
+        // For Tilde sequences (~): Modifiers are usually the 2nd param (index 1).
+        let modifier_param = if params.len() > 1 { params[1] } else { 1 };
+        let modifiers = parse_modifier_param(modifier_param);
 
-    // Handle Tilde Sequences: \x1b[<num>~ (Home, End, Del, PgUp...)
-    // Example: \x1b[3~ (Delete)
-    if let Some(tilde_pos) = slice.iter().position(|&b| b == b'~') {
-        let num_str = str::from_utf8(&slice[2..tilde_pos]).ok()?;
-        let num: u8 = num_str.parse().ok()?;
-        
-        let key = match num {
-            1 => Key::Home,
-            2 => Key::Insert,
-            3 => Key::Delete,
-            4 => Key::End,
-            5 => Key::PageUp,
-            6 => Key::PageDown,
-            // F-keys 1-12 often map to 11-24 with some gaps
-            11 => Key::F(1), 12 => Key::F(2), 13 => Key::F(3), 14 => Key::F(4),
-            15 => Key::F(5), 17 => Key::F(6), 18 => Key::F(7), 19 => Key::F(8),
-            20 => Key::F(9), 21 => Key::F(10), 23 => Key::F(11), 24 => Key::F(12),
-            _ => return None, 
+        // --- Determine Key Code ---
+        let key_code = match final_byte {
+            b'A' => Some(KeyCode::Up),
+            b'B' => Some(KeyCode::Down),
+            b'C' => Some(KeyCode::Right),
+            b'D' => Some(KeyCode::Left),
+            b'H' => Some(KeyCode::Home),
+            b'F' => Some(KeyCode::End),
+            b'Z' => {
+                 // \x1b[Z is Shift+Tab
+                 return Some((
+                     Some(Event::KeyEvent(KeyEvent::new(KeyCode::Tab, KeyModifiers { shift: true, none: false, ctrl: false, alt: false }))), 
+                     consumed
+                 ));
+            },
+            b'~' => {
+                // Tilde sequences: First param is the key ID
+                let id = params.first().copied().unwrap_or(0);
+                match id {
+                    1 => Some(KeyCode::Home),
+                    2 => Some(KeyCode::Insert),
+                    3 => Some(KeyCode::Delete),
+                    4 => Some(KeyCode::End),
+                    5 => Some(KeyCode::PageUp),
+                    6 => Some(KeyCode::PageDown),
+                    11 => Some(KeyCode::F(1)), 12 => Some(KeyCode::F(2)),
+                    13 => Some(KeyCode::F(3)), 14 => Some(KeyCode::F(4)),
+                    15 => Some(KeyCode::F(5)), 17 => Some(KeyCode::F(6)),
+                    18 => Some(KeyCode::F(7)), 19 => Some(KeyCode::F(8)),
+                    20 => Some(KeyCode::F(9)), 21 => Some(KeyCode::F(10)),
+                    23 => Some(KeyCode::F(11)), 24 => Some(KeyCode::F(12)),
+                    _ => None,
+                }
+            }
+            _ => None,
         };
-        
-        return Some((Event::Key(key), tilde_pos + 1));
+
+        if let Some(code) = key_code {
+            Some((Some(Event::KeyEvent(KeyEvent::new(code, modifiers))), consumed))
+        } else {
+            // Valid CSI but unknown key
+            Some((Some(Event::Unknown(slice[0..consumed].to_vec())), consumed))
+        }
     }
 
-    None
+    /// Parses SS3 sequences: `\x1b O Final` (Simple F1-F4 usually)
+    fn parse_ss3(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {
+        if slice.len() < 3 || slice[0] != 0x1B || slice[1] != b'O' {
+            if slice.len() < 3 && slice.starts_with(&[0x1B, b'O']) {
+                return None; 
+            }
+            return None;
+        }
+
+        let key = match slice[2] {
+            b'P' => Some(KeyCode::F(1)),
+            b'Q' => Some(KeyCode::F(2)),
+            b'R' => Some(KeyCode::F(3)),
+            b'S' => Some(KeyCode::F(4)),
+            _ => None,
+        };
+
+        if let Some(k) = key {
+            Some((Some(Event::KeyEvent(KeyEvent::new(k, KeyModifiers::default()))), 3))
+        } else {
+            Some((Some(Event::Unknown(slice[0..3].to_vec())), 3))
+        }
+    }
+
+    fn parse_utf8_char(&self, slice: &[u8]) -> Option<(char, usize)> {
+        if slice.is_empty() { return None; }
+
+        let first = slice[0];
+        let len = match first {
+            0x00..=0x7F => 1,
+            0xC0..=0xDF => 2,
+            0xE0..=0xEF => 3,
+            0xF0..=0xF7 => 4,
+            _ => return None,
+        };
+
+        if slice.len() < len {
+            return None;
+        }
+
+        match str::from_utf8(&slice[..len]) {
+            Ok(s) => Some((s.chars().next().unwrap(), len)),
+            Err(_) => None, 
+        }
+    }
+
+    fn is_potential_incomplete_sequence(&self, slice: &[u8]) -> bool {
+        if slice.is_empty() { return false; }
+        let b = slice[0];
+
+        // Escape Sequence?
+        if b == 0x1B { return true; }
+
+        // UTF-8 Start Byte?
+        if (b & 0xE0) == 0xC0 || (b & 0xF0) == 0xE0 || (b & 0xF8) == 0xF0 {
+            let len = match b {
+                0xC0..=0xDF => 2,
+                0xE0..=0xEF => 3,
+                0xF0..=0xF7 => 4,
+                _ => 1,
+            };
+            if slice.len() < len { return true; }
+        }
+
+        false
+    }
 }
 
-/// Parse "Single Shift Select 3" (SS3) - \x1bO...
-fn parse_ss3(slice: &[u8]) -> Option<(Event, usize)> {
-    if slice.len() < 3 || slice[0] != 0x1B || slice[1] != b'O' { 
-        return None; 
+// --- Helpers ---
+
+fn sanitize_modifiers(mods: KeyModifiers) -> KeyModifiers {
+    let mut m = mods;
+    if m.shift || m.ctrl || m.alt {
+        m.none = false;
+    } else {
+        m.none = true;
     }
-
-    let key = match slice[2] {
-        b'P' => Key::F(1),
-        b'Q' => Key::F(2),
-        b'R' => Key::F(3),
-        b'S' => Key::F(4),
-        _ => return None,
-    };
-
-    Some((Event::Key(key), 3))
+    m
 }
 
-/// Helper to pull one valid char off the front of a byte slice
-/// Eagerly determines UTF-8 length using leading bits
-/// Not guaranteed to be character - but at least its a valid utf8 byte
-fn parse_utf8_char(slice: &[u8]) -> Option<(char, usize)> {
-    if slice.is_empty() { return None; }
-
-    let first = slice[0];
-    
-    // Determine UTF-8 length
-    let len = match first.leading_ones() {
-        0 => 1,
-        2 => 2,
-        3 => 3,
-        4 => 4,
-        _ => return None, // Invalid UTF-8 - not a char!
+fn parse_modifier_param(param: u16) -> KeyModifiers {
+    // Standard Xterm modifiers:
+    // 2: Shift, 3: Alt, 4: Shift+Alt, 5: Ctrl, 6: Shift+Ctrl, 7: Alt+Ctrl, 8: S+A+C
+    let (shift, alt, ctrl) = match param {
+        2 => (true, false, false),
+        3 => (false, true, false),
+        4 => (true, true, false),
+        5 => (false, false, true),
+        6 => (true, false, true),
+        7 => (false, true, true),
+        8 => (true, true, true),
+        _ => (false, false, false),
     };
 
-    if slice.len() < len {
-        return None; 
-    }
-
-    match str::from_utf8(&slice[..len]) {
-        Ok(s) => Some((s.chars().next()?, len)),
-        Err(_) => None,
+    KeyModifiers {
+        none: !shift && !alt && !ctrl,
+        shift,
+        alt,
+        ctrl,
     }
 }
