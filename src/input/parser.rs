@@ -6,7 +6,6 @@ use super::{Event, KeyEvent, KeyCode, KeyModifiers};
 /// It maintains an internal buffer to handle cases where an escape sequence
 /// or multi-byte character is split across multiple `poll` calls.
 pub struct Parser {
-    /// Holds bytes that were read but not yet fully parsed.
     pending_buffer: Vec<u8>,
 }
 
@@ -27,7 +26,6 @@ impl Parser {
         while i < self.pending_buffer.len() {
             let slice = &self.pending_buffer[i..];
 
-            // 1. Try to parse a complete event from the current position
             if let Some((event, len)) = self.try_parse_one(slice) {
                 if let Some(ev) = event {
                     output.push(ev);
@@ -35,7 +33,6 @@ impl Parser {
                 i += len;
                 bytes_consumed = i;
             } else {
-                // 2. Check if we need to wait for more data
                 if self.is_potential_incomplete_sequence(slice) {
                     break;
                 }
@@ -48,7 +45,6 @@ impl Parser {
             }
         }
 
-        // 4. Cleanup processed bytes
         if bytes_consumed > 0 {
             self.pending_buffer.drain(0..bytes_consumed);
         }
@@ -64,7 +60,6 @@ impl Parser {
 
         let byte = slice[0];
 
-        // --- 1. Handle Escape Sequences (\x1b) ---
         if byte == 0x1B {
             if let Some(res) = self.parse_csi(slice) {
                 return Some(res);
@@ -86,7 +81,6 @@ impl Parser {
             ));
         }
 
-        // --- 2. Handle Control Characters (0x00 - 0x1F, 0x7F) ---
         if byte < 32 || byte == 127 {
             let (code, modifiers) = match byte {
                 13 | 10 => (KeyCode::Enter, KeyModifiers::default()),
@@ -94,7 +88,7 @@ impl Parser {
                 127 | 8 => (KeyCode::Backspace, KeyModifiers::default()),
                 // Map Ctrl+A (1) through Ctrl+Z (26)
                 1..=26 => {
-                    let ch = (byte + 96) as char; // 1 -> 'a', 3 -> 'c'
+                    let ch = (byte + 96u8) as char; // 1 -> 'a', 3 -> 'c'
                     (KeyCode::Char(ch), KeyModifiers { ctrl: true, ..KeyModifiers::default() })
                 },
                 // ESC (27) is handled above. 
@@ -103,12 +97,10 @@ impl Parser {
                 _ => return None, 
             };
             
-            // Fix "none" flag logic
             let final_mods = sanitize_modifiers(modifiers);
             return Some((Some(Event::KeyEvent(KeyEvent::new(code, final_mods))), 1));
         }
 
-        // --- 3. Handle UTF-8 Characters ---
         if let Some((ch, len)) = self.parse_utf8_char(slice) {
             return Some((
                 Some(Event::KeyEvent(KeyEvent::new(KeyCode::Char(ch), KeyModifiers::default()))),
@@ -119,7 +111,6 @@ impl Parser {
         None
     }
 
-    /// Parses CSI (Control Sequence Introducer) sequences: `\x1b [ P1;P2... Final`
     fn parse_csi(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {
         if slice.len() < 2 || slice[0] != 0x1B || slice[1] != b'[' {
             return None;
@@ -160,14 +151,9 @@ impl Parser {
         let final_byte = slice[idx];
         let consumed = idx + 1;
 
-        // --- Determine Modifiers ---
-        // Defaults to 1 (None). 
-        // For Key sequences (A, B, etc): Modifiers are usually the 2nd param (index 1).
-        // For Tilde sequences (~): Modifiers are usually the 2nd param (index 1).
         let modifier_param = if params.len() > 1 { params[1] } else { 1 };
         let modifiers = parse_modifier_param(modifier_param);
 
-        // --- Determine Key Code ---
         let key_code = match final_byte {
             b'A' => Some(KeyCode::Up),
             b'B' => Some(KeyCode::Down),
@@ -176,14 +162,12 @@ impl Parser {
             b'H' => Some(KeyCode::Home),
             b'F' => Some(KeyCode::End),
             b'Z' => {
-                 // \x1b[Z is Shift+Tab
                  return Some((
                      Some(Event::KeyEvent(KeyEvent::new(KeyCode::Tab, KeyModifiers { shift: true, none: false, ctrl: false, alt: false }))), 
                      consumed
                  ));
             },
             b'~' => {
-                // Tilde sequences: First param is the key ID
                 let id = params.first().copied().unwrap_or(0);
                 match id {
                     1 => Some(KeyCode::Home),
@@ -212,7 +196,6 @@ impl Parser {
         }
     }
 
-    /// Parses SS3 sequences: `\x1b O Final` (Simple F1-F4 usually)
     fn parse_ss3(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {
         if slice.len() < 3 || slice[0] != 0x1B || slice[1] != b'O' {
             if slice.len() < 3 && slice.starts_with(&[0x1B, b'O']) {
@@ -279,8 +262,6 @@ impl Parser {
         false
     }
 }
-
-// --- Helpers ---
 
 fn sanitize_modifiers(mods: KeyModifiers) -> KeyModifiers {
     let mut m = mods;
