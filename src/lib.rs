@@ -33,7 +33,11 @@ pub struct Talos {
     previous_buffer: Vec<CCell>,
 
     output_buffer: Vec<u8>,
-    max_poll_input_buffer: u16,
+
+    // Input - TODO: Move into separate struct
+    poll_input_buffer: Vec<u8>,
+    buffer_linear_growth_step: usize,
+    max_poll_input_buffer: usize,
 }
 
 impl Talos {
@@ -101,7 +105,7 @@ impl Talos {
     /// the bytes cannot be parsed.
     pub fn poll_input(&mut self) -> TalosResult<Option<Vec<Event>>> {
         let _ = self.handle_signals()?;
-        poll_input_into_events(&mut self.terminal.stdin(), self.max_poll_input_buffer)
+        poll_input_into_events(&mut self.terminal.stdin(), &mut self.poll_input_buffer, self.max_poll_input_buffer, self.buffer_linear_growth_step)
     }
 
     fn handle_signals(&mut self) -> TalosResult<bool> {
