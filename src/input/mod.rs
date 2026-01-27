@@ -1,7 +1,7 @@
 use std::{io::{Read, Stdin}, cmp::min};
 
 mod event;
-pub use event::Event;
+pub use event::{Event, Key, Signal};
 mod parser;
 use parser::parse_byte_stream;
 
@@ -14,7 +14,6 @@ pub fn poll_input_into_events(
     buffer_linear_growth_step: usize
 ) -> TalosResult<Option<Vec<Event>>> {
     poll_input_bytes(std_in, poll_input_buffer, max_poll_input_buffer, buffer_linear_growth_step)?
-        .as_deref()
         .map(parse_byte_stream)
         .transpose()
 }
@@ -37,13 +36,13 @@ fn poll_input_bytes<'a>(
                 break;
             }
 
-            let growth = if current_len < buffer_linear_growth_step {
+            let new_len = if current_len < buffer_linear_growth_step {
                 if current_len == 0 { 32 } else { current_len.saturating_mul(2) }
             } else {
                 buffer_linear_growth_step
             };
 
-            let target_len = current_len.saturating_add(growth);
+            let target_len = new_len;
             let capped_len = min(target_len, max_poll_input_buffer as usize);
 
             if capped_len == current_len {
