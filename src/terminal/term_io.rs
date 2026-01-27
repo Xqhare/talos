@@ -1,8 +1,10 @@
+use crate::error::TalosResult;
 use std::io::{self, Write};
 use std::os::fd::AsRawFd;
-use crate::error::TalosResult;
 
-use crate::constants::ansi::{CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT};
+use crate::constants::ansi::{
+    CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT,
+};
 use crate::sys::terminal_size;
 
 use super::raw_mode::RawMode;
@@ -15,13 +17,12 @@ pub struct TerminalIO {
 
 impl TerminalIO {
     pub fn new(hide_cursor: bool, alternate_screen: bool) -> TalosResult<TerminalIO> {
-
         let stdin = io::stdin();
         let mut stdout = io::stdout();
 
         let raw_mode = RawMode::enable(stdin.as_raw_fd())?;
 
-        // Enter Alternate Screen 
+        // Enter Alternate Screen
         // Clear Screen & Home Cursor
         // Hide Cursor
         if alternate_screen {
@@ -87,4 +88,3 @@ impl Write for TerminalIO {
         self.stdout.flush()
     }
 }
-

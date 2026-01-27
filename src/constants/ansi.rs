@@ -1,4 +1,3 @@
-
 pub const CONTROL_SEQUENCE_INTRO: &str = "\x1B[";
 
 pub const CLEAR_ALL: &str = "\x1b[2J";

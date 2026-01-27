@@ -1,4 +1,3 @@
-
 pub type TalosResult<T> = std::result::Result<T, TalosError>;
 
 #[derive(Debug)]

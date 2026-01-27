@@ -1,4 +1,3 @@
-
 pub const FG_PRE_DIGIT_NORMAL: u8 = 3;
 pub const FG_PRE_DIGIT_BRIGHT: u8 = 9;
 
@@ -9,7 +8,7 @@ pub const BG_PRE_DIGIT_BRIGHT: u8 = 10;
 pub enum Colour {
     Normal(Normal),
     Bright(Bright),
-    Extended(Extended)
+    Extended(Extended),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -21,7 +20,7 @@ pub enum Normal {
     Blue,
     Magenta,
     Cyan,
-    White
+    White,
 }
 
 impl Normal {
@@ -34,7 +33,7 @@ impl Normal {
             Normal::Blue => 4,
             Normal::Magenta => 5,
             Normal::Cyan => 6,
-            Normal::White => 7
+            Normal::White => 7,
         }
     }
 }
@@ -48,7 +47,7 @@ pub enum Bright {
     Blue,
     Magenta,
     Cyan,
-    White
+    White,
 }
 
 impl Bright {
@@ -61,7 +60,7 @@ impl Bright {
             Bright::Blue => 4,
             Bright::Magenta => 5,
             Bright::Cyan => 6,
-            Bright::White => 7
+            Bright::White => 7,
         }
     }
 }
@@ -84,7 +83,7 @@ pub enum ColourMode {
 impl ColourMode {
     pub fn decode(self) -> u8 {
         match self {
-            ColourMode::RgbBit(n) => n
+            ColourMode::RgbBit(n) => n,
         }
     }
 }
@@ -93,13 +92,13 @@ pub const TRUE_COLOURMODE_SIGNAL_BIT: u8 = 2;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TrueColour {
-    RGB(u8, u8, u8)
+    RGB(u8, u8, u8),
 }
 
 impl TrueColour {
     pub fn decode(self) -> (u8, u8, u8) {
         match self {
-            TrueColour::RGB(r, g, b) => (r, g, b)
+            TrueColour::RGB(r, g, b) => (r, g, b),
         }
     }
 }

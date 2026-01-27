@@ -1,4 +1,3 @@
-
 use super::CCell;
 
 pub struct Canvas {
@@ -16,7 +15,7 @@ impl Canvas {
             height,
         }
     }
-    
+
     pub fn clear(&mut self) {
         self.buffer = make_default_buffer(self.width, self.height);
     }

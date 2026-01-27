@@ -1,9 +1,13 @@
 use std::collections::HashMap;
 
-use crate::{constants::pages::{validate_page, Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH}, error::{TalosError, TalosResult}};
+use crate::{
+    constants::pages::{
+        Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, validate_page,
+    },
+    error::{TalosError, TalosResult},
+};
 
 use super::Glyph;
-
 
 pub struct Codex {
     pages: Vec<Option<&'static Page>>,
@@ -22,8 +26,12 @@ impl Codex {
 
         // ONLY these pages should be registered at startup - all others will be on the
         // users request
-        codex.register_page(REG_WIN_1252.0, REG_WIN_1252.1).expect("Page ID must be free during init");
-        codex.register_page(REG_CP437.0, REG_CP437.1).expect("Page ID must be free during init");
+        codex
+            .register_page(REG_WIN_1252.0, REG_WIN_1252.1)
+            .expect("Page ID must be free during init");
+        codex
+            .register_page(REG_CP437.0, REG_CP437.1)
+            .expect("Page ID must be free during init");
 
         codex
     }
@@ -52,7 +60,10 @@ impl Codex {
     }
 
     pub fn lookup(&self, ch: char) -> Glyph {
-        self.reverse_map.get(&ch).copied().unwrap_or(UNKNOWN_CHAR_GLYPH)
+        self.reverse_map
+            .get(&ch)
+            .copied()
+            .unwrap_or(UNKNOWN_CHAR_GLYPH)
     }
 
     fn update_cache(&mut self, id: u8, page: &'static Page) {

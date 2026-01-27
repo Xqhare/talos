@@ -1,18 +1,24 @@
 use std::u16;
 
-use crate::{error::TalosResult, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos};
+use crate::{
+    Talos,
+    error::TalosResult,
+    render::{CCell, Canvas, Codex},
+    sys::register_signal_handlers,
+    terminal::term_io::TerminalIO,
+};
 
 pub struct TalosBuilder {
     hide_cursor: bool,
     alternate_screen: bool,
     max_poll_input_buffer: u16,
-    set_up_panic_handler: bool
+    set_up_panic_handler: bool,
 }
 
 impl Default for TalosBuilder {
     fn default() -> Self {
-        Self { 
-            hide_cursor: true, 
+        Self {
+            hide_cursor: true,
             alternate_screen: true,
             max_poll_input_buffer: 4096,
             set_up_panic_handler: true,
@@ -57,7 +63,7 @@ impl TalosBuilder {
         // 10 bytes per cell may seem overkill, with a lot of styling bytes this may not
         //    even be enough!
         let output_buffer = Vec::with_capacity(buffer_size * 10);
-        
+
         Ok(Talos {
             terminal,
             canvas: Canvas::new(size.1, size.0),
@@ -65,7 +71,7 @@ impl TalosBuilder {
             codex,
             previous_buffer,
             output_buffer,
-            max_poll_input_buffer: self.max_poll_input_buffer
+            max_poll_input_buffer: self.max_poll_input_buffer,
         })
     }
 }

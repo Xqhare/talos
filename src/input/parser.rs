@@ -1,3 +1,5 @@
+use crate::error::TalosResult;
+
 use super::Event;
 
 // TODO: Add input parser that converts the bytes to:

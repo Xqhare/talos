@@ -1,8 +1,6 @@
-
 use crate::constants::pages::SPACE_GLYPH;
 
 use super::{Glyph, Style};
-
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CCell {
@@ -12,6 +10,9 @@ pub struct CCell {
 
 impl Default for CCell {
     fn default() -> Self {
-        Self { char: SPACE_GLYPH, style: Style::default() }
+        Self {
+            char: SPACE_GLYPH,
+            style: Style::default(),
+        }
     }
 }

@@ -3,19 +3,19 @@ use std::io::Write;
 use builder::TalosBuilder;
 use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
-use input::poll_input_into_events;
 use input::Event;
+use input::poll_input_into_events;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
 
-mod error;
-mod terminal;
 mod builder;
-mod render;
 mod constants;
-mod sys;
+mod error;
 mod input;
+mod render;
+mod sys;
+mod terminal;
 
 pub use render::Colour;
 pub use render::Style;
@@ -33,7 +33,7 @@ pub struct Talos {
     previous_buffer: Vec<CCell>,
 
     output_buffer: Vec<u8>,
-    max_poll_input_buffer: u16
+    max_poll_input_buffer: u16,
 }
 
 impl Talos {
@@ -47,7 +47,7 @@ impl Talos {
 
     pub fn present(&mut self) -> TalosResult<()> {
         let _resized = self.handle_signals()?;
-        
+
         self.output_buffer.clear();
 
         write!(self.output_buffer, "{}", TO_TOP_LEFT)?;
@@ -65,7 +65,7 @@ impl Talos {
                     if x - prev_x_cell != 1 {
                         write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
                     }
-                    
+
                     // Write styled char
                     ccell.style.generate(&mut self.output_buffer);
                     write!(self.output_buffer, "{}", self.codex.resolve(ccell.char))?;
@@ -79,7 +79,7 @@ impl Talos {
             self.output_buffer.clear();
             write!(self.terminal.stdout(), "{}", CLEAR_ALL)?;
             self.terminal.stdout().flush()?;
-            return Ok(())
+            return Ok(());
         }
 
         self.terminal.stdout().write_all(&self.output_buffer)?;
@@ -108,7 +108,7 @@ impl Talos {
         if check_terminate() {
             // We need to shut down now - No state will be saved, just restore the terminal
             self.terminal.restore()?;
-            return Ok(true)
+            return Ok(true);
         }
 
         if check_resize() {

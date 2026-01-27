@@ -1,7 +1,6 @@
-
+use crate::error::TalosResult;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::{io, mem, ptr};
-use crate::error::TalosResult;
 
 static RESIZE_NEEDED: AtomicBool = AtomicBool::new(false);
 static TERMINATE_NEEDED: AtomicBool = AtomicBool::new(false);
@@ -25,7 +24,7 @@ pub fn register_signal_handlers() -> TalosResult<()> {
         if libc::sigaction(libc::SIGWINCH, &sa, ptr::null_mut()) == -1 {
             return Err(io::Error::last_os_error().into());
         }
-        
+
         // Register SIGTERM (Kill request)
         if libc::sigaction(libc::SIGTERM, &sa, ptr::null_mut()) == -1 {
             return Err(io::Error::last_os_error().into());

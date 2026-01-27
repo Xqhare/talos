@@ -32,7 +32,6 @@ impl Style {
     ///
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
     pub fn generate(self, output_buffer: &mut Vec<u8>) {
-
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
         if let Some(fg) = self.fg {
             handle_fg(fg, output_buffer);
@@ -42,14 +41,30 @@ impl Style {
             handle_bg(bg, output_buffer);
             output_buffer.extend_from_slice(b";");
         }
-        if self.bold { output_buffer.extend_from_slice(b"1;") }
-        if self.dim { output_buffer.extend_from_slice(b"2;") }
-        if self.italic { output_buffer.extend_from_slice(b"3;") }
-        if self.underline { output_buffer.extend_from_slice(b"4;") }
-        if self.blink_slow { output_buffer.extend_from_slice(b"5;") }
-        if self.reverse_colours { output_buffer.extend_from_slice(b"7;") }
-        if self.hidden { output_buffer.extend_from_slice(b"8;") }
-        if self.strikethrough { output_buffer.extend_from_slice(b"9;") }
+        if self.bold {
+            output_buffer.extend_from_slice(b"1;")
+        }
+        if self.dim {
+            output_buffer.extend_from_slice(b"2;")
+        }
+        if self.italic {
+            output_buffer.extend_from_slice(b"3;")
+        }
+        if self.underline {
+            output_buffer.extend_from_slice(b"4;")
+        }
+        if self.blink_slow {
+            output_buffer.extend_from_slice(b"5;")
+        }
+        if self.reverse_colours {
+            output_buffer.extend_from_slice(b"7;")
+        }
+        if self.hidden {
+            output_buffer.extend_from_slice(b"8;")
+        }
+        if self.strikethrough {
+            output_buffer.extend_from_slice(b"9;")
+        }
         output_buffer.extend_from_slice(b"m");
     }
 }

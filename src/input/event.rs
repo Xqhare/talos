@@ -1,3 +1,4 @@
+// TODO: Only stubs for now - Will be expanded later
 
 pub enum Event {
     Key(Key),
@@ -6,10 +7,6 @@ pub enum Event {
     Unknown,
 }
 
-pub enum Key {
-    
-}
+pub enum Key {}
 
-pub enum Signal {
-
-}
+pub enum Signal {}

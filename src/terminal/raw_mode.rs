@@ -1,6 +1,6 @@
+use std::io::Write;
 use std::os::fd;
 use std::sync::Once;
-use std::io::{Write};
 
 use crate::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
 use crate::error::TalosResult;
@@ -16,7 +16,10 @@ impl RawMode {
         // Install panic hook - ALWAYS CALL BEFORE `enable_rawmode`
         install_panic_hook();
         let (original_termios, fd_stdin) = enable_raw_mode(fd_stdin)?;
-        Ok(RawMode { original_termios, fd_stdin })
+        Ok(RawMode {
+            original_termios,
+            fd_stdin,
+        })
     }
 }
 
