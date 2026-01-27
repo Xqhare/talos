@@ -1,12 +1,33 @@
-// TODO: Only stubs for now - Will be expanded later
-
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Event {
     Key(Key),
     Char(char),
     Signal(Signal),
-    Unknown,
+    Unknown(Vec<u8>), // Useful for debugging weird sequences
 }
 
-pub enum Key {}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Key {
+    Esc,
+    Enter,
+    Backspace,
+    Tab,
+    Up,
+    Down,
+    Left,
+    Right,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Delete,
+    Insert,
+    F(u8), // F1 - F12
+}
 
-pub enum Signal {}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Signal {
+    Interrupt, // Ctrl+C
+    Quit,      // Ctrl+\
+    Suspend,   // Ctrl+Z
+}
