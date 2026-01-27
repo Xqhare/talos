@@ -4,7 +4,8 @@ use builder::TalosBuilder;
 use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
 use input::Event;
-use input::poll_input_into_events;
+use input::poll_input_bytes;
+use input::Parser;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
@@ -35,6 +36,8 @@ pub struct Talos {
     output_buffer: Vec<u8>,
 
     // Input - TODO: Move into separate struct
+    parser: Parser,
+    event_buffer: Vec<Event>,
     poll_input_buffer: Vec<u8>,
     buffer_linear_growth_step: usize,
     max_poll_input_buffer: usize,
@@ -103,9 +106,25 @@ impl Talos {
     ///
     /// Eagerly evaluates all bytes read, and returns an `Event::Unknown` if
     /// the bytes cannot be parsed.
-    pub fn poll_input(&mut self) -> TalosResult<Option<Vec<Event>>> {
+    pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
         let _ = self.handle_signals()?;
-        poll_input_into_events(&mut self.terminal.stdin(), &mut self.poll_input_buffer, self.max_poll_input_buffer, self.buffer_linear_growth_step)
+
+        self.event_buffer.clear();
+
+        if let Some(bytes) = self.input_bytes()? {
+            self.parser.parse(bytes, &mut self.event_buffer)?;
+        }
+
+        Ok(Some(self.event_buffer.as_slice()))
+    }
+
+    fn input_bytes(&mut self) -> TalosResult<Option<&[u8]>> {
+        poll_input_bytes(
+            &mut self.terminal.stdin(),
+            &mut self.poll_input_buffer,
+            self.max_poll_input_buffer,
+            self.buffer_linear_growth_step,
+        )
     }
 
     fn handle_signals(&mut self) -> TalosResult<bool> {
