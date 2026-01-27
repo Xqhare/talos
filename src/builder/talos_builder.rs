@@ -1,4 +1,3 @@
-use std::u16;
 
 use crate::{
     Talos,
@@ -11,7 +10,9 @@ use crate::{
 pub struct TalosBuilder {
     hide_cursor: bool,
     alternate_screen: bool,
-    max_poll_input_buffer: u16,
+    max_poll_input_buffer: usize,
+    poll_input_buffer_size: usize,
+    buffer_linear_growth_step: usize,
     set_up_panic_handler: bool,
 }
 
@@ -20,8 +21,10 @@ impl Default for TalosBuilder {
         Self {
             hide_cursor: true,
             alternate_screen: true,
-            max_poll_input_buffer: 4096,
+            max_poll_input_buffer: 1024 * 1024,
             set_up_panic_handler: true,
+            poll_input_buffer_size: 512,
+            buffer_linear_growth_step: 4096,
         }
     }
 }
@@ -38,7 +41,7 @@ impl TalosBuilder {
     }
 
     /// The default supports 4kb of input per frame
-    pub fn with_max_poll_input_buffer(mut self, max_poll_input_buffer: u16) -> Self {
+    pub fn with_max_poll_input_buffer(mut self, max_poll_input_buffer: usize) -> Self {
         self.max_poll_input_buffer = max_poll_input_buffer;
         self
     }
@@ -46,6 +49,16 @@ impl TalosBuilder {
     /// Disables the panic handler hook
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
+        self
+    }
+
+    pub fn with_poll_input_buffer_size(mut self, poll_input_buffer_size: usize) -> Self {
+        self.poll_input_buffer_size = poll_input_buffer_size;
+        self
+    }
+
+    pub fn with_buffer_linear_growth_step(mut self, buffer_linear_growth_step: usize) -> Self {
+        self.buffer_linear_growth_step = buffer_linear_growth_step;
         self
     }
 
@@ -64,6 +77,8 @@ impl TalosBuilder {
         //    even be enough!
         let output_buffer = Vec::with_capacity(buffer_size * 10);
 
+        let poll_input_buffer = vec![0u8; self.poll_input_buffer_size];
+
         Ok(Talos {
             terminal,
             canvas: Canvas::new(size.1, size.0),
@@ -72,6 +87,8 @@ impl TalosBuilder {
             previous_buffer,
             output_buffer,
             max_poll_input_buffer: self.max_poll_input_buffer,
+            buffer_linear_growth_step: self.buffer_linear_growth_step,
+            poll_input_buffer,
         })
     }
 }
