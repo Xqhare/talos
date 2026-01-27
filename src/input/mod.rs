@@ -1,4 +1,4 @@
-use std::{io::{Read, Stdin}, cmp::min};
+use std::{io::Read, cmp::min};
 
 mod event;
 pub use event::{Event, Key, Signal};
@@ -7,8 +7,8 @@ use parser::parse_byte_stream;
 
 use crate::error::TalosResult;
 
-pub fn poll_input_into_events(
-    std_in: &mut Stdin,
+pub fn poll_input_into_events<R: Read>(
+    std_in: &mut R,
     poll_input_buffer: &mut Vec<u8>,
     max_poll_input_buffer: usize,
     buffer_linear_growth_step: usize
@@ -18,8 +18,8 @@ pub fn poll_input_into_events(
         .transpose()
 }
 
-fn poll_input_bytes<'a>(
-    std_in: &mut Stdin,
+fn poll_input_bytes<'a, R: Read>(
+    std_in: &mut R,
     poll_input_buffer: &'a mut Vec<u8>,
     max_poll_input_buffer: usize,
     buffer_linear_growth_step: usize,
@@ -39,7 +39,7 @@ fn poll_input_bytes<'a>(
             let new_len = if current_len < buffer_linear_growth_step {
                 if current_len == 0 { 32 } else { current_len.saturating_mul(2) }
             } else {
-                buffer_linear_growth_step
+                current_len.saturating_add(buffer_linear_growth_step)
             };
 
             let target_len = new_len;
@@ -73,5 +73,69 @@ fn poll_input_bytes<'a>(
         Ok(None)
     } else {
         Ok(Some(&poll_input_buffer[..total_read]))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_poll_input_parsing_branches() {
+        // A complex stream simulating: 
+        // - 'a' 
+        // - Backspace 
+        // - Up Arrow 
+        // - F1 
+        // - '€' (UTF-8 Multi-byte)
+        // - Ctrl+C 
+        let input_bytes: Vec<u8> = vec![
+            b'a',                   
+            0x7f,                   
+            0x1b, b'[', b'A',       
+            0x1b, b'O', b'P',
+            0xe2, 0x82, 0xac,       
+            0x03                    
+        ];
+
+        // Cursor implements Read
+        let mut reader = Cursor::new(input_bytes);
+        
+        // Start with a small buffer to force it to grow  
+        let mut buffer = vec![0u8; 4]; 
+
+        let result = poll_input_into_events(
+            &mut reader,
+            &mut buffer,
+            1024,
+            1024
+        ).expect("Polling should succeed");
+
+        let events = result.expect("Should return Some(events)");
+        
+        assert_eq!(events.len(), 6, "Should parse exactly 6 events");
+
+        assert_eq!(events[0], Event::Char('a'));
+        assert_eq!(events[1], Event::Key(Key::Backspace)); 
+        assert_eq!(events[2], Event::Key(Key::Up));
+        assert_eq!(events[3], Event::Key(Key::F(1)));
+        assert_eq!(events[4], Event::Char('€'));
+        assert_eq!(events[5], Event::Signal(Signal::Interrupt));
+    }
+
+    #[test]
+    fn test_empty_input() {
+        let mut reader = Cursor::new(vec![]);
+        let mut buffer = vec![0u8; 32];
+        
+        let result = poll_input_into_events(
+            &mut reader,
+            &mut buffer,
+            1024,
+            1024
+        ).expect("Polling empty should succeed");
+
+        assert!(result.is_none(), "Empty input should return None");
     }
 }
