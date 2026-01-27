@@ -34,3 +34,15 @@ User can provide their own, but have to ensure that every displayed character ha
 This is done for simplicity in the code.
 
 Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
+
+### Code Pages
+
+There are a total of 256 possible code pages. 2 are reserved for windows-1252 and cp437.
+
+Each code page has 256 entries. Each entry represents a character.\
+Each entry must have a displayed width of 1.\
+Each entry must be stored in valid utf-8.
+
+Talos builds a cache of the code pages and checks if a char is in a code page before displaying it.\
+Should a char not be in a code page, it will be displayed as a question mark.
+
