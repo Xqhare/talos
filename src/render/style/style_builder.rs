@@ -6,65 +6,90 @@ use super::Style;
 pub struct StyleBuilder {
     fg: Option<Colour>,
     bg: Option<Colour>,
-    // Attributes
-    bold: bool,
-    dim: bool,
-    italic: bool,
-    underline: bool,
-    blink_slow: bool,
-    reverse_colours: bool,
-    hidden: bool,
-    strikethrough: bool,
+    bit_flag: u8,
 }
 
 impl StyleBuilder {
-    pub fn with_fg(mut self, fg: Colour) -> Self {
+
+    pub fn set_fg(mut self, fg: Colour) -> Self {
         self.fg = Some(fg);
         self
     }
 
-    pub fn with_bg(mut self, bg: Colour) -> Self {
+    pub fn set_bg(mut self, bg: Colour) -> Self {
         self.bg = Some(bg);
         self
     }
 
-    pub fn bold(mut self, bold: bool) -> Self {
-        self.bold = bold;
+    pub fn set_bold(mut self, bold: bool) -> Self {
+        if bold {
+            self.bit_flag |= 0b10000000;
+        } else {
+            self.bit_flag &= !0b10000000;
+        }
         self
     }
 
-    pub fn dim(mut self, dim: bool) -> Self {
-        self.dim = dim;
+    pub fn set_dim(mut self, dim: bool) -> Self {
+        if dim {
+            self.bit_flag |= 0b01000000;
+        } else {
+            self.bit_flag &= !0b01000000;
+        }
         self
     }
 
-    pub fn italic(mut self, italic: bool) -> Self {
-        self.italic = italic;
+    pub fn set_italic(mut self, italic: bool) -> Self {
+        if italic {
+            self.bit_flag |= 0b00100000;
+        } else {
+            self.bit_flag &= !0b00100000;
+        }
         self
     }
 
-    pub fn underline(mut self, underline: bool) -> Self {
-        self.underline = underline;
+    pub fn set_underline(mut self, underline: bool) -> Self {
+        if underline {
+            self.bit_flag |= 0b00010000;
+        } else {
+            self.bit_flag &= !0b00010000;
+        }
         self
     }
 
-    pub fn blink_slow(mut self, blink_slow: bool) -> Self {
-        self.blink_slow = blink_slow;
+    pub fn set_blink(mut self, blink: bool) -> Self {
+        if blink {
+            self.bit_flag |= 0b00001000;
+        } else {
+            self.bit_flag &= !0b00001000;
+        }
         self
     }
 
-    pub fn reverse_colours(mut self, reverse_colours: bool) -> Self {
-        self.reverse_colours = reverse_colours;
+    pub fn set_reverse(mut self, reverse: bool) -> Self {
+        if reverse {
+            self.bit_flag |= 0b00000100;
+        } else {
+            self.bit_flag &= !0b00000100;
+        }
         self
     }
 
-    pub fn hidden(mut self, hidden: bool) -> Self {
-        self.hidden = hidden;
+    pub fn set_hidden(mut self, hidden: bool) -> Self {
+        if hidden {
+            self.bit_flag |= 0b00000010;
+        } else {
+            self.bit_flag &= !0b00000010;
+        }
         self
     }
 
-    pub fn strikethrough(mut self, strikethrough: bool) -> Self {
-        self.strikethrough = strikethrough;
+    pub fn set_strikethrough(mut self, strikethrough: bool) -> Self {
+        if strikethrough {
+            self.bit_flag |= 0b00000001;
+        } else {
+            self.bit_flag &= !0b00000001;
+        }
         self
     }
 
@@ -72,14 +97,7 @@ impl StyleBuilder {
         Style {
             fg: self.fg,
             bg: self.bg,
-            bold: self.bold,
-            dim: self.dim,
-            italic: self.italic,
-            underline: self.underline,
-            blink_slow: self.blink_slow,
-            reverse_colours: self.reverse_colours,
-            hidden: self.hidden,
-            strikethrough: self.strikethrough,
+            bit_flag: self.bit_flag,
         }
     }
 }
@@ -89,14 +107,7 @@ impl Default for StyleBuilder {
         Self {
             fg: None,
             bg: None,
-            bold: false,
-            dim: false,
-            italic: false,
-            underline: false,
-            blink_slow: false,
-            reverse_colours: false,
-            hidden: false,
-            strikethrough: false,
+            bit_flag: 0,
         }
     }
 }
