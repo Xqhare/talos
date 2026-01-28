@@ -1,12 +1,7 @@
-// TODO: Consider to move to a `fn csi(command: &str, args: &[u16]) -> String` helper function to
+// TODO: Consider to create to a `fn csi(command: &str, args: &[u16]) -> String` helper function to
 // construct ANSI control sequences
 //
-// HOWEVER: I fear that the codebase will become harder to read - Right now its very clear what
-// sequence is called. Moving away from clearly defined constants could make the code less readable
-// e.g: 
-// current code: `write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;`
-// new code: `write_all_bytes(&mut self.output_buffer, self.get_csi("\x1b[H", &[]))?;`
-// This does not seem like a great change.
+// I would still keep the constants here though. - They are easier to find and clearer to read
 
 pub const CONTROL_SEQUENCE_INTRO: &str = "\x1B[";
 
