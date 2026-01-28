@@ -92,7 +92,8 @@ impl Talos {
         self.terminal.stdout().write_all(&self.output_buffer)?;
         self.terminal.stdout().flush()?;
 
-        self.previous_buffer = self.canvas.buffer.clone();
+        // Pointer swapping of the buffers
+        std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
         Ok(())
     }
