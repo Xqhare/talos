@@ -9,6 +9,7 @@ use input::Parser;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
+use utils::u16_as_ascii_bytes;
 use utils::write_all_bytes;
 
 mod builder;
@@ -54,13 +55,22 @@ impl Talos {
         self.canvas.clear();
     }
 
-    // TODO: return a value that indicates if the terminal was resized
-    // probably a bool - false if resize, true if not (to say "present exited the way you wanted"
-    // or "Hey, I resized! present did not do what you expected")
-    //
-    // The new size is stored in `self.size` and would thus not need to be returned
-    pub fn present(&mut self) -> TalosResult<()> {
-        let _resized = self.handle_signals()?;
+    /// Present the canvas to the terminal
+    ///
+    /// Returns whether the terminal was resized.
+    /// Returns `false` if the terminal was resized.
+    /// Returns `true` if the terminal was not resized.
+    ///
+    /// While the logic of the returned boolean seems flipped, it describes if `present`
+    /// finished what it was supposed to do. If a resize event happened, `present` exited
+    /// without drawing to the terminal.
+    ///
+    /// The new size is stored in `self.size`.
+    pub fn present(&mut self) -> TalosResult<bool> {
+        let resized = self.handle_signals()?;
+        if resized {
+            return Ok(false);
+        }
 
         self.output_buffer.clear();
 
@@ -80,9 +90,9 @@ impl Talos {
                         let bytes = [
                             0x1b,
                             b'[',
-                            (x as u8).saturating_add(1),
+                            u16_as_ascii_bytes(y.saturating_add(1)),
                             b';',
-                            (y as u8).saturating_add(1),
+                            u16_as_ascii_bytes(x.saturating_add(1)),
                             b'H',
                         ];
                         write_all_bytes(&mut self.output_buffer, &bytes)?;
@@ -101,7 +111,7 @@ impl Talos {
             self.output_buffer.clear();
             write_all_bytes(&mut self.terminal.stdout(), CLEAR_ALL.as_bytes())?;
             self.terminal.stdout().flush()?;
-            return Ok(());
+            return Ok(false);
         }
 
         self.terminal.stdout().write_all(&self.output_buffer)?;
@@ -110,7 +120,7 @@ impl Talos {
         // Pointer swapping of the buffers
         std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
-        Ok(())
+        Ok(true)
     }
 
     pub fn codex(&mut self) -> &mut Codex {
@@ -139,11 +149,17 @@ impl Talos {
         Ok(Some(self.event_buffer.as_slice()))
     }
 
+    /// Handles signals from the OS
+    ///
+    /// Returns `true` whether the terminal was resized OR terminated.
+    /// Returns `false` if the terminal was not resized or terminated.
+    ///
+    /// If the terminal was terminated, the terminal is restored and the process exits.
     fn handle_signals(&mut self) -> TalosResult<bool> {
         if check_terminate() {
             // We need to shut down now - No state will be saved, just restore the terminal
             self.terminal.restore()?;
-            return Ok(true);
+            std::process::exit(0);
         }
 
         if check_resize() {
