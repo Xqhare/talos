@@ -9,6 +9,7 @@ use input::Parser;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
+use utils::write_all_bytes;
 
 mod builder;
 mod constants;
@@ -17,6 +18,7 @@ mod input;
 mod render;
 mod sys;
 mod terminal;
+mod utils;
 
 pub use render::Colour;
 pub use render::Style;
@@ -57,7 +59,7 @@ impl Talos {
 
         self.output_buffer.clear();
 
-        write!(self.output_buffer, "{}", TO_TOP_LEFT)?;
+        write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
 
         let mut prev_x_cell: u16 = 0;
 
@@ -70,12 +72,20 @@ impl Talos {
 
                     // Cursor handling
                     if x - prev_x_cell != 1 {
-                        write!(self.output_buffer, "\x1b[{};{}H", y + 1, x + 1)?;
+                        let bytes = [
+                            0x1b,
+                            b'[',
+                            (x as u8).saturating_add(1),
+                            b';',
+                            (y as u8).saturating_add(1),
+                            b'H',
+                        ];
+                        write_all_bytes(&mut self.output_buffer, &bytes)?;
                     }
 
                     // Write styled char
                     ccell.style.generate(&mut self.output_buffer);
-                    write!(self.output_buffer, "{}", self.codex.resolve(ccell.char))?;
+                    write_all_bytes(&mut self.output_buffer, self.codex.resolve(ccell.char).as_bytes())?;
                 }
                 prev_x_cell = x;
             }
@@ -84,7 +94,7 @@ impl Talos {
         if self.handle_signals()? {
             // Resized! - Just show one blank frame - should be imperceivable anyways
             self.output_buffer.clear();
-            write!(self.terminal.stdout(), "{}", CLEAR_ALL)?;
+            write_all_bytes(&mut self.terminal.stdout(), CLEAR_ALL.as_bytes())?;
             self.terminal.stdout().flush()?;
             return Ok(());
         }
