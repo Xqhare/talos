@@ -23,8 +23,8 @@ mod utils;
 pub use render::Colour;
 pub use render::Style;
 
-pub type Width = u16;
-pub type Height = u16;
+type Width = u16;
+type Height = u16;
 
 pub struct Talos {
     terminal: TerminalIO,
