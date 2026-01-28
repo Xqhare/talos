@@ -1,6 +1,9 @@
 use std::os::fd;
+
+#[cfg(unix)]
 mod unix;
 
+#[cfg(unix)]
 use unix as os;
 
 use crate::error::TalosResult;
