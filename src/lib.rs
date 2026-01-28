@@ -87,12 +87,16 @@ impl Talos {
 
                     // Cursor handling
                     if x - prev_x_cell != 1 {
+                        let y = u16_as_ascii_bytes(&y.saturating_add(1));
+                        let x = u16_as_ascii_bytes(&x.saturating_add(1));
                         let bytes = [
                             0x1b,
                             b'[',
-                            u16_as_ascii_bytes(y.saturating_add(1)),
+                            y[0],
+                            y[1],
                             b';',
-                            u16_as_ascii_bytes(x.saturating_add(1)),
+                            x[0],
+                            x[1],
                             b'H',
                         ];
                         write_all_bytes(&mut self.output_buffer, &bytes)?;
