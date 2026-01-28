@@ -54,6 +54,11 @@ impl Talos {
         self.canvas.clear();
     }
 
+    // TODO: return a value that indicates if the terminal was resized
+    // probably a bool - false if resize, true if not (to say "present exited the way you wanted"
+    // or "Hey, I resized! present did not do what you expected")
+    //
+    // The new size is stored in `self.size` and would thus not need to be returned
     pub fn present(&mut self) -> TalosResult<()> {
         let _resized = self.handle_signals()?;
 

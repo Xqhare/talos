@@ -17,7 +17,7 @@ pub struct Codex {
 impl Codex {
     pub fn new() -> Codex {
         let mut codex = Codex {
-            // Currently only `windows-1252` and `cp437` are planned but initalising
+            // Currently only `windows-1252` and `cp437` are planned but init
             // all pages with `None` will not expand the memory footprint but save from
             // new allocations
             pages: vec![None; 256],
@@ -26,6 +26,13 @@ impl Codex {
 
         // ONLY these pages should be registered at startup - all others will be on the
         // users request
+        //
+        // TODO: Reconsider the `expect` calls - HOWEVER: The pages are build inside this function
+        // anyway, and the page IDs are thus guaranteed to be valid
+        // So its more a case of shutting up the compiler
+        // ON THE OTHER HAND: The logic is only linked implicitly (by this comment to be exact) -
+        // nothing is preventing me from moving the init or the registering into their own
+        // functions and making this implicit link even harder to see
         codex
             .register_page(REG_WIN_1252.0, REG_WIN_1252.1)
             .expect("Page ID must be free during init");

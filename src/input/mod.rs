@@ -25,6 +25,8 @@ pub fn poll_input_bytes<'a, R: Read>(
                 break;
             }
 
+            // Slightly overly complicated logic to grow the buffer
+            // Could change, but a lot of though about how the memory should be managed went into it - so keep it
             let new_len = if current_len < buffer_linear_growth_step {
                 if current_len == 0 { 32 } else { current_len.saturating_mul(2) }
             } else {
