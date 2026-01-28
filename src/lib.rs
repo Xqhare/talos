@@ -9,7 +9,7 @@ use input::Parser;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
-use utils::u16_as_ascii_bytes;
+use utils::push_u16_as_ascii;
 use utils::write_all_bytes;
 
 mod builder;
@@ -86,20 +86,18 @@ impl Talos {
                     let ccell = self.canvas.get_ccell(x, y);
 
                     // Cursor handling
+                    // TODO: refactor into its own function
                     if x - prev_x_cell != 1 {
-                        let y = u16_as_ascii_bytes(&y.saturating_add(1));
-                        let x = u16_as_ascii_bytes(&x.saturating_add(1));
                         let bytes = [
                             0x1b,
                             b'[',
-                            y[0],
-                            y[1],
-                            b';',
-                            x[0],
-                            x[1],
-                            b'H',
+                            
                         ];
                         write_all_bytes(&mut self.output_buffer, &bytes)?;
+                        push_u16_as_ascii(&mut self.output_buffer, y.saturating_add(1));
+                        write_all_bytes(&mut self.output_buffer, &[b';'])?;
+                        push_u16_as_ascii(&mut self.output_buffer, x.saturating_add(1));
+                        write_all_bytes(&mut self.output_buffer, &[b'H'])?;
                     }
 
                     // Write styled char
