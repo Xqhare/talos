@@ -6,6 +6,6 @@ mod xterm;
 pub use xterm::XtermParser;
 
 pub trait InputParser {
-    fn new() -> Self;
+    fn new() -> Self where Self: Sized;
     fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()>;
 }

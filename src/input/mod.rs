@@ -3,6 +3,7 @@ use std::{io::Read, cmp::min};
 mod event;
 pub use event::Event;
 mod parse;
+pub use parse::{InputParser, XtermParser};
 
 use crate::error::TalosResult;
 

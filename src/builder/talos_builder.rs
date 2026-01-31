@@ -1,6 +1,6 @@
 
 use crate::{
-    error::TalosResult, input::Parser, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos
+    error::TalosResult, input::{InputParser, XtermParser}, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos
 };
 
 pub struct TalosBuilder {
@@ -10,6 +10,7 @@ pub struct TalosBuilder {
     poll_input_buffer_size: usize,
     buffer_linear_growth_step: usize,
     set_up_panic_handler: bool,
+    input_parser: Box<dyn InputParser>,
 }
 
 impl Default for TalosBuilder {
@@ -21,6 +22,7 @@ impl Default for TalosBuilder {
             set_up_panic_handler: true,
             poll_input_buffer_size: 512,
             buffer_linear_growth_step: 4096,
+            input_parser: Box::new(XtermParser::new()),
         }
     }
 }
@@ -58,6 +60,11 @@ impl TalosBuilder {
         self
     }
 
+    pub fn with_input_parser(mut self, input_parser: Box<dyn InputParser>) -> Self {
+        self.input_parser = input_parser;
+        self
+    }
+
     pub fn build(self) -> TalosResult<Talos> {
         if self.set_up_panic_handler {
             register_signal_handlers()?;
@@ -77,8 +84,6 @@ impl TalosBuilder {
 
         let event_buffer = Vec::with_capacity(self.poll_input_buffer_size);
 
-        let parser = Parser::new();
-
         Ok(Talos {
             terminal,
             canvas: Canvas::new(size.1, size.0),
@@ -90,7 +95,7 @@ impl TalosBuilder {
             buffer_linear_growth_step: self.buffer_linear_growth_step,
             poll_input_buffer,
             event_buffer,
-            parser,
+            parser: self.input_parser,
         })
     }
 }

@@ -5,7 +5,7 @@ use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
 use input::Event;
 use input::poll_input_bytes;
-use input::Parser;
+use input::InputParser;
 use render::{CCell, Canvas, Codex};
 use sys::{check_resize, check_terminate};
 use terminal::term_io::TerminalIO;
@@ -39,7 +39,7 @@ pub struct Talos {
     output_buffer: Vec<u8>,
 
     // Input - TODO: Move into separate struct
-    parser: Parser,
+    parser: Box<dyn InputParser>,
     event_buffer: Vec<Event>,
     poll_input_buffer: Vec<u8>,
     buffer_linear_growth_step: usize,
