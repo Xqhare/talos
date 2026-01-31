@@ -1,6 +1,6 @@
 
 use crate::{
-    error::TalosResult, input::{InputParser, XtermParser}, render::{CCell, Canvas, Codex}, sys::register_signal_handlers, terminal::term_io::TerminalIO, Talos
+    error::TalosResult, input::{InputParser, XtermParser}, render::{CCell, Canvas, Codex}, utils::{sys::register_signal_handlers, terminal::TerminalIO}, Talos
 };
 
 pub struct TalosBuilder {

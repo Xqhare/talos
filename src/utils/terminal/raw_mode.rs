@@ -2,9 +2,9 @@ use std::io::Write;
 use std::os::fd;
 use std::sync::Once;
 
-use crate::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
 use crate::error::TalosResult;
-use crate::sys::{disable_raw_mode, enable_raw_mode};
+use crate::utils::constants::ansi::{EXIT_ALT_SCREEN, SHOW_CURSOR};
+use crate::utils::sys::{disable_raw_mode, enable_raw_mode};
 
 pub struct RawMode {
     original_termios: libc::termios,

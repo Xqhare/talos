@@ -1,2 +1,4 @@
-pub mod raw_mode;
-pub mod term_io;
+mod raw_mode;
+mod term_io;
+
+pub use term_io::TerminalIO;

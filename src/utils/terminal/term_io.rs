@@ -1,11 +1,8 @@
 use crate::error::TalosResult;
+use crate::utils::constants::ansi::{CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT};
+use crate::utils::sys::terminal_size;
 use std::io::{self, Write};
 use std::os::fd::AsRawFd;
-
-use crate::constants::ansi::{
-    CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT,
-};
-use crate::sys::terminal_size;
 
 use super::raw_mode::RawMode;
 

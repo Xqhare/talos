@@ -1,4 +1,5 @@
-use crate::constants::ansi::CONTROL_SEQUENCE_INTRO;
+
+use crate::utils::constants::ansi::CONTROL_SEQUENCE_INTRO;
 
 use super::Colour;
 

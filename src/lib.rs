@@ -1,24 +1,23 @@
 use std::io::Write;
 
 use builder::TalosBuilder;
-use constants::ansi::{CLEAR_ALL, TO_TOP_LEFT};
 use error::TalosResult;
 use input::Event;
 use input::poll_input_bytes;
 use input::InputParser;
 use render::{CCell, Canvas, Codex};
-use sys::{check_resize, check_terminate};
-use terminal::term_io::TerminalIO;
+use utils::constants::ansi::CLEAR_ALL;
+use utils::constants::ansi::TO_TOP_LEFT;
 use utils::push_u16_as_ascii;
+use utils::sys::check_resize;
+use utils::sys::check_terminate;
+use utils::terminal::TerminalIO;
 use utils::write_all_bytes;
 
 mod builder;
-mod constants;
 mod error;
 mod input;
 mod render;
-mod sys;
-mod terminal;
 mod utils;
 
 pub use render::Colour;
