@@ -2,6 +2,18 @@ use crate::{error::TalosResult, input::{event::{KeyCode, KeyEvent, KeyModifiers}
 
 use super::InputParser;
 
+// TODO: Refactor Parser
+//
+// Current Limitations:
+//    - The internal logic of `XtermParser` is still using "lookahead slicing".
+//    - It technically violates strict ANSI specs (ignores intermediates like '!' or '?').
+//    - The current parser will choke on complex responses like `\x1b[?1;2c`.
+//    - Decision: Keep as-is for now. It works for 95% of standard keyboard inputs.
+//
+// Refactor into State Machine:
+//    - When implementing Mouse Support or Terminal Queries (asking the terminal for cursor pos),
+//      rewrite `XtermParser` into a proper State Machine (ref: Paul Williams DEC Parser).
+
 /// A stateful parser that turns a stream of bytes into Input Events.
 ///
 /// It maintains an internal buffer to handle cases where an escape sequence
