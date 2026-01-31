@@ -1,39 +1,23 @@
-use crate::error::TalosResult;
-use super::{Event, KeyEvent, KeyCode, KeyModifiers};
+use crate::{error::TalosResult, input::{event::{KeyCode, KeyEvent, KeyModifiers}, Event}};
 
-// TODO: This is still a mess - a lot of nested if's.
-// The best solution would be to use a real state machine instead of slicing. - But how? An enum
-// `ParsingState` or similar?
-// This needs a deeper understanding of ansi encoding generally.
-//
-// With my current understanding being: ansi encoding is a product of decades of development, with
-// more exceptions to their rules than rules themselves. Also, the rules do not seem consistent: `0 is nothing, but 1 is never something but nothing`.
-// Maybe I should look into generating a large list of all possible ansi sequences and then just
-// match against that. - Like an utf decoder (Which funnily enough has a similar problem of not
-// being consistent with its rules).
-//
-// Also move the Parser to be a Trait: Parser would be renamed to `GnomeParser` (I would want to be
-// able to support things like `XtermParser` or `KittyParser` - I hope this is the best naming convention).
-// All `xxxParser` would implement the `Parser` trait.
-// The trait would implement the same functionality as the current `Parser` struct.
+use super::InputParser;
 
 /// A stateful parser that turns a stream of bytes into Input Events.
 ///
 /// It maintains an internal buffer to handle cases where an escape sequence
 /// or multi-byte character is split across multiple `poll` calls.
-pub struct Parser {
+pub struct XtermParser {
     pending_buffer: Vec<u8>,
 }
 
-impl Parser {
-    pub fn new() -> Self {
+impl InputParser for XtermParser {
+    fn new() -> Self {
         Self {
+            // Just an arbitrary size - 32 bytes should be enough for most input
             pending_buffer: Vec::with_capacity(32),
         }
     }
-
-    /// Appends new bytes to the internal buffer and parses as many complete events as possible.
-    pub fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()> {
+    fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()> {
         self.pending_buffer.extend_from_slice(new_bytes);
 
         let mut bytes_consumed = 0;
@@ -68,6 +52,10 @@ impl Parser {
 
         Ok(())
     }
+
+}
+
+impl XtermParser {
 
     /// Attempts to parse exactly one event from the front of the slice.
     fn try_parse_one(&self, slice: &[u8]) -> Option<(Option<Event>, usize)> {

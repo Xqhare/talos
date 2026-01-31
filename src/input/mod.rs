@@ -1,9 +1,8 @@
 use std::{io::Read, cmp::min};
 
 mod event;
-pub use event::{Event, KeyEvent, KeyCode, KeyModifiers};
-mod parser;
-pub use parser::Parser;
+pub use event::Event;
+mod parse;
 
 use crate::error::TalosResult;
 
