@@ -17,6 +17,10 @@ impl Block {
         }
     }
 
+    /// Sets the title of the block
+    ///
+    /// By default, the block has no title
+    /// If `""` is passed, no title is rendered
     pub fn title(mut self, title: impl Into<String>) -> Self {
         self.title = Some(title.into());
         self
@@ -30,6 +34,20 @@ impl Block {
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
+    }
+
+    /// Returns the inner area inside the block's borders.
+    /// Useful for rendering child widgets inside this block.
+    pub fn inner(&self, area: Rect) -> Rect {
+        if area.width < 2 || area.height < 2 {
+            return Rect::default();
+        }
+        Rect {
+            x: area.x + 1,
+            y: area.y + 1,
+            width: area.width.saturating_sub(2),
+            height: area.height.saturating_sub(2),
+        }
     }
 }
 
