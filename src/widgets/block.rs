@@ -117,15 +117,16 @@ impl Widget for Block {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::TalosResult;
     use crate::render::Canvas;
     use crate::codex::Codex;
     use crate::codex::pages::SPACE_GLYPH;
 
     #[test]
-    fn test_block_render_borders() {
+    fn test_block_render_borders() -> TalosResult<()> {
         // 1. Setup Headless Environment
         let mut canvas = Canvas::new(10, 10); // 10x10 virtual grid
-        let codex = Codex::new(); // Standard glyph lookups (CP437/Windows1252)
+        let codex = Codex::new()?; // Standard glyph lookups (CP437/Windows1252)
         
         // 2. Define Area and Widget
         let area = Rect::new(0, 0, 5, 5); // 5x5 box at top-left
@@ -158,13 +159,15 @@ mod tests {
         // Check Interior (Should be empty/transparent for default block)
         // (1,1) is inside the block
         assert_eq!(canvas.get_ccell(1, 1).char, SPACE_GLYPH, "Inside should be empty (space)");
+
+        Ok(())
     }
 
     #[test]
-    fn test_block_clipping() {
+    fn test_block_clipping() -> TalosResult<()> {
         // Test that block doesn't draw outside its Rect
         let mut canvas = Canvas::new(10, 10);
-        let codex = Codex::new();
+        let codex = Codex::new()?;
         use crate::render::traits::Widget;
         
         // Draw a block starting at (2,2) with size 3x3
@@ -179,12 +182,14 @@ mod tests {
         // Check a point INSIDE the rect (e.g., 2,2 - Top Left Corner of block)
         let tl_glyph = codex.lookup('┌');
         assert_eq!(canvas.get_ccell(2, 2).char, tl_glyph, "Block failed to draw at correct offset (2,2)");
+
+        Ok(())
     }
     
     #[test]
-    fn test_block_title() {
+    fn test_block_title() -> TalosResult<()> {
         let mut canvas = Canvas::new(20, 5);
-        let codex = Codex::new();
+        let codex = Codex::new()?;
         use crate::render::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
@@ -199,5 +204,7 @@ mod tests {
 
         assert_eq!(canvas.get_ccell(1, 0).char, t_glyph, "Title 'T' missing");
         assert_eq!(canvas.get_ccell(2, 0).char, e_glyph, "Title 'e' missing");
+
+        Ok(())
     }
 }
