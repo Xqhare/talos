@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{error::{TalosError, TalosResult}, utils::constants::pages::{validate_page, Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH}};
+use crate::{codex::pages::{Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, validate_page}, error::{TalosError, TalosResult}, render::Glyph};
 
-use super::Glyph;
+pub mod pages;
 
 pub struct Codex {
     pages: Vec<Option<&'static Page>>,

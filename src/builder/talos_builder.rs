@@ -1,6 +1,6 @@
 
 use crate::{
-    error::TalosResult, input::Parser, render::{CCell, Canvas, Codex}, utils::{sys::register_signal_handlers, terminal::TerminalIO}, Talos
+    Talos, backend::{TerminalIO, sys::register_signal_handlers}, codex::Codex, error::TalosResult, input::Parser, render::{CCell, Canvas}
 };
 
 use super::ParserBuilder;

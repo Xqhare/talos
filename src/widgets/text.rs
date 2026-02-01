@@ -1,5 +1,6 @@
+use crate::codex::Codex;
 use crate::layout::Rect;
-use crate::render::{CCell, Canvas, Codex, Style, traits::Widget};
+use crate::render::{CCell, Canvas, Style, traits::Widget};
 
 pub struct Text {
     content: String,

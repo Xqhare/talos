@@ -1,9 +1,6 @@
 mod colour;
 pub use colour::{Bright, Colour, ColourMode, Extended, Normal, TrueColour};
 
-mod codex;
-pub use codex::Codex;
-
 mod canvas;
 pub use canvas::Canvas;
 
@@ -17,7 +14,7 @@ pub type Glyph = u16;
 
 
 pub mod traits {
-    use crate::{layout::Rect, render::{Canvas, Codex}};
+    use crate::{codex::Codex, layout::Rect, render::Canvas};
     pub trait Widget {
         /// Renders the widget into the specified area
         ///

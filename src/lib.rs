@@ -2,26 +2,32 @@ use std::io::Write;
 
 use input::poll_input_bytes;
 use input::Parser;
-use render::{CCell, Codex, Canvas};
+use ui::render::CCell;
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::push_u16_as_ascii;
-use utils::sys::check_resize;
-use utils::sys::check_terminate;
-use utils::terminal::TerminalIO;
 use utils::write_all_bytes;
+use codex::Codex;
 
 mod builder;
 pub use builder::{ParserBuilder, LayoutBuilder, TalosBuilder};
 mod error;
 pub use error::{TalosError, TalosResult};
 
+use crate::backend::TerminalIO;
+use crate::backend::sys::check_resize;
+use crate::backend::sys::check_terminate;
 use crate::input::Event;
+use crate::ui::render::Canvas;
+
+mod backend;
+pub mod codex;
+mod ui;
 
 pub mod input;
-pub mod render;
+pub use ui::render;
+pub use ui::layout;
 mod utils;
-pub mod layout;
 pub mod widgets;
 
 type Width = u16;

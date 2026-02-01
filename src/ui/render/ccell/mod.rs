@@ -1,5 +1,5 @@
 
-use crate::utils::constants::pages::SPACE_GLYPH;
+use crate::codex::pages::SPACE_GLYPH;
 
 use super::{Glyph, Style};
 

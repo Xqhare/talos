@@ -1,6 +1,7 @@
+use crate::codex::Codex;
 use crate::layout::Rect;
 use crate::render::traits::Widget;
-use crate::render::{CCell, Canvas, Codex, Style};
+use crate::render::{CCell, Canvas, Style};
 
 pub struct Block {
     title: Option<String>,
@@ -116,8 +117,9 @@ impl Widget for Block {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::render::{Canvas, Codex};
-    use crate::utils::constants::pages::SPACE_GLYPH;
+    use crate::render::Canvas;
+    use crate::codex::Codex;
+    use crate::codex::pages::SPACE_GLYPH;
 
     #[test]
     fn test_block_render_borders() {

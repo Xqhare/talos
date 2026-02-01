@@ -2,8 +2,6 @@ use std::io::Write;
 
 use crate::error::TalosResult;
 
-pub mod terminal;
-pub mod sys;
 pub mod constants;
 
 pub fn write_all_bytes<T: Write>(writer: &mut T, bytes: &[u8]) -> TalosResult<()> {
