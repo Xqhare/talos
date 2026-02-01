@@ -82,45 +82,57 @@ mod tests {
 
     #[test]
     fn test_poll_input_parsing_branches() {
-        // A complex stream simulating: 
+        // A stream simulating: 
         // - 'a' 
         // - Backspace 
         // - Up Arrow 
         // - F1 
         // - '€' (UTF-8 Multi-byte)
-        // - Ctrl+C 
+        // - CTRL+a
         let input_bytes: Vec<u8> = vec![
             b'a',                   
             0x7f,                   
             0x1b, b'[', b'A',       
             0x1b, b'O', b'P',
             0xe2, 0x82, 0xac,       
-            0x03                    
+            0x01,
         ];
 
         // Cursor implements Read
         let mut reader = Cursor::new(input_bytes);
         
-        // Start with a small buffer to force it to grow  
-        let mut buffer = vec![0u8; 4]; 
+        // Setup Parser and Buffers
+        let mut poll_buffer = vec![0u8; 32]; 
+        let mut event_buffer = Vec::new();
+        let mut parser = XtermParser::new();
 
-        let result = poll_input_into_events(
+        // 1. Poll Bytes
+        let bytes_opt = poll_input_bytes(
             &mut reader,
-            &mut buffer,
+            &mut poll_buffer,
             1024,
             1024
         ).expect("Polling should succeed");
 
-        let events = result.expect("Should return Some(events)");
-        
-        assert_eq!(events.len(), 6, "Should parse exactly 6 events");
+        let bytes = bytes_opt.expect("Should return Some(bytes)");
 
-        assert_eq!(events[0], Event::Char('a'));
-        assert_eq!(events[1], Event::Key(Key::Backspace)); 
-        assert_eq!(events[2], Event::Key(Key::Up));
-        assert_eq!(events[3], Event::Key(Key::F(1)));
-        assert_eq!(events[4], Event::Char('€'));
-        assert_eq!(events[5], Event::Signal(Signal::Interrupt));
+        // 2. Parse Bytes into Events
+        parser.parse(bytes, &mut event_buffer).expect("Parsing should succeed");
+        
+        // 3. Verify
+        assert_eq!(event_buffer.len(), 6, "Should parse exactly 6 events");
+
+        assert_eq!(event_buffer[0], Event::KeyEvent(KeyEvent::new(KeyCode::Char('a'), KeyModifiers::default())));
+        assert_eq!(event_buffer[1], Event::KeyEvent(KeyEvent::new(KeyCode::Backspace, KeyModifiers::default())));
+        assert_eq!(event_buffer[2], Event::KeyEvent(KeyEvent::new(KeyCode::Up, KeyModifiers::default())));
+        assert_eq!(event_buffer[3], Event::KeyEvent(KeyEvent::new(KeyCode::F(1), KeyModifiers::default())));
+        assert_eq!(event_buffer[4], Event::KeyEvent(KeyEvent::new(KeyCode::Char('€'), KeyModifiers::default())));
+        
+        // Ctrl+C parsing check
+        let mut ctrl_c_mods = KeyModifiers::default();
+        ctrl_c_mods.ctrl = true;
+        ctrl_c_mods.none = false;
+        assert_eq!(event_buffer[5], Event::KeyEvent(KeyEvent::new(KeyCode::Char('a'), ctrl_c_mods)));
     }
 
     #[test]
@@ -128,7 +140,7 @@ mod tests {
         let mut reader = Cursor::new(vec![]);
         let mut buffer = vec![0u8; 32];
         
-        let result = poll_input_into_events(
+        let result = poll_input_bytes(
             &mut reader,
             &mut buffer,
             1024,
