@@ -5,7 +5,6 @@ use input::Parser;
 use ui::render::CCell;
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
-use utils::push_u16_as_ascii;
 use utils::write_all_bytes;
 use codex::Codex;
 
