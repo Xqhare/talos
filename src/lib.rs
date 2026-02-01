@@ -4,8 +4,8 @@ use builder::TalosBuilder;
 use error::TalosResult;
 use input::Event;
 use input::poll_input_bytes;
-use input::InputParser;
-use render::{CCell, Canvas, Codex};
+use input::Parser;
+use render::{CCell, Codex};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::push_u16_as_ascii;
@@ -18,11 +18,10 @@ mod builder;
 mod error;
 mod input;
 mod render;
+pub use render::{Colour, Style, Widget, Canvas};
 mod utils;
 pub mod layout;
 
-pub use render::Colour;
-pub use render::Style;
 
 type Width = u16;
 type Height = u16;
@@ -38,12 +37,8 @@ pub struct Talos {
 
     output_buffer: Vec<u8>,
 
-    // Input - TODO: Move into separate struct
-    parser: Box<dyn InputParser>,
-    event_buffer: Vec<Event>,
-    poll_input_buffer: Vec<u8>,
-    buffer_linear_growth_step: usize,
-    max_poll_input_buffer: usize,
+    // Input-Parser
+    parser: Parser,
 }
 
 impl Talos {
@@ -137,18 +132,18 @@ impl Talos {
     pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
         let _ = self.handle_signals()?;
 
-        self.event_buffer.clear();
+        self.parser.event_buffer.clear();
 
         if let Some(bytes) = poll_input_bytes(
             &mut self.terminal.stdin(),
-            &mut self.poll_input_buffer,
-            self.max_poll_input_buffer,
-            self.buffer_linear_growth_step,
+            &mut self.parser.poll_input_buffer,
+            self.parser.max_poll_input_buffer,
+            self.parser.buffer_linear_growth_step,
         )? {
-            self.parser.parse(bytes, &mut self.event_buffer)?;
+            self.parser.parser.parse(bytes, &mut self.parser.event_buffer)?;
         }
 
-        Ok(Some(self.event_buffer.as_slice()))
+        Ok(Some(self.parser.event_buffer.as_slice()))
     }
 
     /// Handles signals from the OS

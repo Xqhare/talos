@@ -5,6 +5,14 @@ pub use event::Event;
 mod parse;
 pub use parse::{InputParser, XtermParser};
 
+pub struct Parser {
+    pub parser: Box<dyn InputParser>,
+    pub event_buffer: Vec<Event>,
+    pub poll_input_buffer: Vec<u8>,
+    pub buffer_linear_growth_step: usize,
+    pub max_poll_input_buffer: usize,
+}
+
 use crate::error::TalosResult;
 
 pub fn poll_input_bytes<'a, R: Read>(
