@@ -1,3 +1,5 @@
+use crate::layout::Rect;
+
 use super::CCell;
 
 pub struct Canvas {
@@ -22,6 +24,10 @@ impl Canvas {
 
     pub fn max_width(&self) -> u16 {
         self.width.saturating_sub(1)
+    }
+
+    pub fn size_rect(&self) -> Rect {
+        Rect::new(0, 0, self.width, self.height)
     }
 
     pub fn clear(&mut self) {

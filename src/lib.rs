@@ -1,6 +1,5 @@
 use std::io::Write;
 
-use builder::TalosBuilder;
 use input::poll_input_bytes;
 use input::Parser;
 use render::{CCell, Codex, Canvas};
@@ -13,7 +12,7 @@ use utils::terminal::TerminalIO;
 use utils::write_all_bytes;
 
 mod builder;
-pub use builder::ParserBuilder;
+pub use builder::{ParserBuilder, LayoutBuilder, TalosBuilder};
 mod error;
 pub use error::{TalosError, TalosResult};
 
@@ -116,8 +115,6 @@ impl Talos {
         if self.handle_signals()? {
             // Resized! - Just show one blank frame - should be imperceivable anyways
             self.output_buffer.clear();
-            write_all_bytes(&mut self.terminal.stdout(), CLEAR_ALL.as_bytes())?;
-            self.terminal.stdout().flush()?;
             return Ok(false);
         }
 
@@ -178,6 +175,8 @@ impl Talos {
             self.previous_buffer = vec![CCell::default(); len];
             self.output_buffer.clear();
             self.output_buffer.reserve(len * 10);
+            write_all_bytes(&mut self.terminal.stdout(), CLEAR_ALL.as_bytes())?;
+            self.terminal.stdout().flush()?;
             return Ok(true);
         }
 
