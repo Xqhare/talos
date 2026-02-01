@@ -13,4 +13,7 @@ pub use ccell::CCell;
 mod style;
 pub use style::Style;
 
+mod widget;
+pub use widget::Widget;
+
 pub type Glyph = u16;
