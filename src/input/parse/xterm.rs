@@ -64,6 +64,12 @@ impl InputParser for XtermParser {
 
         Ok(())
     }
+    fn flush(&mut self, output: &mut Vec<Event>) {
+        if self.pending_buffer.len() == 1 && self.pending_buffer[0] == 0x1B {
+            output.push(Event::KeyEvent(KeyEvent::new(KeyCode::Esc, KeyModifiers::default())));
+            self.pending_buffer.clear();
+        }
+    }
 
 }
 

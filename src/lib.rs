@@ -154,6 +154,8 @@ impl Talos {
             self.parser.buffer_linear_growth_step,
         )? {
             self.parser.parser.parse(bytes, &mut self.parser.event_buffer)?;
+        } else {
+            self.parser.parser.flush(&mut self.parser.event_buffer);
         }
 
         Ok(Some(self.parser.event_buffer.as_slice()))
