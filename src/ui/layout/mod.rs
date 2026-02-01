@@ -35,6 +35,7 @@ impl Layout {
         }
     }
 
+    // TODO: remove heap alloc
     /// Splits the given area into smaller Rects based on the layout constraints.
     pub fn split(&self, area: Rect) -> Vec<Rect> {
         // 1. Apply Margin

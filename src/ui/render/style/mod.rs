@@ -29,6 +29,9 @@ impl Style {
     pub fn generate(self, output_buffer: &mut Vec<u8>) {
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
 
+        // TODO: Optimise: We don't need to push a 0 if the style is the exact same as the previous
+        // Keep in mind: This was added to remove 'ghost characters' in the terminal, left after
+        // resizing 
         output_buffer.push(b'0');
 
         if let Some(fg) = self.fg {

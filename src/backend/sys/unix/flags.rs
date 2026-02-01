@@ -13,6 +13,7 @@ extern "C" fn signal_handler(sig: libc::c_int) {
     }
 }
 
+// TODO: No check if handlers are already registered -> will crash if called twice
 pub fn register_signal_handlers() -> TalosResult<()> {
     unsafe {
         let mut sa: libc::sigaction = mem::zeroed();

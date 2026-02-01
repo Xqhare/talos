@@ -11,6 +11,29 @@ This project is educational in nature. I hope it may prove useful to myself in t
 I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.\
 To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width`.
 
+## Roadmap
+
+- [ ] Core
+    - [ ] Mouse input support (eventually)
+    - [ ] Optimise Codex
+    - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
+- [ ] Documentation
+    - [ ] Examples
+    - [ ] API
+        - [ ] Public
+        - [ ] Internal
+    - [ ] Readme
+- [ ] Widgets
+    - [ ] Text wrapping in `Text` widget
+    - [ ] Input Widget
+    - [ ] Stateful Widgets
+        - [ ] List widget
+        - [ ] Table widget
+        - [ ] Scroll widget
+- [ ] Maybe
+    - [ ] rework `present()` to handle resize events itself - Higher level `run()` abstraction?
+    - [ ] Increase error visibility by removing all `.expect()`'s
+
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
 
