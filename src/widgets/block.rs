@@ -1,7 +1,7 @@
 use crate::codex::Codex;
 use crate::layout::Rect;
-use crate::render::traits::Widget;
 use crate::render::{CCell, Canvas, Style};
+use crate::widgets::traits::Widget;
 
 pub struct Block {
     title: Option<String>,
@@ -134,7 +134,7 @@ mod tests {
 
         // 3. Render (No terminal needed!)
         // Note: We need to import the Widget trait in the test module or parent to call .render()
-        use crate::render::traits::Widget; 
+        use crate::widgets::traits::Widget; 
         block.render(&mut canvas, area, &codex);
 
         // 4. Verification
@@ -168,7 +168,7 @@ mod tests {
         // Test that block doesn't draw outside its Rect
         let mut canvas = Canvas::new(10, 10);
         let codex = Codex::new()?;
-        use crate::render::traits::Widget;
+        use crate::widgets::traits::Widget;
         
         // Draw a block starting at (2,2) with size 3x3
         // It covers (2,2) to (4,4)
@@ -190,7 +190,7 @@ mod tests {
     fn test_block_title() -> TalosResult<()> {
         let mut canvas = Canvas::new(20, 5);
         let codex = Codex::new()?;
-        use crate::render::traits::Widget;
+        use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
         let block = Block::new().title("Test");

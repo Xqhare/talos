@@ -1,6 +1,7 @@
 use crate::codex::Codex;
 use crate::layout::Rect;
-use crate::render::{CCell, Canvas, Style, traits::Widget};
+use crate::render::{CCell, Canvas, Style};
+use crate::widgets::traits::Widget;
 
 // TODO: store content as `Glyphs` - keep current content field, maybe I'll need that later?
 pub struct Text {
