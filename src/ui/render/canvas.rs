@@ -31,7 +31,7 @@ impl Canvas {
     }
 
     pub fn clear(&mut self) {
-        self.buffer = make_default_buffer(self.width, self.height);
+        self.buffer.fill(CCell::default());
     }
 
     /// Safely gets a cell. Returns default (space) if out of bounds.
