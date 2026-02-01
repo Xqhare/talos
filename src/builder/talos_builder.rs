@@ -54,10 +54,10 @@ impl TalosBuilder {
         }
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
-        let size = terminal.size()?;
+        let (rows, cols) = terminal.size()?;
         let codex = Codex::new();
 
-        let buffer_size = (size.0 as usize) * (size.1 as usize);
+        let buffer_size = (cols as usize) * (rows as usize);
         let previous_buffer = vec![CCell::default(); buffer_size];
         // 10 bytes per cell may seem overkill, with a lot of styling bytes this may not
         //    even be enough!
@@ -65,8 +65,8 @@ impl TalosBuilder {
 
         Ok(Talos {
             terminal,
-            canvas: Canvas::new(size.1, size.0),
-            size,
+            canvas: Canvas::new(cols, rows),
+            size: (cols, rows),
             codex,
             previous_buffer,
             output_buffer,

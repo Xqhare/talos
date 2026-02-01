@@ -36,7 +36,7 @@ pub fn validate_page(page: &Page) -> TalosResult<()> {
     }
 
     for (id, &glyph) in page.iter().enumerate() {
-        if glyph.len() != 1 {
+        if glyph.chars().count() != 1 {
             return Err(TalosError::InvalidArgument(format!(
                 "Page entry '{}' must be a single unicode character, got '{}'",
                 id, glyph

@@ -1,11 +1,9 @@
 use std::io::Write;
 
 use builder::TalosBuilder;
-use error::TalosResult;
-use input::Event;
 use input::poll_input_bytes;
 use input::Parser;
-use render::{CCell, Codex};
+use render::{CCell, Codex, Canvas};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::push_u16_as_ascii;
@@ -15,10 +13,14 @@ use utils::terminal::TerminalIO;
 use utils::write_all_bytes;
 
 mod builder;
+pub use builder::ParserBuilder;
 mod error;
-mod input;
-mod render;
-pub use render::{Colour, Style, Widget, Canvas};
+pub use error::{TalosError, TalosResult};
+
+use crate::input::Event;
+
+pub mod input;
+pub mod render;
 mod utils;
 pub mod layout;
 pub mod widgets;
@@ -50,6 +52,10 @@ impl Talos {
         &mut self.canvas
     }
 
+    pub fn render_ctx(&mut self) -> (&mut Canvas, &Codex) {
+        (&mut self.canvas, &self.codex)
+    }
+
     pub fn begin_frame(&mut self) {
         self.canvas.clear();
     }
@@ -75,7 +81,7 @@ impl Talos {
 
         write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
 
-        let mut prev_x_cell: u16 = 0;
+        let mut prev_x_cell: u16 = u16::MAX;
 
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
@@ -86,7 +92,7 @@ impl Talos {
 
                     // Cursor handling
                     // TODO: refactor into its own function
-                    if x - prev_x_cell != 1 {
+                    if x.wrapping_sub(prev_x_cell) != 1 {
                         let bytes = [
                             0x1b,
                             b'[',
@@ -102,8 +108,8 @@ impl Talos {
                     // Write styled char
                     ccell.style.generate(&mut self.output_buffer);
                     write_all_bytes(&mut self.output_buffer, self.codex.resolve(ccell.char).as_bytes())?;
+                    prev_x_cell = x;
                 }
-                prev_x_cell = x;
             }
         }
 
@@ -164,8 +170,8 @@ impl Talos {
         }
 
         if check_resize() {
-            let new_size = self.terminal.size()?;
-            self.size = new_size;
+            let (rows, cols) = self.terminal.size()?;
+            self.size = (cols, rows);
 
             self.canvas = Canvas::new(self.size.0, self.size.1);
             let len = (self.size.0 as usize) * (self.size.1 as usize);

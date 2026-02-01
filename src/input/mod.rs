@@ -1,9 +1,11 @@
 use std::{io::Read, cmp::min};
 
 mod event;
-pub use event::Event;
+pub use event::{Event, KeyCode, KeyEvent, KeyModifiers};
 mod parse;
 pub use parse::{InputParser, XtermParser};
+
+use crate::TalosResult;
 
 pub struct Parser {
     pub parser: Box<dyn InputParser>,
@@ -12,8 +14,6 @@ pub struct Parser {
     pub buffer_linear_growth_step: usize,
     pub max_poll_input_buffer: usize,
 }
-
-use crate::error::TalosResult;
 
 pub fn poll_input_bytes<'a, R: Read>(
     std_in: &mut R,

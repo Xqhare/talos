@@ -1,5 +1,6 @@
 use crate::layout::Rect;
-use crate::render::{CCell, Canvas, Codex, Style, Widget};
+use crate::render::traits::Widget;
+use crate::render::{CCell, Canvas, Codex, Style};
 
 pub struct Block {
     title: Option<String>,

@@ -25,7 +25,7 @@ pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> 
         termios.c_oflag &= !libc::OPOST;
 
         // Turn off echoing, canonical mode (line-by-line), and signals (Ctrl+C)
-        termios.c_lflag &= !(libc::ECHO | libc::ECHONL | libc::ICANON | libc::ISIG | libc::IEXTEN);
+        termios.c_lflag &= !(libc::ECHO | libc::ECHONL | libc::ICANON | libc::IEXTEN);
 
         // Control flags: Set 8 bits per char
         termios.c_cflag &= !(libc::CSIZE | libc::PARENB);
