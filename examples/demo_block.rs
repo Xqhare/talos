@@ -1,4 +1,4 @@
-use talos::{Talos, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style, traits::Widget}, layout::Rect, widgets::Block};
+use talos::{Talos, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style, traits::Widget}, layout::Rect, widgets::{Block, Text}};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -30,17 +30,35 @@ fn main() -> Result<(), talos::TalosError> {
         talos.begin_frame();
         let (canvas, codex) = talos.render_ctx();
 
-        // Let's draw a red block in the middle
-        let area = Rect::new(15, 15, 30, 10);
+        // Let's draw a white & black block in the middle
+        let area = Rect::new(15, 15, 50, 10);
         
         let style = Style::builder()
-            .set_fg(Colour::Normal(Normal::Red))
+            .set_fg(Colour::Normal(Normal::Black))
+            .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        Block::new()
+        let block: Block = Block::new()
             .title(" Hello Talos ")
             .style(style)
-            .render(canvas, area, codex);
+            .with_bg_fill();
+
+        block.render(canvas, area, codex);
+
+        // Lets add some styled text to the block
+        let block_inner = block.inner(area);
+
+        let text_style = Style::builder()
+            .set_bg(Colour::Normal(Normal::White))
+            .set_fg(Colour::Normal(Normal::Blue))
+            .set_bold(true)
+            .build();
+
+        let _text = Text::new("Look mom! Text inside a block!")
+            .style(text_style)
+            .align_center()
+            .align_vertically()
+            .render(canvas, block_inner, codex);
 
         // 4. Present to Terminal
         talos.present()?;
