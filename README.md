@@ -15,8 +15,7 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
 
 - [ ] Core
     - [ ] Mouse input support (eventually)
-    - [ ] Optimise Codex
-    - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
+    - [x] Optimise Codex
 - [ ] Documentation
     - [ ] Examples
     - [ ] API
@@ -32,7 +31,9 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
         - [ ] Scroll widget
 - [ ] Maybe
     - [ ] rework `present()` to handle resize events itself - Higher level `run()` abstraction?
-    - [ ] Increase error visibility by removing all `.expect()`'s
+    - [x] Increase error visibility by removing all `.expect()`'s
+    - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
+        - If performance suffers, implement a layer system - seems like a lot of work for not much benefit in most applications.
 
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
