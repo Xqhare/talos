@@ -16,19 +16,37 @@ impl Canvas {
         }
     }
 
+    pub fn max_height(&self) -> u16 {
+        self.height.saturating_sub(1)
+    }
+
+    pub fn max_width(&self) -> u16 {
+        self.width.saturating_sub(1)
+    }
+
     pub fn clear(&mut self) {
         self.buffer = make_default_buffer(self.width, self.height);
     }
 
+    /// Safely gets a cell. Returns default (space) if out of bounds.
     pub fn get_ccell(&self, x: u16, y: u16) -> CCell {
+        if x >= self.width || y >= self.height {
+            return CCell::default();
+        }
         self.buffer[(x + y * self.width) as usize]
     }
 
+    /// Unsafe access for performance-critical loops (like internal renderers)
+    /// Panics if out of bounds.
     pub fn get_mut_ccell(&mut self, x: u16, y: u16) -> &mut CCell {
         &mut self.buffer[(x + y * self.width) as usize]
     }
 
+    /// Safely sets a cell. Ignores the command if coordinates are out of bounds (Clipping).
     pub fn set_ccell(&mut self, x: u16, y: u16, cell: CCell) {
+        if x >= self.width || y >= self.height {
+            return;
+        }
         self.buffer[(x + y * self.width) as usize] = cell;
     }
 }
