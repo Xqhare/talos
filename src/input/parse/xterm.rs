@@ -259,7 +259,12 @@ impl XtermParser {
         }
 
         match str::from_utf8(&slice[..len]) {
-            Ok(s) => Some((s.chars().next().unwrap(), len)),
+            Ok(s) => if let Some(char) = s.chars().next() {
+                Some((char, len))
+            } else {
+                // Should be !unreachable, if utf8 decoding returns OK, there should be at least one char
+                None
+            }
             Err(_) => None, 
         }
     }
