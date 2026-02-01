@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{codex::pages::{Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, validate_page}, error::{TalosError, TalosResult}, render::Glyph};
+use crate::{codex::pages::{Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, pre_computed_char, validate_page}, error::{TalosError, TalosResult}, render::Glyph};
 
 pub mod pages;
 
@@ -10,7 +10,7 @@ pub struct Codex {
 }
 
 impl Codex {
-    pub fn new() -> Codex {
+    pub fn new() -> TalosResult<Self> {
         let mut codex = Codex {
             // Currently only `windows-1252` and `cp437` are planned but init
             // all pages with `None` will not expand the memory footprint but save from
@@ -19,23 +19,10 @@ impl Codex {
             reverse_map: HashMap::new(),
         };
 
-        // ONLY these pages should be registered at startup - all others will be on the
-        // users request
-        //
-        // TODO: Reconsider the `expect` calls - HOWEVER: The pages are build inside this function
-        // anyway, and the page IDs are thus guaranteed to be valid
-        // So its more a case of shutting up the compiler
-        // ON THE OTHER HAND: The logic is only linked implicitly (by this comment to be exact) -
-        // nothing is preventing me from moving the init or the registering into their own
-        // functions and making this implicit link even harder to see
-        codex
-            .register_page(REG_WIN_1252.0, REG_WIN_1252.1)
-            .expect("Page ID must be free during init");
-        codex
-            .register_page(REG_CP437.0, REG_CP437.1)
-            .expect("Page ID must be free during init");
+        codex.register_page(REG_WIN_1252.0, REG_WIN_1252.1)?;
+        codex.register_page(REG_CP437.0, REG_CP437.1)?;
 
-        codex
+        Ok(codex)
     }
 
     pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
@@ -53,6 +40,10 @@ impl Codex {
 
     // TODO: Optimise by hardcoding ASCII 0-127
     pub fn resolve(&self, glyph: Glyph) -> &str {
+        if let Some(char) = pre_computed_char(glyph) {
+            return char;
+        }
+
         let page_id = (glyph >> 8) as usize;
         let char_id = (glyph & 0xFF) as usize;
 
@@ -62,8 +53,10 @@ impl Codex {
         }
     }
 
-    // TODO: Optimise by hardcoding ASCII 0-127
     pub fn lookup(&self, ch: char) -> Glyph {
+        if ch.is_ascii() {
+            return ch as u16;
+        }
         self.reverse_map
             .get(&ch)
             .copied()

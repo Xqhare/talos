@@ -45,3 +45,25 @@ pub fn validate_page(page: &Page) -> TalosResult<()> {
     }
     Ok(())
 }
+
+pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
+    match g {
+        0..=127 => {
+            // Windows 1252 is page 0 -> Upper byte = 0
+            Some(WIN_1252[g as usize])
+        },
+        _ => return None
+    }
+}
+
+/// Checks if the character is part of 0-127 ASCII
+pub fn pre_computed_glyph(c: char) -> Option<Glyph> {
+    match c as u8 {
+        0..=127 => {
+            // Windows 1252 is page 0 -> Upper byte = 0
+            Some(c as u16)
+        },
+        _ => return None
+    }
+}
+
