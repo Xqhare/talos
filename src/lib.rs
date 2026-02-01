@@ -21,7 +21,7 @@ mod render;
 pub use render::{Colour, Style, Widget, Canvas};
 mod utils;
 pub mod layout;
-
+pub mod widgets;
 
 type Width = u16;
 type Height = u16;
@@ -44,6 +44,10 @@ pub struct Talos {
 impl Talos {
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
+    }
+
+    pub fn canvas_mut(&mut self) -> &mut Canvas {
+        &mut self.canvas
     }
 
     pub fn begin_frame(&mut self) {
