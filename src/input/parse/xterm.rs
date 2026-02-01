@@ -12,7 +12,7 @@ use super::InputParser;
 //
 // Refactor into State Machine:
 //    - When implementing Mouse Support or Terminal Queries (asking the terminal for cursor pos),
-//      rewrite `XtermParser` into a proper State Machine (ref: Paul Williams DEC Parser).
+//      rewrite `XtermParser` into a proper State Machine (ref: Paul Williams DEC Parser & https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking).
 
 /// A stateful parser that turns a stream of bytes into Input Events.
 ///
