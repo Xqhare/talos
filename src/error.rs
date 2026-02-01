@@ -6,11 +6,24 @@ pub enum TalosError {
     InvalidArgument(String),
     InvalidState,
     PageIdInUse(u8),
+    GenericError(String),
 }
 
 impl From<std::io::Error> for TalosError {
     fn from(e: std::io::Error) -> Self {
         TalosError::IOError(e)
+    }
+}
+
+impl From<String> for TalosError {
+    fn from(s: String) -> Self {
+        TalosError::GenericError(s)
+    }
+}
+
+impl From<&str> for TalosError {
+    fn from(s: &str) -> Self {
+        TalosError::GenericError(s.to_string())
     }
 }
 
@@ -21,6 +34,7 @@ impl std::fmt::Display for TalosError {
             TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {}", s),
             TalosError::InvalidState => write!(f, "InvalidState"),
             TalosError::PageIdInUse(id) => write!(f, "Page ID '{}' already in use", id),
+            TalosError::GenericError(s) => write!(f, "GenericError: {}", s),
         }
     }
 }
