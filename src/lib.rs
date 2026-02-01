@@ -19,6 +19,7 @@ mod error;
 mod input;
 mod render;
 mod utils;
+pub mod layout;
 
 pub use render::Colour;
 pub use render::Style;
