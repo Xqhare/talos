@@ -1,20 +1,37 @@
 use crate::codex::Codex;
 use crate::layout::Rect;
-use crate::render::{CCell, Canvas, Style};
+use crate::render::{CCell, Canvas, Glyph, Style};
 use crate::widgets::traits::Widget;
 
 // TODO: store content as `Glyphs` - keep current content field, maybe I'll need that later?
 pub struct Text {
     content: String,
+    content_glyphs: Vec<Vec<Glyph>>,
     style: Style,
     align_center: bool,
     align_vertically: bool
 }
 
+fn parse_content_to_glyphs(content: &str, codex: &Codex) -> Vec<Vec<Glyph>> {
+    let mut out = Vec::with_capacity(content.len());
+    for line in content.lines() {
+        let mut out_line = Vec::with_capacity(line.len());
+        for ch in line.chars() {
+            out_line.push(codex.lookup(ch));
+        }
+        out.push(out_line);
+    }
+    out
+}
+
 impl Text {
-    pub fn new(content: impl Into<String>) -> Self {
+    pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
+        let content = content.into();
+        let content_glyphs = parse_content_to_glyphs(&content, codex);
         Self {
-            content: content.into(),
+            content: content,
+            // Just an arbitrary capacity to save on allocs
+            content_glyphs,
             style: Style::default(),
             align_center: false,
             align_vertically: false
@@ -38,7 +55,7 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn render(&self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
         let lines: Vec<&str> = self.content.lines().collect();
 
         let top = if self.align_vertically {
@@ -56,7 +73,7 @@ impl Widget for Text {
             area.top()
         };
         
-        for (i, line) in lines.iter().enumerate() {
+        for (i, line) in self.content_glyphs.iter().enumerate() {
             if i as u16 >= area.height {
                 break;
             }
@@ -66,7 +83,7 @@ impl Widget for Text {
 
             // Simple Center Alignment
             if self.align_center {
-                let text_width = line.chars().count() as u16;
+                let text_width = line.len() as u16;
                 if text_width < area.width {
                     x += (area.width - text_width) / 2;
                 }
@@ -74,14 +91,13 @@ impl Widget for Text {
 
             // Draw characters
             let mut drawn_width = 0;
-            for ch in line.chars() {
+            for glyph in line {
                 if drawn_width >= area.width {
                     break;
                 }
                 
-                let glyph = codex.lookup(ch);
                 canvas.set_ccell(x + drawn_width, y, CCell {
-                    char: glyph,
+                    char: *glyph,
                     style: self.style,
                 });
                 

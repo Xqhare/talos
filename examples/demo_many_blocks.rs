@@ -96,7 +96,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let _text = Text::new("Look mom! Text inside a block!")
+        let _text = Text::new("Look mom! Text inside a block!", codex)
             .style(text_style)
             .align_center()
             .align_vertically()
