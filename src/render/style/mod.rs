@@ -28,23 +28,26 @@ impl Style {
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
     pub fn generate(self, output_buffer: &mut Vec<u8>) {
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
+
+        output_buffer.push(b'0');
+
         if let Some(fg) = self.fg {
-            handle_fg(fg, output_buffer);
             output_buffer.extend_from_slice(b";");
+            handle_fg(fg, output_buffer);
         }
         if let Some(bg) = self.bg {
-            handle_bg(bg, output_buffer);
             output_buffer.extend_from_slice(b";");
+            handle_bg(bg, output_buffer);
         }
         if self.bit_flag != 0 {
-            if self.bit_flag & 0b10000000 != 0 { output_buffer.extend_from_slice(b"1;"); }
-            if self.bit_flag & 0b01000000 != 0 { output_buffer.extend_from_slice(b"2;"); }
-            if self.bit_flag & 0b00100000 != 0 { output_buffer.extend_from_slice(b"3;"); }
-            if self.bit_flag & 0b00010000 != 0 { output_buffer.extend_from_slice(b"4;"); }
-            if self.bit_flag & 0b00001000 != 0 { output_buffer.extend_from_slice(b"5;"); }
-            if self.bit_flag & 0b00000100 != 0 { output_buffer.extend_from_slice(b"7;"); }
-            if self.bit_flag & 0b00000010 != 0 { output_buffer.extend_from_slice(b"9;"); }
-            if self.bit_flag & 0b00000001 != 0 { output_buffer.extend_from_slice(b"6;"); }
+            if self.bit_flag & 0b10000000 != 0 { output_buffer.extend_from_slice(b";1"); }
+            if self.bit_flag & 0b01000000 != 0 { output_buffer.extend_from_slice(b";2"); }
+            if self.bit_flag & 0b00100000 != 0 { output_buffer.extend_from_slice(b";3"); }
+            if self.bit_flag & 0b00010000 != 0 { output_buffer.extend_from_slice(b";4"); }
+            if self.bit_flag & 0b00001000 != 0 { output_buffer.extend_from_slice(b";5"); }
+            if self.bit_flag & 0b00000100 != 0 { output_buffer.extend_from_slice(b";7"); }
+            if self.bit_flag & 0b00000010 != 0 { output_buffer.extend_from_slice(b";9"); }
+            if self.bit_flag & 0b00000001 != 0 { output_buffer.extend_from_slice(b";6"); }
         }
         output_buffer.extend_from_slice(b"m");
     }
