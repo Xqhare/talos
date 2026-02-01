@@ -81,7 +81,7 @@ mod tests {
     use std::io::Cursor;
 
     #[test]
-    fn test_poll_input_parsing_branches() {
+    fn test_poll_input_parsing_branches() -> TalosResult<()> {
         // A stream simulating: 
         // - 'a' 
         // - Backspace 
@@ -112,12 +112,12 @@ mod tests {
             &mut poll_buffer,
             1024,
             1024
-        ).expect("Polling should succeed");
+        )?;
 
-        let bytes = bytes_opt.expect("Should return Some(bytes)");
+        let bytes = bytes_opt.ok_or("Polling should return Some")?;
 
         // 2. Parse Bytes into Events
-        parser.parse(bytes, &mut event_buffer).expect("Parsing should succeed");
+        assert!(parser.parse(bytes, &mut event_buffer).is_ok(), "Parsing should succeed");
         
         // 3. Verify
         assert_eq!(event_buffer.len(), 6, "Should parse exactly 6 events");
@@ -133,10 +133,12 @@ mod tests {
         ctrl_c_mods.ctrl = true;
         ctrl_c_mods.none = false;
         assert_eq!(event_buffer[5], Event::KeyEvent(KeyEvent::new(KeyCode::Char('a'), ctrl_c_mods)));
+
+        Ok(())
     }
 
     #[test]
-    fn test_empty_input() {
+    fn test_empty_input() -> TalosResult<()> {
         let mut reader = Cursor::new(vec![]);
         let mut buffer = vec![0u8; 32];
         
@@ -145,8 +147,10 @@ mod tests {
             &mut buffer,
             1024,
             1024
-        ).expect("Polling empty should succeed");
+        )?;
 
         assert!(result.is_none(), "Empty input should return None");
+
+        Ok(())
     }
 }
