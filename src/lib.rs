@@ -19,6 +19,7 @@ use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
 use crate::input::Event;
 use crate::ui::render::Canvas;
+use crate::utils::move_render_cursor;
 
 mod backend;
 pub mod codex;
@@ -95,19 +96,8 @@ impl Talos {
                 if self.canvas.buffer[buffer_index] != self.previous_buffer[buffer_index] {
                     let ccell = self.canvas.get_ccell(x, y);
 
-                    // Cursor handling
-                    // TODO: refactor into its own function
                     if x.wrapping_sub(prev_x_cell) != 1 {
-                        let bytes = [
-                            0x1b,
-                            b'[',
-                            
-                        ];
-                        write_all_bytes(&mut self.output_buffer, &bytes)?;
-                        push_u16_as_ascii(&mut self.output_buffer, y.saturating_add(1));
-                        write_all_bytes(&mut self.output_buffer, &[b';'])?;
-                        push_u16_as_ascii(&mut self.output_buffer, x.saturating_add(1));
-                        write_all_bytes(&mut self.output_buffer, &[b'H'])?;
+                        move_render_cursor(&mut self.output_buffer, x, y)?;
                     }
 
                     // Write styled char
