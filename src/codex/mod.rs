@@ -51,6 +51,7 @@ impl Codex {
         Ok(())
     }
 
+    // TODO: Optimise by hardcoding ASCII 0-127
     pub fn resolve(&self, glyph: Glyph) -> &str {
         let page_id = (glyph >> 8) as usize;
         let char_id = (glyph & 0xFF) as usize;
@@ -61,6 +62,7 @@ impl Codex {
         }
     }
 
+    // TODO: Optimise by hardcoding ASCII 0-127
     pub fn lookup(&self, ch: char) -> Glyph {
         self.reverse_map
             .get(&ch)
