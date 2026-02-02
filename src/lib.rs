@@ -22,6 +22,7 @@ use crate::utils::move_render_cursor;
 
 mod backend;
 pub mod codex;
+mod content;
 mod ui;
 
 pub mod input;

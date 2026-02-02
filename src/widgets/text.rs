@@ -3,7 +3,10 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Glyph, Style};
 use crate::widgets::traits::Widget;
 
-// TODO: store content as `Glyphs` - keep current content field, maybe I'll need that later?
+// TODO: No wrapping support whatsoever
+// To optimise, we could split not into lines, but non breaking sequences (e.g. slices separated by
+// whitespace) - Draw the first sequence, if there is enough space, draw the next sequence, if not
+// wrap.
 pub struct Text {
     content: String,
     content_glyphs: Vec<Vec<Glyph>>,

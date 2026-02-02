@@ -61,6 +61,10 @@ Talos never halts execution, meaning it does not wait on input or similar. To ad
 
 Support for mouse input is planned at a much later - stable - state.
 
+Note on `run()` abstraction:\
+This could work by accepting an `App` trait implementing `begin_frame`, `end_frame`, frame capping and `render` and then `run` would be a simple wrapper.\
+Whatever I do, the developer experience should be as simple and intuitive as possible.
+
 ### Code Pages
 
 There are a total of 256 possible code pages. 2 are reserved for windows-1252 and cp437.
