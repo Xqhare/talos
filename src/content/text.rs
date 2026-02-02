@@ -1,6 +1,5 @@
 use crate::{codex::Codex, render::Glyph};
 
-///
 /// The content is parsed into glyph sequences no wider than `max_width`
 ///
 /// A glyph sequence is a vector of glyphs bounded by included, trailing, whitespace
@@ -43,6 +42,10 @@ impl TextContent {
         if let Some(max_width) = max_width {
             let mut current_line = Vec::new();
             let mut current_width = 0;
+
+            if max_width == 0 {
+                return Vec::new();
+            }
 
             // Split by words but keep whitespace
             for word in content.split_inclusive(char::is_whitespace) {
