@@ -46,6 +46,14 @@ impl TextContent {
 
             // Split by words but keep whitespace
             for word in content.split_inclusive(char::is_whitespace) {
+                if word.ends_with('\n') && word != "\n" {
+                    // Remove the trailing newline, push the word and start a new line
+                    let word = &word[..word.len() - 1];
+                    current_line.extend(word.chars().map(|ch| codex.lookup(ch)));
+                    out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
+                    current_width = 0;
+                    continue;
+                }
                 if word == "\n" {
                     out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
                     current_width = 0;

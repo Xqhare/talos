@@ -91,7 +91,15 @@ impl Widget for Text {
             let y = top + i as u16;
             let mut x = area.left() + left_margin;
 
+            if x + seq.glyphs().len() as u16 > area.right() {
+                x = area.left();
+            }
             for glyph in seq.glyphs() {
+
+                if x >= area.right() {
+                    // Hard clip the edge of the provided area
+                    break;
+                }
                 
                 canvas.set_ccell(x, y, CCell {
                     char: *glyph,
