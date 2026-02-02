@@ -1,6 +1,6 @@
 use crate::backend::sys::terminal_size;
 use crate::error::TalosResult;
-use crate::utils::constants::ansi::{CLEAR_ALL, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR, TO_TOP_LEFT};
+use crate::utils::constants::ansi::{CLEAR_ALL, DISABLE_MOUSE_FORMATTING_CODE, DISABLE_MOUSE_REPORTING_CODE, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, MOUSE_FORMATTING_CODE, MOUSE_REPORTING_CODE, SHOW_CURSOR, TO_TOP_LEFT};
 use std::io::{self, Write};
 use std::os::fd::AsRawFd;
 
@@ -30,6 +30,8 @@ impl TerminalIO {
         }
         write!(stdout, "{}", CLEAR_ALL)?;
         write!(stdout, "{}", TO_TOP_LEFT)?;
+        write!(stdout, "{}", MOUSE_FORMATTING_CODE)?;
+        write!(stdout, "{}", MOUSE_REPORTING_CODE)?;
         stdout.flush()?;
 
         Ok(TerminalIO {
@@ -43,6 +45,8 @@ impl TerminalIO {
         write!(self.stdout, "{}", CLEAR_ALL)?;
         write!(self.stdout, "{}", EXIT_ALT_SCREEN)?;
         write!(self.stdout, "{}", SHOW_CURSOR)?;
+        write!(self.stdout, "{}", DISABLE_MOUSE_REPORTING_CODE)?;
+        write!(self.stdout, "{}", DISABLE_MOUSE_FORMATTING_CODE)?;
         self.stdout.flush()?;
 
         if let Some(raw_mode) = self.raw_mode.take() {
@@ -66,11 +70,11 @@ impl TerminalIO {
 
 impl Drop for TerminalIO {
     fn drop(&mut self) {
-        // 1. Exit Alternate Screen
-        // 2. Show Cursor
         // Also wtf am I supposed to do with errors in here
         let _ = write!(self.stdout, "{}", EXIT_ALT_SCREEN);
         let _ = write!(self.stdout, "{}", SHOW_CURSOR);
+        let _ = write!(self.stdout, "{}", DISABLE_MOUSE_REPORTING_CODE);
+        let _ = write!(self.stdout, "{}", DISABLE_MOUSE_FORMATTING_CODE);
         let _ = self.stdout.flush();
     }
 }

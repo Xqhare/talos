@@ -1,7 +1,33 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Event {
     KeyEvent(KeyEvent),
+    MouseEvent(MouseEvent),
     Unknown(Vec<u8>), // Useful for debugging weird sequences
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MouseEvent {
+    pub kind: MouseEventKind,
+    pub column: u16,
+    pub row: u16,
+    pub modifiers: KeyModifiers,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MouseEventKind {
+    Down(MouseButton),
+    Up(MouseButton),
+    Drag(MouseButton),
+    Moved,
+    ScrollUp,
+    ScrollDown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MouseButton {
+    Left,
+    Middle,
+    Right,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,4 +1,4 @@
-use crate::{error::TalosResult, input::{event::{KeyCode, KeyEvent, KeyModifiers}, Event}};
+use crate::{error::TalosResult, input::{Event, event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind}}};
 
 use super::InputParser;
 
@@ -17,6 +17,7 @@ pub struct XtermParser {
     current_param: u16,
     has_param_digit: bool,
     pending_buffer: Vec<u8>,
+    is_sgr_mouse: bool,
 }
 
 impl InputParser for XtermParser {
@@ -27,6 +28,7 @@ impl InputParser for XtermParser {
             current_param: 0,
             has_param_digit: false,
             pending_buffer: Vec::with_capacity(32),
+            is_sgr_mouse: false,
         }
     }
 
@@ -57,6 +59,7 @@ impl XtermParser {
         self.current_param = 0;
         self.has_param_digit = false;
         self.pending_buffer.clear();
+        self.is_sgr_mouse = false;
     }
 
     fn handle_normal(&mut self, byte: u8, output: &mut Vec<Event>) {
@@ -95,6 +98,7 @@ impl XtermParser {
 
     fn handle_csi(&mut self, byte: u8, output: &mut Vec<Event>) {
         match byte {
+            b'<' => self.is_sgr_mouse = true,
             b'0'..=b'9' => {
                 self.current_param = self.current_param.saturating_mul(10).saturating_add((byte - b'0') as u16);
                 self.has_param_digit = true;
@@ -108,7 +112,14 @@ impl XtermParser {
                 if self.has_param_digit {
                     self.params.push(self.current_param);
                 }
-                if let Some(ev) = self.finalize_csi(byte) {
+
+                let event = if self.is_sgr_mouse {
+                    self.parse_sgr_mouse(byte)
+                } else {
+                    self.finalize_csi(byte)   
+                };
+
+                if let Some(ev) = event {
                     output.push(ev);
                 }
                 self.reset_state();
@@ -199,6 +210,48 @@ impl XtermParser {
         } else {
             None
         }
+    }
+
+    fn parse_sgr_mouse(&self, final_byte: u8) -> Option<Event> {
+        // SGR format: ESC [ < button ; column ; row (m or M)
+        if self.params.len() < 3 { return None; }
+
+        let b_code = self.params[0];
+        let col = self.params[1].saturating_sub(1);
+        let row = self.params[2].saturating_sub(1);
+
+        // Bit 2: Shift, Bit 3: Alt, Bit 4: Ctrl
+        let modifiers = KeyModifiers {
+            shift: (b_code & 4) != 0,
+            alt: (b_code & 8) != 0,
+            ctrl: (b_code & 16) != 0,
+            none: (b_code & 28) == 0,
+        };
+
+        // b_code bits 0-1 and 6-7 determine the button/event type
+        // final_byte 'M' is press/drag, 'm' is release
+        let kind = match (final_byte, b_code & 0x63) {
+            (b'M', 0) => MouseEventKind::Down(MouseButton::Left),
+            (b'M', 1) => MouseEventKind::Down(MouseButton::Middle),
+            (b'M', 2) => MouseEventKind::Down(MouseButton::Right),
+            (b'm', 0) => MouseEventKind::Up(MouseButton::Left),
+            (b'm', 1) => MouseEventKind::Up(MouseButton::Middle),
+            (b'm', 2) => MouseEventKind::Up(MouseButton::Right),
+            (b'M', 32) => MouseEventKind::Drag(MouseButton::Left),
+            (b'M', 33) => MouseEventKind::Drag(MouseButton::Middle),
+            (b'M', 34) => MouseEventKind::Drag(MouseButton::Right),
+            (b'M', 35) => MouseEventKind::Moved,
+            (b'M', 64) => MouseEventKind::ScrollUp,
+            (b'M', 65) => MouseEventKind::ScrollDown,
+            _ => return None,
+        };
+
+        Some(Event::MouseEvent(MouseEvent {
+            kind,
+            column: col,
+            row,
+            modifiers,
+        }))
     }
 }
 

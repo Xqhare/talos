@@ -12,3 +12,8 @@ pub const HIDE_CURSOR: &str = "\x1b[?25l";
 pub const SHOW_CURSOR: &str = "\x1b[?25h";
 pub const ENTER_ALT_SCREEN: &str = "\x1b[?1049h";
 pub const EXIT_ALT_SCREEN: &str = "\x1b[?1049l";
+
+pub const MOUSE_REPORTING_CODE: &str = "\x1b[?1000h";
+pub const MOUSE_FORMATTING_CODE: &str = "\x1b[?1006h";
+pub const DISABLE_MOUSE_REPORTING_CODE: &str = "\x1b[?1000l";
+pub const DISABLE_MOUSE_FORMATTING_CODE: &str = "\x1b[?1006l";
