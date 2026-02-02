@@ -13,8 +13,8 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
 
 ## Roadmap
 
-- [ ] Core
-    - [ ] Mouse input support (eventually)
+- [x] Core
+    - [x] Mouse input support (eventually)
     - [x] Optimise Codex
 - [ ] Documentation
     - [ ] Examples
@@ -23,7 +23,7 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
         - [ ] Internal
     - [ ] Readme
 - [ ] Widgets
-    - [ ] Text wrapping in `Text` widget
+    - [x] Text wrapping in `Text` widget
     - [ ] Input Widget
     - [ ] Stateful Widgets
         - [ ] List widget
