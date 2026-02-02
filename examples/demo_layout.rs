@@ -32,13 +32,13 @@ fn main() -> Result<(), talos::TalosError> {
         let size = canvas.size_rect();
 
         // 1. Create a Layout
-        // "Split the screen vertically. Top 10% for header, rest (Min 0) for content"
+        // "Split the screen vertically. Top 16% for header, rest (Min 0) for content"
         let chunks = LayoutBuilder::new()
             .direction(Direction::Vertical)
-            .add_constraint(Constraint::Percentage(10))
-            .add_constraint(Constraint::Min(0))
+            .add_constraint(Constraint::Percentage(16))
+            .add_constraint(Constraint::Min(20))
             .build()
-            .split(size); // You'll need a helper to get full screen rect
+            .split(size); 
 
         // 2. Draw
         // Header
