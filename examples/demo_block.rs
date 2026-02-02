@@ -38,7 +38,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let block: Block = Block::new()
+        let mut block: Block = Block::new()
             .title(" Hello Talos ")
             .style(style)
             .with_bg_fill();

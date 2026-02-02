@@ -1,5 +1,3 @@
-use std::mem;
-
 use crate::{codex::Codex, render::Glyph};
 
 ///
@@ -14,19 +12,27 @@ pub struct TextContent {
 }
 
 impl TextContent {
-    pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
+    pub fn new(content: impl Into<String>, codex: &Codex, max_width: Option<u16>) -> Self {
         let raw = content.into();
-        let buffer = Self::parse_content_to_glyphs(&raw, codex, None);
+        let buffer = Self::parse_content_to_glyphs(&raw, codex, max_width);
         Self {
             raw,
             buffer,
-            max_width: None,
+            max_width,
         }
     }
 
     pub fn set_wrap_limit(&mut self, max_width: u16, codex: &Codex) {
         self.max_width = Some(max_width);
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
+    }
+
+    pub fn get_wrap_limit(&self) -> Option<u16> {
+        self.max_width
+    }
+
+    pub fn get_sequences(&self) -> &[Sequence] {
+        &self.buffer
     }
 
     // TODO: Cleanup of nested ifs
@@ -112,7 +118,7 @@ impl Sequence {
         self.width
     }
 
-    pub fn glyphs(&self) -> &Vec<Glyph> {
+    pub fn glyphs(&self) -> &[Glyph] {
         &self.buffer
     }
 }

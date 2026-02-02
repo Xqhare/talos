@@ -1,40 +1,21 @@
 use crate::codex::Codex;
+use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;
-use crate::render::{CCell, Canvas, Glyph, Style};
+use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
-// TODO: No wrapping support whatsoever
-// To optimise, we could split not into lines, but non breaking sequences (e.g. slices separated by
-// whitespace) - Draw the first sequence, if there is enough space, draw the next sequence, if not
-// wrap.
 pub struct Text {
-    content: String,
-    content_glyphs: Vec<Vec<Glyph>>,
+    content: TextContent,
     style: Style,
     align_center: bool,
     align_vertically: bool
 }
 
-fn parse_content_to_glyphs(content: &str, codex: &Codex) -> Vec<Vec<Glyph>> {
-    let mut out = Vec::with_capacity(content.len());
-    for line in content.lines() {
-        let mut out_line = Vec::with_capacity(line.len());
-        for ch in line.chars() {
-            out_line.push(codex.lookup(ch));
-        }
-        out.push(out_line);
-    }
-    out
-}
-
 impl Text {
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
-        let content = content.into();
-        let content_glyphs = parse_content_to_glyphs(&content, codex);
+        let content = TextContent::new(content, codex, None);
         Self {
             content: content,
-            // Just an arbitrary capacity to save on allocs
-            content_glyphs,
             style: Style::default(),
             align_center: false,
             align_vertically: false
@@ -58,12 +39,26 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn render(&self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
-        let lines: Vec<&str> = self.content.lines().collect();
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
 
+        // Update wrap limit
+        if let Some(wrap_limit) = self.content.get_wrap_limit() {
+            if wrap_limit > area.width {
+                self.content.set_wrap_limit(area.width, &codex);
+            }
+        } else {
+            // Assume first run - so set up wrap limit
+            self.content.set_wrap_limit(area.width, &codex);
+        }
+
+        // After setup, each Sequence should be guaranteed to be at most
+        // `area.width` wide
+        let sequences: &[Sequence] = self.content.get_sequences();
+        //let mut out = Vec::with_capacity(sequences.len());
+        
         let top = if self.align_vertically {
-            if (lines.len() as u16) < area.height {
-                let rest = area.height - lines.len() as u16;
+            if (sequences.len() as u16) < area.height {
+                let rest = area.height - sequences.len() as u16;
                 if rest % 2 != 0 {
                     (rest / 2 + 1) + area.top()
                 } else {
@@ -75,37 +70,38 @@ impl Widget for Text {
         } else {
             area.top()
         };
-        
-        for (i, line) in self.content_glyphs.iter().enumerate() {
-            if i as u16 >= area.height {
-                break;
+
+        for (i, seq) in sequences.iter().enumerate() {
+            if seq.width() > area.width {
+                // TODO: Gracefully handle this - for debugging I want panic
+                unreachable!("Rendering Text Widget: Single Sequence must be at most `area.width` wide");
             }
+
+            let left_margin = if self.align_center {
+                let rest_width = area.width - seq.width();
+                if rest_width % 2 != 0 {
+                    rest_width / 2 + 1
+                } else {
+                    rest_width / 2
+                }
+            } else {
+                0
+            };
 
             let y = top + i as u16;
-            let mut x = area.left();
+            let mut x = area.left() + left_margin;
 
-            // Simple Center Alignment
-            if self.align_center {
-                let text_width = line.len() as u16;
-                if text_width < area.width {
-                    x += (area.width - text_width) / 2;
-                }
-            }
-
-            // Draw characters
-            let mut drawn_width = 0;
-            for glyph in line {
-                if drawn_width >= area.width {
-                    break;
-                }
+            for glyph in seq.glyphs() {
                 
-                canvas.set_ccell(x + drawn_width, y, CCell {
+                canvas.set_ccell(x, y, CCell {
                     char: *glyph,
                     style: self.style,
                 });
                 
-                drawn_width += 1;
+                x += 1;
             }
+
         }
+
     }
 }

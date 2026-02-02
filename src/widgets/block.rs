@@ -53,7 +53,7 @@ impl Block {
 }
 
 impl Widget for Block {
-    fn render(&self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 { return; }
 
         let left = area.left();
@@ -130,7 +130,7 @@ mod tests {
         
         // 2. Define Area and Widget
         let area = Rect::new(0, 0, 5, 5); // 5x5 box at top-left
-        let block = Block::new(); // Default block (simple borders)
+        let mut block = Block::new(); // Default block (simple borders)
 
         // 3. Render (No terminal needed!)
         // Note: We need to import the Widget trait in the test module or parent to call .render()
@@ -173,7 +173,7 @@ mod tests {
         // Draw a block starting at (2,2) with size 3x3
         // It covers (2,2) to (4,4)
         let area = Rect::new(2, 2, 3, 3); 
-        let block = Block::new();
+        let mut block = Block::new();
         block.render(&mut canvas, area, &codex);
 
         // Check a point OUTSIDE the rect (e.g., 0,0)
@@ -193,7 +193,7 @@ mod tests {
         use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
-        let block = Block::new().title("Test");
+        let mut block = Block::new().title("Test");
         
         block.render(&mut canvas, area, &codex);
 

@@ -37,7 +37,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::Blue))
             .build();
 
-        let large_block: Block = Block::new()
+        let mut large_block: Block = Block::new()
             .title("")
             .style(style)
             .with_bg_fill();
@@ -51,7 +51,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::Red))
             .build();
 
-        let right_block: Block = Block::new()
+        let mut right_block: Block = Block::new()
             .title("Right")
             .style(style)
             .with_bg_fill();
@@ -65,7 +65,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::Green))
             .build();
 
-        let next_right_block: Block = Block::new()
+        let mut next_right_block: Block = Block::new()
             .title("Over Right")
             .style(style)
             .with_bg_fill();
@@ -80,7 +80,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let block: Block = Block::new()
+        let mut block: Block = Block::new()
             .title(" Hello Talos ")
             .style(style)
             .with_bg_fill();
