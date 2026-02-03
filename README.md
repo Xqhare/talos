@@ -31,8 +31,6 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
         - [ ] Scroll widget
         - [ ] Graph widget
 - [ ] Maybe
-    - [ ] rework `present()` to handle resize events itself - Higher level `run()` abstraction?
-    - [x] Increase error visibility by removing all `.expect()`'s
     - [ ] Mouse position reporting without a mouse button pressed
         - [ ] Backend
             - [x] Xterm Parser
@@ -68,11 +66,7 @@ This is done for simplicity in the code.
 
 Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
 
-Support for mouse input is planned at a much later - stable - state.
-
-Note on `run()` abstraction:\
-This could work by accepting an `App` trait implementing `begin_frame`, `end_frame`, frame capping and `render` and then `run` would be a simple wrapper.\
-Whatever I do, the developer experience should be as simple and intuitive as possible.
+To keep the scope small, I want to push as much on the user as I can. This includes state management, and managing the currently focused widget.
 
 ### Code Pages
 
