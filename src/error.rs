@@ -5,6 +5,7 @@ pub enum TalosError {
     IOError(std::io::Error),
     InvalidArgument(String),
     InvalidState,
+    DefaultPageId(u8),
     PageIdInUse(u8),
     GenericError(String),
 }
@@ -33,6 +34,7 @@ impl std::fmt::Display for TalosError {
             TalosError::IOError(e) => write!(f, "IOError: {}", e),
             TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {}", s),
             TalosError::InvalidState => write!(f, "InvalidState"),
+            TalosError::DefaultPageId(id) => write!(f, "Page ID '{}' is a default page - Page ID unavailable.", id),
             TalosError::PageIdInUse(id) => write!(f, "Page ID '{}' already in use", id),
             TalosError::GenericError(s) => write!(f, "GenericError: {}", s),
         }
