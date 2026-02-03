@@ -1,4 +1,4 @@
-use talos::{Talos, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::Rect, widgets::{Block, Text, traits::Widget}};
+use talos::{Talos, input::{Event, KeyCode, KeyEvent}, layout::Rect, render::{Colour, Normal, Style}, widgets::{Block, Text, traits::Widget}};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -38,7 +38,8 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut large_block: Block = Block::new()
-            .title("")
+            .title("", codex, false)
+            .with_fat_border()
             .style(style)
             .with_bg_fill();
 
@@ -52,8 +53,10 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut right_block: Block = Block::new()
-            .title("Right")
+            .with_fat_border()
+            .title("Right", codex, false)
             .style(style)
+            .with_beautify_border_breaks()
             .with_bg_fill();
 
         right_block.render(canvas, right_area, codex);
@@ -66,7 +69,7 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut next_right_block: Block = Block::new()
-            .title("Over Right")
+            .title("Over Right", codex, false)
             .style(style)
             .with_bg_fill();
 
@@ -81,7 +84,7 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block: Block = Block::new()
-            .title(" Hello Talos ")
+            .title(" Hello Talos ", codex, false)
             .style(style)
             .with_bg_fill();
 

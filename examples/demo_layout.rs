@@ -42,10 +42,10 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 2. Draw
         // Header
-        Block::new().title("Header").render(canvas, chunks[0], codex);
+        Block::new().title("Header", codex, false).render(canvas, chunks[0], codex);
 
         // Content
-        Block::new().title("Content").render(canvas, chunks[1], codex);
+        Block::new().title("Content", codex, true).render(canvas, chunks[1], codex);
         // 4. Present to Terminal
         talos.present()?;
 

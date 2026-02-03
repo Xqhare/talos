@@ -31,7 +31,7 @@ fn main() -> Result<(), talos::TalosError> {
         let (canvas, codex) = talos.render_ctx();
 
         // Let's draw a white & black block in the middle
-        let area = Rect::new(15, 15, 50, 10);
+        let area = Rect::new(15, 15, 90, 10);
         
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Black))
@@ -39,12 +39,35 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block: Block = Block::new()
-            .title(" Hello Talos ")
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
+            .with_beautify_border_breaks()
             .style(style)
             .with_bg_fill();
 
         block.render(canvas, area, codex);
+        let area2 = Rect::new(2, 2, 100, 10);
+        
+        let style2 = Style::builder()
+            .set_fg(Colour::Normal(Normal::White))
+            .set_bg(Colour::Normal(Normal::Magenta))
+            .build();
 
+        let mut block2: Block = Block::new()
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
+            .with_beautify_border_breaks()
+            .with_fat_border()
+            .style(style2)
+            .with_bg_fill();
+
+        block2.render(canvas, area2, codex);
         // Lets add some styled text to the block
         let block_inner = block.inner(area);
 

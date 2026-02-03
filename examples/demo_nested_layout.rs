@@ -50,14 +50,14 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 2. Draw
         // Header
-        Block::new().title("Header").render(canvas, chunks[0], codex);
+        Block::new().title("Header", codex, true).with_beautify_border_breaks().render(canvas, chunks[0], codex);
 
         // Content
-        Block::new().title("Left Content Chunk").render(canvas, sub_chunks[0], codex);
-        Block::new().title("Right Content Chunk").render(canvas, sub_chunks[1], codex);
+        Block::new().title("Left Content Chunk", codex, false).with_beautify_border_breaks().render(canvas, sub_chunks[0], codex);
+        Block::new().title("Right Content Chunk", codex, false).with_beautify_border_breaks().render(canvas, sub_chunks[1], codex);
 
         // Footer
-        Block::new().title("Footer").render(canvas, chunks[2], codex);
+        Block::new().title("Footer", codex, true).render(canvas, chunks[2], codex);
 
         // 4. Present to Terminal
         talos.present()?;

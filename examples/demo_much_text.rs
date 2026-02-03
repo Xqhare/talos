@@ -44,12 +44,12 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut large_block_left: Block = Block::new()
-            .title("")
+            .title("", codex, false)
             .style(style_left)
             .with_bg_fill();
 
         let mut large_block_right: Block = Block::new()
-            .title("")
+            .title("", codex, false)
             .style(style_right)
             .with_bg_fill();
 
@@ -95,8 +95,9 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block: Block = Block::new()
-            .title("Center Block Title")
+            .title("Center Block Title", codex, true)
             .style(style)
+            .with_beautify_border_breaks()
             .with_bg_fill();
 
         block.render(canvas, area, codex);
