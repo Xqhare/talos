@@ -71,11 +71,17 @@ impl TerminalIO {
 impl Drop for TerminalIO {
     fn drop(&mut self) {
         // Also wtf am I supposed to do with errors in here
+        let _ = write!(self.stdout, "{}", CLEAR_ALL);
         let _ = write!(self.stdout, "{}", EXIT_ALT_SCREEN);
         let _ = write!(self.stdout, "{}", SHOW_CURSOR);
         let _ = write!(self.stdout, "{}", DISABLE_MOUSE_REPORTING_CODE);
         let _ = write!(self.stdout, "{}", DISABLE_MOUSE_FORMATTING_CODE);
         let _ = self.stdout.flush();
+
+        // Lets be explicit with dropping the raw mode - better safe than sorry
+        if let Some(raw_mode) = self.raw_mode.take() {
+            drop(raw_mode);
+        }
     }
 }
 
