@@ -43,12 +43,19 @@ impl TalosBuilder {
     }
 
     /// Disables the panic handler hook
+    ///
+    /// This can lead to unrecoverable panics, and returning the Terminal in a partially configured
+    /// and not reset (broken) state.
+    ///
+    /// If disableing the panic handler, `Talos` expects you to set up a custom panic handler, called
+    /// before building `Talos`.
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
         self
     }
 
     pub fn build(self) -> TalosResult<Talos> {
+        // Set up panic handler as the very first thing
         if self.set_up_panic_handler {
             register_signal_handlers()?;
         }
