@@ -22,6 +22,9 @@ impl TextContent {
     }
 
     pub fn set_wrap_limit(&mut self, max_width: u16, codex: &Codex) {
+        if self.max_width == Some(max_width) {
+            return
+        }
         self.max_width = Some(max_width);
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
     }

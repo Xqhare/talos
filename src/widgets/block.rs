@@ -1,29 +1,68 @@
 use crate::codex::Codex;
+use crate::content::title::{TitleContents, TitlePosition};
 use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
 pub struct Block {
-    title: Option<String>,
+    title: TitleContents,
     style: Style,
     fill_bg: bool,
+    beautfy_border_breaks: bool,
+    fat_border: bool
 }
 
 impl Block {
     pub fn new() -> Self {
         Self {
-            title: None,
+            title: TitleContents::default(),
             style: Style::default(),
             fill_bg: false,
+            beautfy_border_breaks: false,
+            fat_border: false
         }
+    }
+
+    pub fn with_fat_border(mut self) -> Self {
+        self.fat_border = true;
+        self
     }
 
     /// Sets the title of the block
     ///
     /// By default, the block has no title
-    /// If `""` is passed, no title is rendered
-    pub fn title(mut self, title: impl Into<String>) -> Self {
-        self.title = Some(title.into());
+    ///
+    /// # Arguments
+    /// * `title` - The title of the block
+    /// * `centered` - Whether the title should be centered
+    ///
+    /// if `centered` is false the title will be on the top left corner
+    pub fn title(mut self, title: impl Into<String>, codex: &Codex, centered: bool) -> Self {
+        if centered {
+            self.title.set_position(TitlePosition::TopCenter, title, codex);
+        } else {
+            self.title.set_position(TitlePosition::TopLeft, title, codex);
+        }
+        self
+    }
+
+    pub fn top_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+        self.title.set_position(TitlePosition::TopRight, subtitle, codex);
+        self
+    }
+
+    pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+        self.title.set_position(TitlePosition::BottomRight, subtitle, codex);
+        self
+    }
+
+    pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+        self.title.set_position(TitlePosition::BottomCenter, subtitle, codex);
+        self
+    }
+
+    pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+        self.title.set_position(TitlePosition::BottomLeft, subtitle, codex);
         self
     }
 
@@ -34,6 +73,11 @@ impl Block {
 
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
+        self
+    }
+
+    pub fn with_beautify_border_breaks(mut self) -> Self {
+        self.beautfy_border_breaks = true;
         self
     }
 
@@ -61,12 +105,12 @@ impl Widget for Block {
         let top = area.top();
         let bottom = area.bottom() - 1;
 
-        let h_bar = codex.lookup('─');
-        let v_bar = codex.lookup('│');
-        let tl = codex.lookup('┌');
-        let tr = codex.lookup('┐');
-        let bl = codex.lookup('└');
-        let br = codex.lookup('┘');
+        let h_bar = if self.fat_border { codex.lookup('═') } else { codex.lookup('─') };
+        let v_bar = if self.fat_border { codex.lookup('║') } else { codex.lookup('│') };
+        let tl = if self.fat_border { codex.lookup('╔') } else { codex.lookup('┌') };
+        let tr = if self.fat_border { codex.lookup('╗') } else { codex.lookup('┐') };
+        let bl = if self.fat_border { codex.lookup('╚') } else { codex.lookup('└') };
+        let br = if self.fat_border { codex.lookup('╝') } else { codex.lookup('┘') };
 
         // Draw Corners
         canvas.set_ccell(left, top, CCell { char: tl, style: self.style });
@@ -95,20 +139,97 @@ impl Widget for Block {
         }
 
         // Draw Title
-        if let Some(title) = &self.title {
-            let max_len = (area.width as usize).saturating_sub(2); // Minus borders
-            if max_len > 0 {
-                let render_title = if title.len() > max_len {
-                    &title[..max_len]
-                } else {
-                    &title
-                };
+        
 
-                let start_x = left + 1;
-                for (i, ch) in render_title.chars().enumerate() {
-                    let glyph = codex.lookup(ch); 
-                    canvas.set_ccell(start_x + i as u16, top, CCell { char: glyph, style: self.style });
-                }
+        // DIFFERENT BOTTOM STYLES
+        let left_break = if self.beautfy_border_breaks { if self.fat_border { codex.lookup('╗') } else { codex.lookup('┐') } } else { 0 };
+        let right_break = if self.beautfy_border_breaks { if self.fat_border { codex.lookup('╔') } else { codex.lookup('┌') } } else { 0 };
+
+        if let Some(title) = &self.title.get_position(TitlePosition::TopLeft) {
+            let mut start_x = left + 1;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, top, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in title.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, top, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + title.len() as u16, top, CCell { char: right_break, style: self.style });
+            }
+        } else if let Some(title) = &self.title.get_position(TitlePosition::TopCenter) {
+            let start_x = (area.width as usize / 2).saturating_sub(title.len() / 2);
+            let mut start_x = left + start_x as u16 + 1;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, top, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in title.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, top, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + title.len() as u16, top, CCell { char: right_break, style: self.style });
+            }
+        }
+
+        // Draw subtitles if set
+        if let Some(top_subtitle) = &self.title.get_position(TitlePosition::TopRight) {
+            let mut start_x = right - top_subtitle.len() as u16 - 2;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, top, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in top_subtitle.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, top, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + top_subtitle.len() as u16, top, CCell { char: right_break, style: self.style });
+            }
+        }
+
+        let left_break = if self.beautfy_border_breaks { if self.fat_border { codex.lookup('╝') } else { codex.lookup('┘') } } else { 0 };
+        let right_break = if self.beautfy_border_breaks { if self.fat_border { codex.lookup('╚') } else { codex.lookup('└') } } else { 0 };
+
+        if let Some(bottom_left_subtitle) = &self.title.get_position(TitlePosition::BottomLeft) {
+            let mut start_x = left + 1;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, bottom, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in bottom_left_subtitle.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, bottom, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + bottom_left_subtitle.len() as u16, bottom, CCell { char: right_break, style: self.style });
+            }
+        }
+
+        if let Some(bottom_center_subtitle) = &self.title.get_position(TitlePosition::BottomCenter) {
+            let start_x = (area.width as usize / 2).saturating_sub(bottom_center_subtitle.len() / 2);
+            let mut start_x = left + start_x as u16 + 1;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, bottom, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in bottom_center_subtitle.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, bottom, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + bottom_center_subtitle.len() as u16, bottom, CCell { char: right_break, style: self.style });
+            }
+        }
+
+        if let Some(bottom_right_subtitle) = &self.title.get_position(TitlePosition::BottomRight) {
+            let mut start_x = right - bottom_right_subtitle.len() as u16 - 2;
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x, bottom, CCell { char: left_break, style: self.style });
+                start_x += 1;
+            }
+            for (i, glyph) in bottom_right_subtitle.iter().enumerate() {
+                canvas.set_ccell(start_x + i as u16, bottom, CCell { char: *glyph, style: self.style });
+            }
+            if self.beautfy_border_breaks {
+                canvas.set_ccell(start_x + bottom_right_subtitle.len() as u16, bottom, CCell { char: right_break, style: self.style });
             }
         }
     }
@@ -193,7 +314,7 @@ mod tests {
         use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
-        let mut block = Block::new().title("Test");
+        let mut block = Block::new().title("Test", &codex, false);
         
         block.render(&mut canvas, area, &codex);
 
