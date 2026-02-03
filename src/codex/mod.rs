@@ -19,13 +19,13 @@ impl Codex {
             reverse_map: HashMap::new(),
         };
 
-        codex.register_page(REG_WIN_1252.0, REG_WIN_1252.1)?;
-        codex.register_page(REG_CP437.0, REG_CP437.1)?;
+        codex.register_startup_page(REG_WIN_1252.0, REG_WIN_1252.1)?;
+        codex.register_startup_page(REG_CP437.0, REG_CP437.1)?;
 
         Ok(codex)
     }
 
-    pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
+    fn register_startup_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
         if self.pages[id as usize].is_some() {
             return Err(TalosError::PageIdInUse(id));
         }
@@ -38,7 +38,23 @@ impl Codex {
         Ok(())
     }
 
-    // TODO: Optimise by hardcoding ASCII 0-127
+    pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
+        if id == REG_WIN_1252.0 || id == REG_CP437.0 {
+            return Err(TalosError::DefaultPageId(id));
+        }
+
+        if self.pages[id as usize].is_some() {
+            return Err(TalosError::PageIdInUse(id));
+        }
+        validate_page(&page)?;
+
+        self.pages[id as usize] = Some(page);
+
+        self.update_cache(id, page);
+
+        Ok(())
+    }
+
     pub fn resolve(&self, glyph: Glyph) -> &str {
         if let Some(char) = pre_computed_char(glyph) {
             return char;
