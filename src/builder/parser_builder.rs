@@ -11,8 +11,9 @@ pub struct ParserBuilder {
 
 impl Default for ParserBuilder {
     fn default() -> Self {
+        // Around 1MB of max input - PER FRAME
         let max_poll_input_buffer = 1024 * 1024;
-        let buffer_linear_growth_step = 4096;
+        let buffer_linear_growth_step = 2048;
         let initial_poll_input_buffer_size = 512;
         ParserBuilder {
             parser: Box::new(XtermParser::new()),
@@ -28,7 +29,7 @@ impl ParserBuilder {
         self.initial_poll_input_buffer_size = poll_input_buffer_size;
         self
     }
-    /// The default supports 4kb of input per frame
+    /// The default supports a maximum of around 1MB of input per frame
     pub fn with_max_poll_input_buffer(mut self, max_poll_input_buffer: usize) -> Self {
         self.max_poll_input_buffer = max_poll_input_buffer;
         self
