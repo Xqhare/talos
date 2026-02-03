@@ -66,6 +66,11 @@ impl Talos {
         self.canvas.clear();
     }
 
+    // TODO: move the return type to a Result<enum>
+    // Something like `TalosResult<Present::Resized>` and `TalosResult<Present::Presented>`
+    //
+    // Redrawing could also be solved with recursion - that would need to be toggleable though and
+    // need a recursion limit to prevent infinites.
     /// Present the canvas to the terminal
     ///
     /// Returns whether the terminal was resized.
