@@ -31,7 +31,9 @@ impl Style {
 
         // TODO: Optimise: We don't need to push a 0 if the style is the exact same as the previous
         // Keep in mind: This was added to remove 'ghost characters' in the terminal, left after
-        // resizing 
+        // resizing
+        //
+        // 1. try to optimise failed with no content being rendered if using a layouter
         output_buffer.push(b'0');
 
         if let Some(fg) = self.fg {
