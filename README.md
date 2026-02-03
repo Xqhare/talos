@@ -24,11 +24,12 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
     - [ ] Readme
 - [ ] Widgets
     - [x] Text wrapping in `Text` widget
-    - [ ] Input Widget
     - [ ] Stateful Widgets
+        - [ ] Text Input Widget
         - [ ] List widget
         - [ ] Table widget
         - [ ] Scroll widget
+        - [ ] Graph widget
 - [ ] Maybe
     - [ ] rework `present()` to handle resize events itself - Higher level `run()` abstraction?
     - [x] Increase error visibility by removing all `.expect()`'s
