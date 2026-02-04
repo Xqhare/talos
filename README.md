@@ -7,9 +7,9 @@ It can be used to create a simple TUI for any kind of application.
 In Greek mythology, `Talos`, was a giant automaton made of bronze to protect Europa in Crete from pirates and invaders. He circled the island's shores three times daily.
 
 ## Motivation
-This project is educational in nature. I hope it may prove useful to myself in the future.\
+This project is educational in nature. I hope it may prove useful to myself and maybe even others in the future.\
 I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.\
-To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width`.
+To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width` to keep the dependencies to only `libc`.
 
 ## Roadmap
 
@@ -26,9 +26,8 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
     - [x] Text wrapping in `Text` widget
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
-        - [ ] List widget
+        - [x] List widget
         - [ ] Table widget
-        - [ ] Scroll widget
         - [ ] Graph widget
 - [ ] Maybe
     - [ ] Mouse position reporting without a mouse button pressed
