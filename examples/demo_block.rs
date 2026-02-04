@@ -68,6 +68,23 @@ fn main() -> Result<(), talos::TalosError> {
             .with_bg_fill();
 
         block2.render(canvas, area2, codex);
+        let area3 = Rect::new(10, 30, 80, 10);
+        
+        let style3 = Style::builder()
+            .set_fg(Colour::Normal(Normal::Magenta))
+            .set_bg(Colour::Normal(Normal::Black))
+            .build();
+
+        let mut block3: Block = Block::new()
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
+            .style(style3)
+            .with_bg_fill();
+
+        block3.render(canvas, area3, codex);
         // Lets add some styled text to the block
         let block_inner = block.inner(area);
 
