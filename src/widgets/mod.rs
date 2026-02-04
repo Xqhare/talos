@@ -6,10 +6,10 @@ mod text;
 pub use text::Text;
 
 mod list;
-pub use list::List;
+pub use list::{List, ListState};
 
 pub mod traits {
-    use crate::{codex::Codex, layout::Rect, render::Canvas};
+    use crate::{codex::Codex, layout::Rect, render::{Canvas, Style}};
     pub trait Widget {
         /// Renders the widget into the specified area
         ///
@@ -20,5 +20,6 @@ pub mod traits {
         /// * `area` - The area to render into. Only this area is available for the widget to draw
         /// into.
         fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex);
+        fn style(&mut self, style: Style);
     }
 }

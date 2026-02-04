@@ -23,11 +23,6 @@ impl Text {
         }
     }
 
-    pub fn style(mut self, style: Style) -> Self {
-        self.style = style;
-        self
-    }
-
     pub fn align_center(mut self) -> Self {
         self.align_center = true;
         self
@@ -40,6 +35,9 @@ impl Text {
 }
 
 impl Widget for Text {
+    fn style(&mut self, style: Style) {
+        self.style = style;
+    }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
 
         // Update wrap limit

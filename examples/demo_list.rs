@@ -1,4 +1,4 @@
-use talos::{Talos, LayoutBuilder, render::{Colour, Normal, Style}, input::{Event, KeyEvent, KeyCode}, layout::{Direction, Constraint}, widgets::{Block, Text, List, traits::Widget}};
+use talos::{Talos, LayoutBuilder, render::{Colour, Normal, Style}, input::{Event, KeyEvent, KeyCode}, layout::{Direction, Constraint}, widgets::{Block, Text, List, ListState, traits::Widget}};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -11,7 +11,10 @@ fn main() -> Result<(), talos::TalosError> {
 
     let mut running = true;
 
-    let mut selected: usize = 0;
+    let mut list_state: ListState = ListState {
+        selected: Some(0),
+        scroll_offset: 0
+    };
 
     while running {
         // 2. Handle Input
@@ -24,10 +27,10 @@ fn main() -> Result<(), talos::TalosError> {
                         running = false;
                     }
                     Event::KeyEvent(KeyEvent { code: KeyCode::Up, .. }) => {
-                        selected = selected.saturating_sub(1);
+                        list_state.selected = list_state.selected.as_ref().and_then(|s| Some(s.saturating_sub(1)))
                     }
                     Event::KeyEvent(KeyEvent { code: KeyCode::Down, .. }) => {
-                        selected = selected.saturating_add(1);
+                        list_state.selected = list_state.selected.as_ref().and_then(|s| Some(s.saturating_add(1)))
                     }
                     _ => {}
                 }
@@ -39,7 +42,7 @@ fn main() -> Result<(), talos::TalosError> {
         let (canvas, codex) = talos.render_ctx();
         let size = canvas.size_rect();
 
-        let large_list: Vec<Text> = vec![
+        let mut large_list: Vec<Text> = vec![
             Text::new("Item 1", &codex),
             Text::new("Item 2", &codex),
             Text::new("Item 3", &codex),
@@ -138,8 +141,8 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let _list = List::new(large_list)
-            .with_selected(selected)
+        let _list = List::new()
+            .with_items(large_list.iter_mut())
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
             .render(canvas, content_size, codex);

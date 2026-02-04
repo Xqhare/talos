@@ -40,9 +40,9 @@ fn main() -> Result<(), talos::TalosError> {
         let mut large_block: Block = Block::new()
             .title("", codex, false)
             .with_fat_border()
-            .style(style)
             .with_bg_fill();
 
+        large_block.style(style);
         large_block.render(canvas, big_area, codex);
 
         let right_area = Rect::new(canvas.max_width().saturating_sub(60), 5, 30, 5);
@@ -55,10 +55,10 @@ fn main() -> Result<(), talos::TalosError> {
         let mut right_block: Block = Block::new()
             .with_fat_border()
             .title("Right", codex, false)
-            .style(style)
             .with_beautify_border_breaks()
             .with_bg_fill();
 
+        right_block.style(style);
         right_block.render(canvas, right_area, codex);
 
         let drawing_over_right = Rect::new(canvas.max_width().saturating_sub(40), 8, 30, 5);
@@ -70,9 +70,9 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut next_right_block: Block = Block::new()
             .title("Over Right", codex, false)
-            .style(style)
             .with_bg_fill();
 
+        next_right_block.style(style);
         next_right_block.render(canvas, drawing_over_right, codex);
 
         // Let's draw a white & black block in the middle
@@ -85,9 +85,9 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut block: Block = Block::new()
             .title(" Hello Talos ", codex, false)
-            .style(style)
             .with_bg_fill();
 
+        block.style(style);
         block.render(canvas, area, codex);
 
         // Lets add some styled text to the block
@@ -99,12 +99,12 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let _text = Text::new("Look mom! Text inside a block!", codex)
-            .style(text_style)
+        let mut text = Text::new("Look mom! Text inside a block!", codex)
             .align_center()
-            .align_vertically()
-            .render(canvas, block_inner, codex);
+            .align_vertically();
 
+        text.style(text_style);
+        text.render(canvas, block_inner, codex);
         // 4. Present to Terminal
         talos.present()?;
 

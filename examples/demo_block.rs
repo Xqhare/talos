@@ -45,8 +45,8 @@ fn main() -> Result<(), talos::TalosError> {
             .bottom_right_subtitle("Bottom Right Subtitle", codex)
             .bottom_center_subtitle("Bottom Subtitle", codex)
             .with_beautify_border_breaks()
-            .style(style)
             .with_bg_fill();
+        block.style(style);
 
         block.render(canvas, area, codex);
         let area2 = Rect::new(2, 2, 100, 10);
@@ -64,8 +64,9 @@ fn main() -> Result<(), talos::TalosError> {
             .bottom_center_subtitle("Bottom Subtitle", codex)
             .with_beautify_border_breaks()
             .with_fat_border()
-            .style(style2)
             .with_bg_fill();
+
+        block2.style(style2);
 
         block2.render(canvas, area2, codex);
         let area3 = Rect::new(10, 30, 80, 10);
@@ -81,8 +82,9 @@ fn main() -> Result<(), talos::TalosError> {
             .bottom_left_subtitle("Bottom Left Subtitle", codex)
             .bottom_right_subtitle("Bottom Right Subtitle", codex)
             .bottom_center_subtitle("Bottom Subtitle", codex)
-            .style(style3)
             .with_bg_fill();
+
+        block3.style(style3);
 
         block3.render(canvas, area3, codex);
         // Lets add some styled text to the block
@@ -94,11 +96,12 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let _text = Text::new("Look mom! Text inside a block!", codex)
-            .style(text_style)
+        let mut text = Text::new("Look mom! Text inside a block!", codex)
             .align_center()
-            .align_vertically()
-            .render(canvas, block_inner, codex);
+            .align_vertically();
+
+        text.style(text_style);
+        text.render(canvas, block_inner, codex);
 
         // 4. Present to Terminal
         talos.present()?;

@@ -66,11 +66,6 @@ impl Block {
         self
     }
 
-    pub fn style(mut self, style: Style) -> Self {
-        self.style = style;
-        self
-    }
-
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
@@ -97,6 +92,9 @@ impl Block {
 }
 
 impl Widget for Block {
+    fn style(&mut self, style: Style) {
+        self.style = style;
+    }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 { return; }
 

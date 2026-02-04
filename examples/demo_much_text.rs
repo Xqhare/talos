@@ -45,13 +45,15 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut large_block_left: Block = Block::new()
             .title("", codex, false)
-            .style(style_left)
             .with_bg_fill();
+
+        large_block_left.style(style_left);
 
         let mut large_block_right: Block = Block::new()
             .title("", codex, false)
-            .style(style_right)
             .with_bg_fill();
+
+        large_block_right.style(style_right);
 
         large_block_left.render(canvas, big_area_left, codex);
 
@@ -63,11 +65,14 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let _left_text = Text::new("Centered Text on the Left! \n \n  Duis vitae erat quis massa faucibus maximus. Suspendisse efficitur sem cursus, euismod augue ultrices, interdum tortor. Maecenas non erat quis nunc finibus sodales eu non quam. Duis auctor lectus vitae quam ullamcorper porta.\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sed maximus eros. Maecenas id placerat eros, in ultrices lectus. Fusce accumsan pellentesque mi, aliquam fermentum ipsum consectetur eu. \n \n
+        let mut left_text = Text::new("Centered Text on the Left! \n \n  Duis vitae erat quis massa faucibus maximus. Suspendisse efficitur sem cursus, euismod augue ultrices, interdum tortor. Maecenas non erat quis nunc finibus sodales eu non quam. Duis auctor lectus vitae quam ullamcorper porta.\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sed maximus eros. Maecenas id placerat eros, in ultrices lectus. Fusce accumsan pellentesque mi, aliquam fermentum ipsum consectetur eu. \n \n
         Donec tempor consectetur tortor, ut vestibulum tortor rhoncus vel. In hac habitasse platea dictumst. Curabitur ut diam molestie, placerat massa accumsan, consectetur neque.\n Etiam accumsan hendrerit tellus, et dapibus nunc aliquam posuere. Duis ac nibh libero. Nunc sapien urna, luctus a augue vel, efficitur hendrerit ligula.\n Donec et maximus nunc, a ultrices augue. Quisque viverra purus nisi, dictum congue mi aliquet sit amet. Fusce eu dignissim elit.\n Etiam urna massa, hendrerit vel commodo non, dictum at augue. Pellentesque dapibus diam ut rutrum mattis. Quisque eu mi arcu. Vestibulum bibendum leo et leo pellentesque, vel finibus lectus ornare. Aenean tincidunt facilisis ipsum, a mattis nisl accumsan efficitur. Duis vitae erat quis massa faucibus maximus. Suspendisse efficitur sem cursus, euismod augue ultrices, interdum tortor. Maecenas non erat quis nunc finibus sodales eu non quam. Duis auctor lectus vitae quam ullamcorper porta.\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sed maximus eros. Maecenas id placerat eros, in ultrices lectus. Fusce accumsan pellentesque mi, aliquam fermentum ipsum consectetur eu. \n \n
         Donec tempor consectetur tortor, ut vestibulum tortor rhoncus vel. In hac habitasse platea dictumst. Curabitur ut diam molestie, placerat massa accumsan, consectetur neque.\n Etiam accumsan hendrerit tellus, et dapibus nunc aliquam posuere. Duis ac nibh libero. Nunc sapien urna, luctus a augue vel, efficitur hendrerit ligula.\n Donec et maximus nunc, a ultrices augue. Quisque viverra purus nisi, dictum congue mi aliquet sit amet. Fusce eu dignissim elit.\n Etiam urna massa, hendrerit vel commodo non, dictum at augue. Pellentesque dapibus diam ut rutrum mattis. Quisque eu mi arcu. Vestibulum bibendum leo et leo pellentesque, vel finibus lectus ornare. Aenean tincidunt facilisis ipsum, a mattis nisl accumsan efficitur.", codex)
-            .style(left_text_style)
-            .align_center()
+            .align_center();
+
+        left_text.style(left_text_style);
+
+        left_text
             .render(canvas, left_block_inner, codex);
 
         large_block_right.render(canvas, big_area_right, codex);
@@ -79,11 +84,14 @@ fn main() -> Result<(), talos::TalosError> {
             .set_fg(Colour::Normal(Normal::Yellow))
             .set_bold(true)
             .build();
-        let _right_text = Text::new("Vertically centered Text on the Right!\n \nQuisque molestie, nisi eget imperdiet varius, lorem ante rhoncus metus, sed convallis lacus dolor a lectus. Duis facilisis, ligula eget sodales vehicula, erat mauris luctus est, vitae blandit ex dui sit amet ligula.\n  Donec et posuere tellus. Nunc volutpat ipsum sit amet tristique sodales. Morbi ac convallis metus. Etiam et ante et lacus lobortis luctus. Nullam id varius dolor.\n  Vestibulum dolor neque, dictum elementum est luctus, malesuada vestibulum arcu. Maecenas in mi ut arcu iaculis feugiat eget a erat. Curabitur id nisl id est porta suscipit sollicitudin in erat. Suspendisse blandit ligula orci, sit amet faucibus neque blandit eget. Phasellus eget fermentum libero.
+        let mut right_text = Text::new("Vertically centered Text on the Right!\n \nQuisque molestie, nisi eget imperdiet varius, lorem ante rhoncus metus, sed convallis lacus dolor a lectus. Duis facilisis, ligula eget sodales vehicula, erat mauris luctus est, vitae blandit ex dui sit amet ligula.\n  Donec et posuere tellus. Nunc volutpat ipsum sit amet tristique sodales. Morbi ac convallis metus. Etiam et ante et lacus lobortis luctus. Nullam id varius dolor.\n  Vestibulum dolor neque, dictum elementum est luctus, malesuada vestibulum arcu. Maecenas in mi ut arcu iaculis feugiat eget a erat. Curabitur id nisl id est porta suscipit sollicitudin in erat. Suspendisse blandit ligula orci, sit amet faucibus neque blandit eget. Phasellus eget fermentum libero.
         \n \n
         In quis laoreet lorem. Cras mattis, lacus in consequat bibendum, felis enim dapibus tellus, sit amet posuere nunc nisi quis arcu. Praesent eros lorem, hendrerit ac libero sed, ullamcorper suscipit turpis.\n  Vestibulum accumsan sit amet lectus sed pharetra.\n  Sed et justo eget metus condimentum fringilla vel ac nisi. Duis aliquet tortor eget urna feugiat tincidunt. Ut at elementum augue. In tristique euismod orci, non aliquet dui efficitur volutpat. Vestibulum et libero luctus velit dignissim mollis. Aenean felis nulla, fermentum ut bibendum sed, cursus id turpis.\n  Donec mauris velit, placerat quis consectetur a, iaculis a eros. Donec finibus massa vitae elit laoreet, in mollis ante luctus. Quisque molestie, nisi eget imperdiet varius, lorem ante rhoncus metus, sed convallis lacus dolor a lectus. Duis facilisis, ligula eget sodales vehicula, erat mauris luctus est, vitae blandit ex dui sit amet ligula.\n  Donec et posuere tellus. Nunc volutpat ipsum sit amet tristique sodales. Morbi ac convallis metus. Etiam et ante et lacus lobortis luctus. Nullam id varius dolor.\n  Vestibulum dolor neque, dictum elementum est luctus, malesuada vestibulum arcu. Maecenas in mi ut arcu iaculis feugiat eget a erat. Curabitur id nisl id est porta suscipit sollicitudin in erat. Suspendisse blandit ligula orci, sit amet faucibus neque blandit eget. Phasellus eget fermentum libero. \n In quis laoreet lorem. Cras mattis, lacus in consequat bibendum, felis enim dapibus tellus, sit amet posuere nunc nisi quis arcu. Praesent eros lorem, hendrerit ac libero sed, ullamcorper suscipit turpis.", codex)
-            .style(right_text_style)
-            .align_vertically()
+            .align_vertically();
+
+        right_text.style(right_text_style);
+
+        right_text
             .render(canvas, right_block_inner, codex);
 
         // Let's draw a white & black block in the middle
@@ -96,9 +104,10 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut block: Block = Block::new()
             .title("Center Block Title", codex, true)
-            .style(style)
             .with_beautify_border_breaks()
             .with_bg_fill();
+
+        block.style(style);
 
         block.render(canvas, area, codex);
 
@@ -111,10 +120,13 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let _text = Text::new("Look mom! Text inside a block! \n Incredible! \n It's centered and justified! \n It supports several lines, of varying lengths as well! \n \n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vel mauris nec nulla porta dictum quis sit amet eros. Praesent mattis odio ac malesuada ultricies. Aenean accumsan dolor ac est eleifend, ac commodo lacus dictum. Vestibulum egestas porttitor convallis. Pellentesque consequat metus turpis. \n \n Suspendisse imperdiet orci eu mi lacinia, id aliquam enim venenatis. Cras aliquet ut lectus vitae blandit. Cras ac tortor consectetur, dictum diam in, volutpat nulla. Nunc aliquet lacinia vulputate. Aliquam efficitur massa sed neque mollis, nec fermentum dolor blandit. Proin finibus tortor at varius gravida. Ut risus mauris, tempor et enim sed, gravida varius ante. Nulla convallis bibendum nulla, ut semper metus eleifend vel. Donec porta nisi in lorem consectetur, eu cursus justo sollicitudin. Vivamus interdum tincidunt diam sit amet luctus.", codex)
-            .style(text_style)
+        let mut text = Text::new("Look mom! Text inside a block! \n Incredible! \n It's centered and justified! \n It supports several lines, of varying lengths as well! \n \n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vel mauris nec nulla porta dictum quis sit amet eros. Praesent mattis odio ac malesuada ultricies. Aenean accumsan dolor ac est eleifend, ac commodo lacus dictum. Vestibulum egestas porttitor convallis. Pellentesque consequat metus turpis. \n \n Suspendisse imperdiet orci eu mi lacinia, id aliquam enim venenatis. Cras aliquet ut lectus vitae blandit. Cras ac tortor consectetur, dictum diam in, volutpat nulla. Nunc aliquet lacinia vulputate. Aliquam efficitur massa sed neque mollis, nec fermentum dolor blandit. Proin finibus tortor at varius gravida. Ut risus mauris, tempor et enim sed, gravida varius ante. Nulla convallis bibendum nulla, ut semper metus eleifend vel. Donec porta nisi in lorem consectetur, eu cursus justo sollicitudin. Vivamus interdum tincidunt diam sit amet luctus.", codex)
             .align_center()
-            .align_vertically()
+            .align_vertically();
+
+        text.style(text_style);
+
+        text
             .render(canvas, block_inner, codex);
 
                 // 4. Present to Terminal
