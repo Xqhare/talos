@@ -3,6 +3,7 @@ use crate::{codex::Codex, render::Glyph};
 /// The content is parsed into glyph sequences no wider than `max_width`
 ///
 /// A glyph sequence is a vector of glyphs bounded by included, trailing, whitespace
+#[derive(Debug, Clone)]
 pub struct TextContent {
     raw: String,
     buffer: Vec<Sequence>,
@@ -118,6 +119,7 @@ impl TextContent {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Sequence {
     buffer: Vec<Glyph>,
     width: u16,

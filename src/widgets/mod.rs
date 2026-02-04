@@ -5,7 +5,8 @@ pub use block::Block;
 mod text;
 pub use text::Text;
 
-
+mod list;
+pub use list::List;
 
 pub mod traits {
     use crate::{codex::Codex, layout::Rect, render::Canvas};

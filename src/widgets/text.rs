@@ -4,6 +4,7 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
+#[derive(Debug, Clone)]
 pub struct Text {
     content: TextContent,
     style: Style,
