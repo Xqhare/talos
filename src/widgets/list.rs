@@ -1,10 +1,20 @@
 use crate::{codex::{Codex, pages::SPACE_GLYPH}, layout::Rect, render::{CCell, Glyph, Style}, widgets::traits::Widget};
 
+// TODO: Horizontal mode has major challenges - but works!
+// 1. Sometimes the text drawn in demo_list gets cut off but not dropped as it should but drawn
+//    vertically by sequence it seems -> Bug in widget text rendering not respecting the area.height?
+// 2. The way moving the list is implemented requires the cursor to be less than 5 chars from the
+//    edge - big widgets will break this
+// 3. The shown selected item, if going backwards, is always the second from the start, as
+//    rendered. This is an artifact of the current implementation moving the offset around and can
+//    probably not be fixed.
+// 4. It uses the scroll offset external state - this should at least be an internal field
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: Option<&'a mut ListState>,
     selected_style: Style,
-    selected_symbol: Option<Glyph>
+    selected_symbol: Option<Glyph>,
+    horizontal: bool,
 }
 
 pub struct ListState {
@@ -18,8 +28,14 @@ impl<'a> List<'a> {
             items: Vec::new(),
             state: None,
             selected_style: Style::default(),
-            selected_symbol: None
+            selected_symbol: None,
+            horizontal: false,
         }
+    }
+
+    pub fn horizontal(mut self) -> Self {
+        self.horizontal = true;
+        self
     }
 
     pub fn add_item(mut self, item: &'a mut dyn Widget) -> Self {
@@ -60,32 +76,90 @@ impl Widget for List<'_> {
         
         let selected_idx = self.state.as_ref().and_then(|s| s.selected);
 
-        for (i, item) in self.items.iter_mut().enumerate() {
-            let y = area.y.saturating_add(i as u16);
-            if y >= area.bottom() { break; }
+        if self.horizontal {
 
-            let is_selected = Some(i) == selected_idx;
+            let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
+            for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
+                
+                let relative_idx = i - offset;
+                
+                let current_x = if relative_idx == 0 {
+                    area.x
+                } else {
+                    canvas.last_cell().map_or(area.x, |(lx, _)| lx + 1)
+                };
 
-            if is_selected {
-                // Apply the style to the generic widget using your new trait method
-                // We use re-assignment here as trait methods often return Self
-                // Since 'item' is a &mut dyn Widget, we apply styling directly
-                item.style(self.selected_style);
+                if current_x >= area.right() { break; }
 
-                if let Some(symbol) = self.selected_symbol {
-                    canvas.set_ccell(area.x, y, CCell { char: symbol, style: self.selected_style });
-                    canvas.set_ccell(area.x + 1, y, CCell { char: SPACE_GLYPH, style: self.selected_style });
+                let is_selected = Some(i) == selected_idx;
+
+                if is_selected {
+                    item.style(self.selected_style);
+                    
+                    if let Some(symbol) = self.selected_symbol {
+                        canvas.set_ccell(current_x + 1, area.y, CCell { char: symbol, style: self.selected_style });
+                        canvas.set_ccell(current_x + 2, area.y, CCell { char: SPACE_GLYPH, style: self.selected_style });
+                    }
+                    let selector_pos = canvas.last_cell().map_or_else(
+                        || current_x,
+                        |(lx, _)| lx
+                    );
+                    if selector_pos >= area.right() - 5 { 
+                        self.state.as_mut().map(|s| s.scroll_offset += 3);
+                    } 
+                    if Some(i) == selected_idx && i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) {
+                        self.state.as_mut().map(|s| s.scroll_offset -= 1);
+                    }
+                }
+
+                let x_symbol_padding = if is_selected && self.selected_symbol.is_some() { 3 } else { 0 };
+
+                if current_x + x_symbol_padding >= area.right() - 2 { break; }
+
+                let item_area = Rect::new(
+                    current_x + x_symbol_padding,
+                    area.y, 
+                    area.right().saturating_sub(current_x + x_symbol_padding), 
+                    area.height
+                );
+
+                item.render(canvas, item_area, codex);
+                
+                // Add a space between horizontal items
+                let space_x = canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
+                if space_x < area.right() {
+                    canvas.set_ccell(space_x, area.y, CCell { char: SPACE_GLYPH, style: Style::default() });
                 }
             }
+        } else {
+            for (i, item) in self.items.iter_mut().enumerate().skip(self.state.as_ref().and_then(|s| Some(s.scroll_offset)).unwrap_or(0)) {
+                
+                let y = area.y.saturating_add(i as u16);
+                if y >= area.bottom() { break; }
 
-            let item_area = Rect::new(
-                area.x + x_offset, 
-                y, 
-                area.width.saturating_sub(x_offset), 
-                1
-            );
-            
-            item.render(canvas, item_area, codex);
+                let is_selected = Some(i) == selected_idx;
+
+                if is_selected {
+                    // Apply the style to the generic widget using your new trait method
+                    // We use re-assignment here as trait methods often return Self
+                    // Since 'item' is a &mut dyn Widget, we apply styling directly
+                    item.style(self.selected_style);
+
+                    if let Some(symbol) = self.selected_symbol {
+                        canvas.set_ccell(area.x + 1, y, CCell { char: symbol, style: self.selected_style });
+                        canvas.set_ccell(area.x + 2, y, CCell { char: SPACE_GLYPH, style: self.selected_style });
+                    }
+                }
+
+                let item_area = Rect::new(
+                    area.x + x_offset, 
+                    y, 
+                    area.width.saturating_sub(x_offset), 
+                    1
+                );
+                
+                item.render(canvas, item_area, codex);
+            }
         }
     }
 }
