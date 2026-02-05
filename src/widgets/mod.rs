@@ -8,6 +8,9 @@ pub use text::Text;
 mod list;
 pub use list::{List, ListState};
 
+mod signal_box;
+pub use signal_box::{SignalBox, SignalBoxState};
+
 pub mod traits {
     use crate::{codex::Codex, layout::Rect, render::{Canvas, Style}};
     pub trait Widget {
