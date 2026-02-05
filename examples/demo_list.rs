@@ -134,7 +134,8 @@ fn main() -> Result<(), talos::TalosError> {
 
         content_block.render(canvas, chunks[1], codex);
 
-        let content_size = content_block.inner(chunks[1]);
+        let mut content_size = content_block.inner(chunks[1]);
+        content_size.height = 1;
 
         let selected_style = Style::builder()
             .set_fg(Colour::Normal(Normal::Black))
@@ -145,6 +146,8 @@ fn main() -> Result<(), talos::TalosError> {
             .with_items(large_list.iter_mut())
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
+            .with_state(&mut list_state)
+            .horizontal()
             .render(canvas, content_size, codex);
         // 4. Present to Terminal
         talos.present()?;
