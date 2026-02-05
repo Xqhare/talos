@@ -1,9 +1,11 @@
 use crate::error::TalosResult;
+use std::sync::Once;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::{io, mem, ptr};
 
 static RESIZE_NEEDED: AtomicBool = AtomicBool::new(false);
 static TERMINATE_NEEDED: AtomicBool = AtomicBool::new(false);
+static HANDLER_REGISTERED: Once = Once::new();
 
 extern "C" fn signal_handler(sig: libc::c_int) {
     match sig {
@@ -13,30 +15,34 @@ extern "C" fn signal_handler(sig: libc::c_int) {
     }
 }
 
-// TODO: No check if handlers are already registered -> will crash if called twice
 pub fn register_signal_handlers() -> TalosResult<()> {
-    unsafe {
-        let mut sa: libc::sigaction = mem::zeroed();
+    let mut out = Ok(());
 
-        sa.sa_sigaction = signal_handler as *const () as usize;
-        sa.sa_flags = libc::SA_RESTART;
+    HANDLER_REGISTERED.call_once(|| {
+        unsafe {
+            let mut sa: libc::sigaction = mem::zeroed();
 
-        // Register SIGWINCH
-        if libc::sigaction(libc::SIGWINCH, &sa, ptr::null_mut()) == -1 {
-            return Err(io::Error::last_os_error().into());
+            sa.sa_sigaction = signal_handler as *const () as usize;
+            sa.sa_flags = libc::SA_RESTART;
+
+            // Register SIGWINCH
+            if libc::sigaction(libc::SIGWINCH, &sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
+
+            // Register SIGTERM (Kill request)
+            if libc::sigaction(libc::SIGTERM, &sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
+
+            // Register SIGINT (Keyboard Interrupt via kill -INT)
+            if libc::sigaction(libc::SIGINT, &sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
         }
+    });
 
-        // Register SIGTERM (Kill request)
-        if libc::sigaction(libc::SIGTERM, &sa, ptr::null_mut()) == -1 {
-            return Err(io::Error::last_os_error().into());
-        }
-
-        // Register SIGINT (Keyboard Interrupt via kill -INT)
-        if libc::sigaction(libc::SIGINT, &sa, ptr::null_mut()) == -1 {
-            return Err(io::Error::last_os_error().into());
-        }
-    }
-    Ok(())
+    out
 }
 
 pub fn check_resize() -> bool {
