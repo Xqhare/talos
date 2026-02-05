@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{codex::pages::{Page, REG_CP437, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, pre_computed_char, validate_page}, error::{TalosError, TalosResult}, render::Glyph};
+use crate::{codex::pages::{Page, REG_CP437, REG_UTF_GEOMETRIC_SHAPES, REG_UTF_MISC_TECHNICAL, REG_WIN_1252, UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, pre_computed_char, validate_page}, error::{TalosError, TalosResult}, render::Glyph};
 
 pub mod pages;
 
@@ -21,6 +21,8 @@ impl Codex {
 
         codex.register_startup_page(REG_WIN_1252.0, REG_WIN_1252.1)?;
         codex.register_startup_page(REG_CP437.0, REG_CP437.1)?;
+        codex.register_startup_page(REG_UTF_MISC_TECHNICAL.0, REG_UTF_MISC_TECHNICAL.1)?;
+        codex.register_startup_page(REG_UTF_GEOMETRIC_SHAPES.0, REG_UTF_GEOMETRIC_SHAPES.1)?;
 
         Ok(codex)
     }
