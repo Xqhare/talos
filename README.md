@@ -1,4 +1,9 @@
 # Talos
+
+<p align="center">
+    <img src="pics/generated_logo.jpeg" alt="Talos Logo" width="200" height="200"/>
+</p>
+
 A simple, (almost) no dependency, TUI immediate mode unix toolkit.
 
 It can be used to create a simple TUI for any kind of application.
