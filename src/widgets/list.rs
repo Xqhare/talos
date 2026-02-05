@@ -122,7 +122,6 @@ impl Widget for List<'_> {
                         self.state.as_mut().map(|s| s.scroll_offset -= 1);
                     }
                 }
-                
                 // Add a space between horizontal items
                 let space_x = canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
                 if space_x < area.right() {
@@ -130,17 +129,29 @@ impl Widget for List<'_> {
                 }
             }
         } else {
-            for (i, item) in self.items.iter_mut().enumerate().skip(self.state.as_ref().and_then(|s| Some(s.scroll_offset)).unwrap_or(0)) {
+            // Ensure the selected item is visible before we start rendering.
+            if let (Some(state), Some(selected)) = (self.state.as_mut(), selected_idx) {
+                let height = area.height as usize;
                 
-                let y = area.y.saturating_add(i as u16);
+                if selected < state.scroll_offset {
+                    state.scroll_offset = selected;
+                } else if selected >= state.scroll_offset + height {
+                    state.scroll_offset = selected - height + 1;
+                }
+            }
+
+            let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
+
+            for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
+                
+                let line_index = i - offset;
+                let y = area.y.saturating_add(line_index as u16);
+
                 if y >= area.bottom() { break; }
 
                 let is_selected = Some(i) == selected_idx;
 
                 if is_selected {
-                    // Apply the style to the generic widget using your new trait method
-                    // We use re-assignment here as trait methods often return Self
-                    // Since 'item' is a &mut dyn Widget, we apply styling directly
                     item.style(self.selected_style);
 
                     if let Some(symbol) = self.selected_symbol {
