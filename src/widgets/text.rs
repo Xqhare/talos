@@ -72,12 +72,8 @@ impl Widget for Text {
 
         for (i, seq) in sequences.iter().enumerate() {
             if seq.width() > area.width {
-                if cfg!(debug_assertions) {
-                    unreachable!("Rendering Text Widget: Single Sequence must be at most `area.width` wide");
-                } else {
-                    // Just ignore the sequence if it cant fit - can't have a crash in production
-                    continue
-                }
+                // Hard clip
+                break;
             }
 
             let left_margin = if self.align_center {
@@ -96,6 +92,9 @@ impl Widget for Text {
 
             if x + seq.glyphs().len() as u16 > area.right() {
                 x = area.left();
+            }
+            if y >= area.bottom() {
+                break;
             }
             for glyph in seq.glyphs() {
 
