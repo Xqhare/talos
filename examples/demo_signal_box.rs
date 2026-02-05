@@ -1,4 +1,4 @@
-use talos::{Talos, LayoutBuilder, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::{Rect, Direction, Constraint}, widgets::{Block, Text, SignalBox, SignalBoxState, traits::Widget}};
+use talos::{Talos, LayoutBuilder, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::{Direction, Constraint}, widgets::{Block, Text, SignalBox, SignalBoxState, traits::Widget}};
 
 // A simple helper to make the loop cleaner
 use std::thread;
