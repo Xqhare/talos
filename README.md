@@ -1,7 +1,7 @@
 # Talos
 
 <p align="center">
-    <img src="pics/generated_logo.jpeg" alt="Talos Logo" width="400" height="200"/>
+    <img src="pics/generated_logo.jpeg" alt="Talos Logo" width="560" height="300"/>
 </p>
 
 A simple, (almost) no dependency, TUI immediate mode unix toolkit.
