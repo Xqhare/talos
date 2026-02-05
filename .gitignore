@@ -26,5 +26,4 @@ Cargo.lock
 
 /target
 # Remove when imbedding pics in the repo doc
-pics/
-*/pics
+*/wip
