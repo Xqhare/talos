@@ -1,14 +1,8 @@
 use crate::{codex::{Codex, pages::SPACE_GLYPH}, layout::Rect, render::{CCell, Glyph, Style}, widgets::traits::Widget};
 
-// TODO: Horizontal mode has major challenges - but works!
-// 1. Sometimes the text drawn in demo_list gets cut off but not dropped as it should but drawn
-//    vertically by sequence it seems -> Bug in widget text rendering not respecting the area.height?
-// 2. The way moving the list is implemented requires the cursor to be less than 5 chars from the
-//    edge - big widgets will break this
-// 3. The shown selected item, if going backwards, is always the second from the start, as
+// 1. The shown selected item, if going backwards, is always the second from the start, as
 //    rendered. This is an artifact of the current implementation moving the offset around and can
 //    probably not be fixed.
-// 4. It uses the scroll offset external state - this should at least be an internal field
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: Option<&'a mut ListState>,
@@ -100,16 +94,6 @@ impl Widget for List<'_> {
                         canvas.set_ccell(current_x + 1, area.y, CCell { char: symbol, style: self.selected_style });
                         canvas.set_ccell(current_x + 2, area.y, CCell { char: SPACE_GLYPH, style: self.selected_style });
                     }
-                    let selector_pos = canvas.last_cell().map_or_else(
-                        || current_x,
-                        |(lx, _)| lx
-                    );
-                    if selector_pos >= area.right() - 5 { 
-                        self.state.as_mut().map(|s| s.scroll_offset += 3);
-                    } 
-                    if Some(i) == selected_idx && i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) {
-                        self.state.as_mut().map(|s| s.scroll_offset -= 1);
-                    }
                 }
 
                 let x_symbol_padding = if is_selected && self.selected_symbol.is_some() { 3 } else { 0 };
@@ -124,6 +108,20 @@ impl Widget for List<'_> {
                 );
 
                 item.render(canvas, item_area, codex);
+
+                // Scrolling the list if needed
+                if is_selected {
+                    let pos = canvas.last_cell().map_or_else(
+                        || current_x,
+                        |(lx, _)| lx
+                    );
+                    if pos >= area.right() - 5 {
+                        self.state.as_mut().map(|s| s.scroll_offset += 3);
+                    }
+                    if i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) {
+                        self.state.as_mut().map(|s| s.scroll_offset -= 1);
+                    }
+                }
                 
                 // Add a space between horizontal items
                 let space_x = canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
