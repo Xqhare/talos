@@ -1,3 +1,12 @@
+// Uncomment below when appropriate
+//#![warn(clippy::pedantic)]
+//#![warn(clippy::all)]
+
+// Uncomment below when approaching stable
+//#![warn(missing_docs)]
+
+#![doc = include_str!("../README.md")]
+
 use std::io::Write;
 
 use input::poll_input_bytes;
