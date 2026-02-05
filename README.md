@@ -13,14 +13,18 @@ In Greek mythology, `Talos`, was a giant automaton made of bronze to protect Eur
 
 ## Motivation
 This project is educational in nature. I hope it may prove useful to myself and maybe even others in the future.\
-I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.\
-To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width` to keep the dependencies to only `libc`.
+It is part of my larger goal to create my own development ecosystem.\
+I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.
 
 ## Roadmap
 
 - [x] Core
     - [x] Mouse input support (eventually)
     - [x] Optimise Codex
+- [ ] Addons
+    - [ ] Custom page loader
+    - [ ] Theme to manage many different styles
+        - [ ] Probably just a hashmap of styles with names
 - [ ] Documentation
     - [ ] Examples
     - [ ] API
@@ -59,7 +63,7 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
     - [ ] Windows support
         - [ ] Read the damn win docs again and determine needed foreign functions needed
         - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
-        - [ ] FFI for `shell32.dll` (Shellhook i hope) and `ole32.dll` (memory management & clipboard) probably needed
+        - [ ] FFI for `shell32.dll` (Shellhook?) and `ole32.dll` (memory management & clipboard) probably needed
     - [ ] Mac support
         - [ ] Define what needs to be done - FFI wise
 
@@ -84,6 +88,7 @@ Talos emulates the use of old school code pages. While this decision has major d
 Windows-1252 and CP437 by default.
 User can provide their own, but have to ensure that every displayed character has the same width of one. 
 This is done for simplicity in the code.
+To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width` to keep the dependencies to only `libc`.
 
 Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
 
@@ -92,11 +97,10 @@ This also means that events (e.g. `on_click`) must be handled by the user.
 
 ### Code Pages
 
-There are a total of 256 possible code pages. 2 are reserved for windows-1252 and cp437.
+There are a total of 256 possible code pages. The first two (Index 0 and 1) are reserved for windows-1252 and cp437 respectively.
 
 Each code page has 256 entries. Each entry represents a character.\
-Each entry must have a displayed width of 1.\
-Each entry must be stored in valid utf-8.
+Each entry must have a displayed width of 1 and must be stored in valid utf-8.
 
 Talos builds a cache of the code pages and checks if a char is in a code page before displaying it.\
 Should a char not be in a code page, it will be displayed as a question mark.
