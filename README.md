@@ -23,12 +23,23 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
         - [ ] Internal
     - [ ] Readme
 - [ ] Widgets
-    - [x] Text wrapping in `Text` widget
+    - [ ] Simple Widgets
+        - [x] Text wrapping in `Text` widget
+        - [ ] Boolean rendering widget
+        - [ ] Number rendering widget
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
         - [x] List widget
         - [ ] Table widget
-        - [ ] Graph widget
+        - [ ] Chart widget
+            - [ ] Column
+            - [ ] Bar
+            - [ ] Line
+            - [ ] Support for `usize`, `isize` and `f32` & `f64`
+                - `isize` and `float` will need the x-axis to be in the middle to support negative values
+        - [ ] Progress bar / Fillable bar widget
+            - [ ] Horizontal
+            - [ ] Vertical
 - [ ] Maybe
     - [ ] Mouse position reporting without a mouse button pressed
         - [ ] Backend
@@ -38,8 +49,14 @@ To support unicode, I would have to implement `unicode-segmentation` and probabl
         - [x] Frontend
     - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
         - If performance suffers, implement a layer system - seems like a lot of work for not much benefit in most applications.
-- [ ] Probably never
+- [ ] Probably never - Way too much work, but would be nice
     - [ ] Unicode support & remove Code pages
+    - [ ] Windows support
+        - [ ] Read the damn win docs again and determine needed foreign functions needed
+        - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
+        - [ ] FFI for `shell32.dll` (Shellhook i hope) and `ole32.dll` (memory management & clipboard) probably needed
+    - [ ] Mac support
+        - [ ] Define what needs to be done - FFI wise
 
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
@@ -66,6 +83,7 @@ This is done for simplicity in the code.
 Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
 
 To keep the scope small, I want to push as much on the user as I can. This includes state management, and managing the currently focused widget.
+This also means that events (e.g. `on_click`) must be handled by the user. 
 
 ### Code Pages
 
