@@ -22,7 +22,6 @@ I have limited the scope of the project at some points to make it easier on myse
     - [x] Mouse input support (eventually)
     - [x] Optimise Codex
 - [ ] Addons
-    - [ ] Custom page loader
     - [ ] Theme to manage many different styles
         - [ ] Probably just a hashmap of styles with names
 - [ ] Documentation
@@ -32,10 +31,10 @@ I have limited the scope of the project at some points to make it easier on myse
         - [ ] Internal
     - [ ] Readme
 - [ ] Widgets
-    - [ ] Simple Widgets
+    - [x] Simple Widgets
         - [x] Text wrapping in `Text` widget
-        - [ ] Boolean rendering widget
-        - [ ] Number rendering widget
+        - [x] Boolean rendering widget
+        - [x] Number rendering widget
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
         - [x] List widget
@@ -50,6 +49,7 @@ I have limited the scope of the project at some points to make it easier on myse
             - [ ] Horizontal
             - [ ] Vertical
 - [ ] Maybe
+    - [ ] Custom page loader
     - [ ] Mouse position reporting without a mouse button pressed
         - [ ] Backend
             - [x] Xterm Parser
