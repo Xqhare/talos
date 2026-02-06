@@ -23,7 +23,7 @@ pub mod traits {
         /// # Arguments
         /// * `canvas` - The canvas to render into
         /// * `area` - The area to render into. Only this area is available for the widget to draw
-        /// into.
+        ///   into.
         fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex);
         fn style(&mut self, style: Style);
     }
