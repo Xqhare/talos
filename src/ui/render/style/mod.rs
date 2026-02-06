@@ -23,6 +23,14 @@ impl Style {
         StyleBuilder::default()
     }
 
+    pub fn get_fg(&self) -> Option<Colour> {
+        self.fg
+    }
+
+    pub fn get_bg(&self) -> Option<Colour> {
+        self.bg
+    }
+
     /// Generates an ANSI control sequence from the style
     ///
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
