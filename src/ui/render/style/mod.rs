@@ -9,23 +9,27 @@ use utils::{handle_bg, handle_fg};
 mod utils;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Default)]
 pub struct Style {
     fg: Option<Colour>,
     bg: Option<Colour>,
     /// Contains the bit flags for the style.
-    /// From MSB to LSB: bold, dim, italic, underline, blink_slow, reverse_colours, hidden, strikethrough
+    /// From MSB to LSB: bold, dim, italic, underline, `blink_slow`, `reverse_colours`, hidden, strikethrough
     bit_flag: u8,
 }
 
 impl Style {
+    #[must_use] 
     pub fn builder() -> StyleBuilder {
         StyleBuilder::default()
     }
 
+    #[must_use] 
     pub fn get_fg(&self) -> Option<Colour> {
         self.fg
     }
 
+    #[must_use] 
     pub fn get_bg(&self) -> Option<Colour> {
         self.bg
     }
@@ -81,12 +85,3 @@ impl Style {
     }
 }
 
-impl Default for Style {
-    fn default() -> Self {
-        Style {
-            fg: None,
-            bg: None,
-            bit_flag: 0,
-        }
-    }
-}

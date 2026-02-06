@@ -12,6 +12,7 @@ use crate::{codex::Codex, render::Glyph};
 ///     - Left
 ///     - Center
 ///     - Right
+#[derive(Default)]
 pub struct TitleContents {
     top_left: Option<String>,
     top_left_buffer: Option<Vec<Glyph>>,
@@ -37,24 +38,6 @@ pub enum TitlePosition {
     BottomRight,
 }
 
-impl Default for TitleContents {
-    fn default() -> Self {
-        Self {
-            top_left: None,
-            top_left_buffer: None,
-            top_center: None,
-            top_center_buffer: None,
-            top_right: None,
-            top_right_buffer: None,
-            bottom_left: None,
-            bottom_left_buffer: None,
-            bottom_center: None,
-            bottom_center_buffer: None,
-            bottom_right: None,
-            bottom_right_buffer: None,
-        }
-    }
-}
 
 impl TitleContents {
     pub fn set_position(
@@ -87,33 +70,33 @@ impl TitleContents {
 
     fn set_top_left(&mut self, string: impl Into<String>, codex: &Codex) {
         self.top_left = Some(string.into());
-        self.top_left_buffer = Some(decode_string(&self.top_left.as_ref().unwrap(), codex));
+        self.top_left_buffer = Some(decode_string(self.top_left.as_ref().unwrap(), codex));
     }
 
     fn set_top_center(&mut self, string: impl Into<String>, codex: &Codex) {
         self.top_center = Some(string.into());
-        self.top_center_buffer = Some(decode_string(&self.top_center.as_ref().unwrap(), codex));
+        self.top_center_buffer = Some(decode_string(self.top_center.as_ref().unwrap(), codex));
     }
 
     fn set_top_right(&mut self, string: impl Into<String>, codex: &Codex) {
         self.top_right = Some(string.into());
-        self.top_right_buffer = Some(decode_string(&self.top_right.as_ref().unwrap(), codex));
+        self.top_right_buffer = Some(decode_string(self.top_right.as_ref().unwrap(), codex));
     }
 
     fn set_bottom_left(&mut self, string: impl Into<String>, codex: &Codex) {
         self.bottom_left = Some(string.into());
-        self.bottom_left_buffer = Some(decode_string(&self.bottom_left.as_ref().unwrap(), codex));
+        self.bottom_left_buffer = Some(decode_string(self.bottom_left.as_ref().unwrap(), codex));
     }
 
     fn set_bottom_center(&mut self, string: impl Into<String>, codex: &Codex) {
         self.bottom_center = Some(string.into());
         self.bottom_center_buffer =
-            Some(decode_string(&self.bottom_center.as_ref().unwrap(), codex));
+            Some(decode_string(self.bottom_center.as_ref().unwrap(), codex));
     }
 
     fn set_bottom_right(&mut self, string: impl Into<String>, codex: &Codex) {
         self.bottom_right = Some(string.into());
-        self.bottom_right_buffer = Some(decode_string(&self.bottom_right.as_ref().unwrap(), codex));
+        self.bottom_right_buffer = Some(decode_string(self.bottom_right.as_ref().unwrap(), codex));
     }
 }
 

@@ -30,8 +30,8 @@ pub fn move_render_cursor(output: &mut Vec<u8>, x: u16, y: u16) -> TalosResult<(
     let bytes = [0x1b, b'['];
     write_all_bytes(output, &bytes)?;
     push_u16_as_ascii(output, y.saturating_add(1));
-    write_all_bytes(output, &[b';'])?;
+    write_all_bytes(output, b";")?;
     push_u16_as_ascii(output, x.saturating_add(1));
-    write_all_bytes(output, &[b'H'])?;
+    write_all_bytes(output, b"H")?;
     Ok(())
 }

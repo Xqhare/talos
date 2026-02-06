@@ -21,7 +21,14 @@ pub struct ListState {
     pub scroll_offset: usize,
 }
 
+impl<'a> Default for List<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> List<'a> {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             items: Vec::new(),
@@ -32,6 +39,7 @@ impl<'a> List<'a> {
         }
     }
 
+    #[must_use] 
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
         self
@@ -56,11 +64,13 @@ impl<'a> List<'a> {
         self
     }
 
+    #[must_use] 
     pub fn with_selected_style(mut self, style: Style) -> Self {
         self.selected_style = style;
         self
     }
 
+    #[must_use] 
     pub fn with_selected_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.selected_symbol = Some(codex.lookup(char));
         self
@@ -86,7 +96,7 @@ impl Widget for List<'_> {
         let selected_idx = self.state.as_ref().and_then(|s| s.selected);
 
         if self.horizontal {
-            let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
+            let offset = self.state.as_ref().map_or(0, |s| s.scroll_offset);
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let relative_idx = i - offset;
 
@@ -150,7 +160,7 @@ impl Widget for List<'_> {
                     if pos >= area.right() - 5 {
                         self.state.as_mut().map(|s| s.scroll_offset += 3);
                     }
-                    if i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0)
+                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset)
                         && self.state.as_ref().map(|s| s.scroll_offset) != Some(0)
                     {
                         self.state.as_mut().map(|s| s.scroll_offset -= 1);
@@ -181,7 +191,7 @@ impl Widget for List<'_> {
                 }
             }
 
-            let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
+            let offset = self.state.as_ref().map_or(0, |s| s.scroll_offset);
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;

@@ -29,7 +29,7 @@ pub fn poll_input_bytes<'a, R: Read>(
         if available_space.is_empty() {
             let current_len = poll_input_buffer.len();
 
-            if current_len >= max_poll_input_buffer as usize {
+            if current_len >= max_poll_input_buffer {
                 break;
             }
 
@@ -46,7 +46,7 @@ pub fn poll_input_bytes<'a, R: Read>(
             };
 
             let target_len = new_len;
-            let capped_len = min(target_len, max_poll_input_buffer as usize);
+            let capped_len = min(target_len, max_poll_input_buffer);
 
             if capped_len == current_len {
                 break;

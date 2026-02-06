@@ -27,6 +27,7 @@ impl Default for Layout {
 }
 
 impl Layout {
+    #[must_use] 
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
@@ -37,6 +38,7 @@ impl Layout {
 
     // Using a heap allocation for the return here is fine.
     /// Splits the given area into smaller Rects based on the layout constraints.
+    #[must_use] 
     pub fn split(&self, area: Rect) -> Vec<Rect> {
         // 1. Apply Margin
         // If margin is too big, return empty rects or handling gracefully?
@@ -107,7 +109,7 @@ impl Layout {
                 }
                 Constraint::Percentage(p) => {
                     // Simple integer math: total * p / 100
-                    let size = (total_space as u32 * *p as u32 / 100) as u16;
+                    let size = (u32::from(total_space) * u32::from(*p) / 100) as u16;
                     results[i] = size;
                     used_space = used_space.saturating_add(size);
                 }
@@ -115,7 +117,7 @@ impl Layout {
                     if *den == 0 {
                         results[i] = 0;
                     } else {
-                        let size = (total_space as u32 * *num as u32 / *den as u32) as u16;
+                        let size = (u32::from(total_space) * *num / *den) as u16;
                         results[i] = size;
                         used_space = used_space.saturating_add(size);
                     }
@@ -137,8 +139,8 @@ impl Layout {
         // `Min` acts as "Fill the rest"
         if flex_count > 0 {
             let remaining = total_space.saturating_sub(used_space);
-            let per_flex = remaining / flex_count as u16;
-            let mut remainder = remaining % flex_count as u16;
+            let per_flex = remaining / flex_count;
+            let mut remainder = remaining % flex_count;
 
             for (i, constraint) in self.constraints.iter().enumerate() {
                 if let Constraint::Min(min_req) = constraint {

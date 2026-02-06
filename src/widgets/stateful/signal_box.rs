@@ -19,7 +19,14 @@ pub struct SignalBoxState {
     pub signal: bool,
 }
 
+impl<'a> Default for SignalBox<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> SignalBox<'a> {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             state: None,
@@ -35,11 +42,13 @@ impl<'a> SignalBox<'a> {
         self
     }
 
+    #[must_use] 
     pub fn with_signal_on_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_on_symbol = codex.lookup(char);
         self
     }
 
+    #[must_use] 
     pub fn with_signal_off_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_off_symbol = codex.lookup(char);
         self

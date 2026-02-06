@@ -23,7 +23,14 @@ pub struct FillableBarState {
     pub fill: f32,
 }
 
+impl<'a> Default for FillableBar<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> FillableBar<'a> {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             style: Style::default(),
@@ -39,16 +46,19 @@ impl<'a> FillableBar<'a> {
         self
     }
 
+    #[must_use] 
     pub fn show_percentage(mut self) -> Self {
         self.show_percentage = true;
         self
     }
 
+    #[must_use] 
     pub fn glow(mut self) -> Self {
         self.glow = true;
         self
     }
 
+    #[must_use] 
     pub fn vertical(mut self) -> Self {
         self.vertical = true;
         self
@@ -60,7 +70,7 @@ impl Widget for FillableBar<'_> {
         self.style = style;
     }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        let fill = self.state.as_ref().map(|s| s.fill).unwrap_or(0.0);
+        let fill = self.state.as_ref().map_or(0.0, |s| s.fill);
         // BODGE: flip bg and fg
         self.style = Style::builder()
             .set_fg(self.style.get_bg().unwrap())
@@ -68,7 +78,7 @@ impl Widget for FillableBar<'_> {
             .build();
         if self.vertical {
             // 1. Calculate fill based on Bottom-to-Top logic
-            let fill_height = (area.height as f32 * fill) as u16;
+            let fill_height = (f32::from(area.height) * fill) as u16;
             let empty_height = area.height.saturating_sub(fill_height);
 
             for y_off in 0..area.height {
@@ -128,8 +138,8 @@ impl Widget for FillableBar<'_> {
                 number.render(canvas, number_area, codex);
 
                 // Add '%' sign if it fits
-                if let Some((last_x, last_y)) = canvas.last_cell() {
-                    if last_x + 1 < area.right() {
+                if let Some((last_x, last_y)) = canvas.last_cell()
+                    && last_x + 1 < area.right() {
                         canvas.set_ccell(
                             last_x + 1,
                             last_y,
@@ -139,10 +149,9 @@ impl Widget for FillableBar<'_> {
                             },
                         );
                     }
-                }
             }
         } else {
-            let fill_width = (area.width as f32 * fill) as u16;
+            let fill_width = (f32::from(area.width) * fill) as u16;
 
             for x_off in 0..area.width {
                 let x = area.x + x_off;
@@ -195,8 +204,8 @@ impl Widget for FillableBar<'_> {
                 };
 
                 number.render(canvas, number_area, codex);
-                if let Some((last_x, last_y)) = canvas.last_cell() {
-                    if last_x + 1 < area.right() {
+                if let Some((last_x, last_y)) = canvas.last_cell()
+                    && last_x + 1 < area.right() {
                         canvas.set_ccell(
                             last_x + 1,
                             last_y,
@@ -206,7 +215,6 @@ impl Widget for FillableBar<'_> {
                             },
                         );
                     }
-                }
             }
         }
     }

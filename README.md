@@ -33,7 +33,7 @@ I have limited the scope of the project at some points to make it easier on myse
         - Button support
         - Drags & Scrolls
 - Rendering
-    - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and TrueColor / RGB).
+    - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and `TrueColor` / RGB).
     - Text Attributes (Bold, Dim, Italic, Underline, Blink, Reverse, and Strikethrough)
     - Layout engine: Supports horizontal and vertical alignment and using Constraints
     - Codex
@@ -61,7 +61,7 @@ I have limited the scope of the project at some points to make it easier on myse
 - [ ] Addons
     - [ ] Theme to manage many different styles
         - [ ] Probably just a hashmap of styles with names
-    - [ ] AreaManager to manage many areas
+    - [ ] `AreaManager` to manage many areas
         - [ ] Probably just a hashmap of areas with names
         - Simplifiy mouse support: `AreaManager.get_area(x, y)`
 - [ ] Documentation
@@ -97,7 +97,7 @@ talos = { git = "https://github.com/Xqhare/talos" }
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
 
-I need to enter and exit RawMode.
+I need to enter and exit `RawMode`.
 
 A small ANSI Engine will be used to create the output.
 The engine will use Canvas - a way to store the output and call `write()` once per frame after frame creation.
@@ -139,7 +139,7 @@ Should a char not be in a code page, it will be displayed as a question mark.
     - [ ] Mouse position reporting without a mouse button pressed
         - [ ] Backend
             - [x] Xterm Parser
-            - [ ] Flags to enable mouse reporting in TerminalIO
+            - [ ] Flags to enable mouse reporting in `TerminalIO`
                 - Needs to be configurable
         - [x] Frontend
     - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)

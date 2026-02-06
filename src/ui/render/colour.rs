@@ -24,6 +24,7 @@ pub enum Normal {
 }
 
 impl Normal {
+    #[must_use] 
     pub fn decode(self) -> u8 {
         match self {
             Normal::Black => 0,
@@ -51,6 +52,7 @@ pub enum Bright {
 }
 
 impl Bright {
+    #[must_use] 
     pub fn decode(self) -> u8 {
         match self {
             Bright::Black => 0,
@@ -81,6 +83,7 @@ pub enum ColourMode {
 }
 
 impl ColourMode {
+    #[must_use] 
     pub fn decode(self) -> u8 {
         match self {
             ColourMode::RgbBit(n) => n,
@@ -96,6 +99,7 @@ pub enum TrueColour {
 }
 
 impl TrueColour {
+    #[must_use] 
     pub fn decode(self) -> (u8, u8, u8) {
         match self {
             TrueColour::RGB(r, g, b) => (r, g, b),

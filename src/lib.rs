@@ -59,6 +59,7 @@ pub struct Talos {
 }
 
 impl Talos {
+    #[must_use] 
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }

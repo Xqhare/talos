@@ -29,7 +29,14 @@ pub struct TableState {
     pub max_columns: Option<usize>,
 }
 
+impl<'a> Default for Table<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> Table<'a> {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             state: None,
@@ -49,6 +56,7 @@ impl<'a> Table<'a> {
         self
     }
 
+    #[must_use] 
     pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
         self.rows.push(row);
         self
@@ -67,31 +75,37 @@ impl<'a> Table<'a> {
         self
     }
 
+    #[must_use] 
     pub fn with_alternate_style(mut self, style: Style) -> Self {
         self.alternate_style = style;
         self
     }
 
+    #[must_use] 
     pub fn with_border_style(mut self, style: Style) -> Self {
         self.border_style = style;
         self
     }
 
+    #[must_use] 
     pub fn alternate_colour_vertically(mut self) -> Self {
         self.alternate_colour_vertically = true;
         self
     }
 
+    #[must_use] 
     pub fn alternate_colour_horizontally(mut self) -> Self {
         self.alternate_colour_horizontally = true;
         self
     }
 
+    #[must_use] 
     pub fn draw_outer_border(mut self) -> Self {
         self.draw_outer_border = true;
         self
     }
 
+    #[must_use] 
     pub fn draw_inner_border(mut self) -> Self {
         self.draw_inner_border = true;
         self
@@ -235,7 +249,7 @@ impl Widget for Table<'_> {
             .rows
             .iter_mut()
             .enumerate()
-            .skip(self.state.as_ref().map(|s| s.y_offset).unwrap_or(0))
+            .skip(self.state.as_ref().map_or(0, |s| s.y_offset))
         {
             if rendered_rows >= row_amount {
                 break;
@@ -302,7 +316,7 @@ impl Widget for Table<'_> {
             for (j, col) in row
                 .iter_mut()
                 .enumerate()
-                .skip(self.state.as_ref().map(|s| s.x_offset).unwrap_or(0))
+                .skip(self.state.as_ref().map_or(0, |s| s.x_offset))
             {
                 if rendered_cols >= col_amount {
                     break;

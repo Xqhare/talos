@@ -5,6 +5,7 @@ pub struct Point {
 }
 
 impl Point {
+    #[must_use] 
     pub fn new(x: u16, y: u16) -> Self {
         Self { x, y }
     }

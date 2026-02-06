@@ -16,18 +16,20 @@ impl Text {
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
         let content = TextContent::new(content, codex, None);
         Self {
-            content: content,
+            content,
             style: Style::default(),
             align_center: false,
             align_vertically: false,
         }
     }
 
+    #[must_use] 
     pub fn align_center(mut self) -> Self {
         self.align_center = true;
         self
     }
 
+    #[must_use] 
     pub fn align_vertically(mut self) -> Self {
         self.align_vertically = true;
         self
@@ -42,11 +44,11 @@ impl Widget for Text {
         // Update wrap limit
         if let Some(wrap_limit) = self.content.get_wrap_limit() {
             if wrap_limit > area.width {
-                self.content.set_wrap_limit(area.width, &codex);
+                self.content.set_wrap_limit(area.width, codex);
             }
         } else {
             // Assume first run - so set up wrap limit
-            self.content.set_wrap_limit(area.width, &codex);
+            self.content.set_wrap_limit(area.width, codex);
         }
 
         // After setup, each Sequence should be guaranteed to be at most
@@ -57,7 +59,7 @@ impl Widget for Text {
         let top = if self.align_vertically {
             if (sequences.len() as u16) < area.height {
                 let rest = area.height - sequences.len() as u16;
-                if rest % 2 != 0 {
+                if !rest.is_multiple_of(2) {
                     (rest / 2 + 1) + area.top()
                 } else {
                     (rest / 2) + area.top()
@@ -77,7 +79,7 @@ impl Widget for Text {
 
             let left_margin = if self.align_center {
                 let rest_width = area.width - seq.width();
-                if rest_width % 2 != 0 {
+                if !rest_width.is_multiple_of(2) {
                     rest_width / 2 + 1
                 } else {
                     rest_width / 2

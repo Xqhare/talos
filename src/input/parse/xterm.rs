@@ -118,7 +118,7 @@ impl XtermParser {
                 self.current_param = self
                     .current_param
                     .saturating_mul(10)
-                    .saturating_add((byte - b'0') as u16);
+                    .saturating_add(u16::from(byte - b'0'));
                 self.has_param_digit = true;
             }
             b';' => {

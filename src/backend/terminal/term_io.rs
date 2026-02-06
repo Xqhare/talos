@@ -27,15 +27,15 @@ impl TerminalIO {
         // Clear Screen & Home Cursor
         // Hide Cursor
         if alternate_screen {
-            write!(stdout, "{}", ENTER_ALT_SCREEN)?;
+            write!(stdout, "{ENTER_ALT_SCREEN}")?;
         }
         if hide_cursor {
-            write!(stdout, "{}", HIDE_CURSOR)?;
+            write!(stdout, "{HIDE_CURSOR}")?;
         }
-        write!(stdout, "{}", CLEAR_ALL)?;
-        write!(stdout, "{}", TO_TOP_LEFT)?;
-        write!(stdout, "{}", MOUSE_FORMATTING_CODE)?;
-        write!(stdout, "{}", MOUSE_REPORTING_CODE)?;
+        write!(stdout, "{CLEAR_ALL}")?;
+        write!(stdout, "{TO_TOP_LEFT}")?;
+        write!(stdout, "{MOUSE_FORMATTING_CODE}")?;
+        write!(stdout, "{MOUSE_REPORTING_CODE}")?;
         stdout.flush()?;
 
         Ok(TerminalIO {
@@ -46,11 +46,11 @@ impl TerminalIO {
     }
 
     pub fn restore(&mut self) -> TalosResult<()> {
-        write!(self.stdout, "{}", CLEAR_ALL)?;
-        write!(self.stdout, "{}", EXIT_ALT_SCREEN)?;
-        write!(self.stdout, "{}", SHOW_CURSOR)?;
-        write!(self.stdout, "{}", DISABLE_MOUSE_REPORTING_CODE)?;
-        write!(self.stdout, "{}", DISABLE_MOUSE_FORMATTING_CODE)?;
+        write!(self.stdout, "{CLEAR_ALL}")?;
+        write!(self.stdout, "{EXIT_ALT_SCREEN}")?;
+        write!(self.stdout, "{SHOW_CURSOR}")?;
+        write!(self.stdout, "{DISABLE_MOUSE_REPORTING_CODE}")?;
+        write!(self.stdout, "{DISABLE_MOUSE_FORMATTING_CODE}")?;
         self.stdout.flush()?;
 
         if let Some(raw_mode) = self.raw_mode.take() {
@@ -75,11 +75,11 @@ impl TerminalIO {
 impl Drop for TerminalIO {
     fn drop(&mut self) {
         // Also wtf am I supposed to do with errors in here
-        let _ = write!(self.stdout, "{}", CLEAR_ALL);
-        let _ = write!(self.stdout, "{}", EXIT_ALT_SCREEN);
-        let _ = write!(self.stdout, "{}", SHOW_CURSOR);
-        let _ = write!(self.stdout, "{}", DISABLE_MOUSE_REPORTING_CODE);
-        let _ = write!(self.stdout, "{}", DISABLE_MOUSE_FORMATTING_CODE);
+        let _ = write!(self.stdout, "{CLEAR_ALL}");
+        let _ = write!(self.stdout, "{EXIT_ALT_SCREEN}");
+        let _ = write!(self.stdout, "{SHOW_CURSOR}");
+        let _ = write!(self.stdout, "{DISABLE_MOUSE_REPORTING_CODE}");
+        let _ = write!(self.stdout, "{DISABLE_MOUSE_FORMATTING_CODE}");
         let _ = self.stdout.flush();
 
         // Lets be explicit with dropping the raw mode - better safe than sorry

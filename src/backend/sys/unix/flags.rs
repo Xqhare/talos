@@ -26,17 +26,17 @@ pub fn register_signal_handlers() -> TalosResult<()> {
             sa.sa_flags = libc::SA_RESTART;
 
             // Register SIGWINCH
-            if libc::sigaction(libc::SIGWINCH, &sa, ptr::null_mut()) == -1 {
+            if libc::sigaction(libc::SIGWINCH, &raw const sa, ptr::null_mut()) == -1 {
                 out = Err(io::Error::last_os_error().into());
             }
 
             // Register SIGTERM (Kill request)
-            if libc::sigaction(libc::SIGTERM, &sa, ptr::null_mut()) == -1 {
+            if libc::sigaction(libc::SIGTERM, &raw const sa, ptr::null_mut()) == -1 {
                 out = Err(io::Error::last_os_error().into());
             }
 
             // Register SIGINT (Keyboard Interrupt via kill -INT)
-            if libc::sigaction(libc::SIGINT, &sa, ptr::null_mut()) == -1 {
+            if libc::sigaction(libc::SIGINT, &raw const sa, ptr::null_mut()) == -1 {
                 out = Err(io::Error::last_os_error().into());
             }
         }

@@ -38,7 +38,7 @@ impl Codex {
         if self.pages[id as usize].is_some() {
             return Err(TalosError::PageIdInUse(id));
         }
-        validate_page(&page)?;
+        validate_page(page)?;
 
         self.pages[id as usize] = Some(page);
 
@@ -55,7 +55,7 @@ impl Codex {
         if self.pages[id as usize].is_some() {
             return Err(TalosError::PageIdInUse(id));
         }
-        validate_page(&page)?;
+        validate_page(page)?;
 
         self.pages[id as usize] = Some(page);
 
@@ -64,6 +64,7 @@ impl Codex {
         Ok(())
     }
 
+    #[must_use] 
     pub fn resolve(&self, glyph: Glyph) -> &str {
         if let Some(char) = pre_computed_char(glyph) {
             return char;
@@ -74,10 +75,11 @@ impl Codex {
 
         match self.pages.get(page_id) {
             Some(Some(page)) => page[char_id],
-            _ => return UNKNOWN_CHAR,
+            _ => UNKNOWN_CHAR,
         }
     }
 
+    #[must_use] 
     pub fn lookup(&self, ch: char) -> Glyph {
         if ch.is_ascii() {
             return ch as u16;
@@ -91,7 +93,7 @@ impl Codex {
     fn update_cache(&mut self, id: u8, page: &'static Page) {
         for (index, &symbol) in page.iter().enumerate() {
             if let Some(ch) = symbol.chars().next() {
-                let glyph_id = ((id as u16) << 8) | (index as u16);
+                let glyph_id = (u16::from(id) << 8) | (index as u16);
                 self.reverse_map.entry(ch).or_insert(glyph_id);
             }
         }

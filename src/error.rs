@@ -31,16 +31,15 @@ impl From<&str> for TalosError {
 impl std::fmt::Display for TalosError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            TalosError::IOError(e) => write!(f, "IOError: {}", e),
-            TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {}", s),
+            TalosError::IOError(e) => write!(f, "IOError: {e}"),
+            TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {s}"),
             TalosError::InvalidState => write!(f, "InvalidState"),
             TalosError::DefaultPageId(id) => write!(
                 f,
-                "Page ID '{}' is a default page - Page ID unavailable.",
-                id
+                "Page ID '{id}' is a default page - Page ID unavailable."
             ),
-            TalosError::PageIdInUse(id) => write!(f, "Page ID '{}' already in use", id),
-            TalosError::GenericError(s) => write!(f, "GenericError: {}", s),
+            TalosError::PageIdInUse(id) => write!(f, "Page ID '{id}' already in use"),
+            TalosError::GenericError(s) => write!(f, "GenericError: {s}"),
         }
     }
 }

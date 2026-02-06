@@ -28,10 +28,10 @@ pub const UNKNOWN_CHAR_GLYPH: Glyph = 0x0000;
 pub const SPACE_GLYPH: Glyph = 0x0020;
 
 // Page ID's given here are assumed to be always valid, there are hardcoded Glyph references that require these ID values (e.g. `UNKNOWN_CHAR_GLYPH`)
-pub const REG_WIN_1252: (u8, &'static Page) = (0, &WIN_1252);
-pub const REG_CP437: (u8, &'static Page) = (1, &CP437);
-pub const REG_UTF_MISC_TECHNICAL: (u8, &'static Page) = (2, &MISC_TECHNICAL);
-pub const REG_UTF_GEOMETRIC_SHAPES: (u8, &'static Page) = (3, &GEOMETRIC_SHAPES);
+pub const REG_WIN_1252: (u8, &Page) = (0, &WIN_1252);
+pub const REG_CP437: (u8, &Page) = (1, &CP437);
+pub const REG_UTF_MISC_TECHNICAL: (u8, &Page) = (2, &MISC_TECHNICAL);
+pub const REG_UTF_GEOMETRIC_SHAPES: (u8, &Page) = (3, &GEOMETRIC_SHAPES);
 
 pub fn validate_page(page: &Page) -> TalosResult<()> {
     if page.len() != 256 {
@@ -44,14 +44,14 @@ pub fn validate_page(page: &Page) -> TalosResult<()> {
     for (id, &glyph) in page.iter().enumerate() {
         if glyph.chars().count() != 1 {
             return Err(TalosError::InvalidArgument(format!(
-                "Page entry '{}' must be a single unicode character, got '{}'",
-                id, glyph
+                "Page entry '{id}' must be a single unicode character, got '{glyph}'"
             )));
         }
     }
     Ok(())
 }
 
+#[must_use] 
 pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
     match g {
         0..=127 => {
@@ -62,6 +62,6 @@ pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
                 None
             }
         }
-        _ => return None,
+        _ => None,
     }
 }

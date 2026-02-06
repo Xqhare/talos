@@ -37,6 +37,7 @@ pub struct KeyEvent {
 }
 
 impl KeyEvent {
+    #[must_use] 
     pub fn new(code: KeyCode, modifiers: KeyModifiers) -> Self {
         Self { code, modifiers }
     }

@@ -22,9 +22,9 @@ impl Number {
     where
         N: Add<Output = N> + Mul<Output = N> + Display,
     {
-        let content = TextContent::new(format!("{}", content), codex, None);
+        let content = TextContent::new(format!("{content}"), codex, None);
         Self {
-            content: content,
+            content,
             style: Style::default(),
         }
     }
