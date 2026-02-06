@@ -11,6 +11,7 @@ pub struct Table<'a> {
     alternate_colour_horizontally: bool,
     style: Style,
     alternate_style: Style,
+    border_style: Style,
     draw_outer_border: bool,
     draw_inner_border: bool,
 }
@@ -31,6 +32,7 @@ impl<'a> Table<'a> {
             alternate_colour_horizontally: false,
             style: Style::default(),
             alternate_style: Style::default(),
+            border_style: Style::default(),
             draw_outer_border: false,
             draw_inner_border: false,
         }
@@ -58,6 +60,11 @@ impl<'a> Table<'a> {
 
     pub fn with_alternate_style(mut self, style: Style) -> Self {
         self.alternate_style = style;
+        self
+    }
+
+    pub fn with_border_style(mut self, style: Style) -> Self {
+        self.border_style = style;
         self
     }
 
@@ -109,18 +116,18 @@ impl Widget for Table<'_> {
             let top = area.top();
             let bottom = area.bottom().saturating_sub(1);
 
-            canvas.set_ccell(left, top, CCell { char: tl, style: self.style });
-            canvas.set_ccell(right, top, CCell { char: tr, style: self.style });
-            canvas.set_ccell(left, bottom, CCell { char: bl, style: self.style });
-            canvas.set_ccell(right, bottom, CCell { char: br, style: self.style });
+            canvas.set_ccell(left, top, CCell { char: tl, style: self.border_style });
+            canvas.set_ccell(right, top, CCell { char: tr, style: self.border_style });
+            canvas.set_ccell(left, bottom, CCell { char: bl, style: self.border_style });
+            canvas.set_ccell(right, bottom, CCell { char: br, style: self.border_style });
 
             for x in (left + 1)..right {
-                canvas.set_ccell(x, top, CCell { char: h_out, style: self.style });
-                canvas.set_ccell(x, bottom, CCell { char: h_out, style: self.style });
+                canvas.set_ccell(x, top, CCell { char: h_out, style: self.border_style });
+                canvas.set_ccell(x, bottom, CCell { char: h_out, style: self.border_style });
             }
             for y in (top + 1)..bottom {
-                canvas.set_ccell(left, y, CCell { char: v_out, style: self.style });
-                canvas.set_ccell(right, y, CCell { char: v_out, style: self.style });
+                canvas.set_ccell(left, y, CCell { char: v_out, style: self.border_style });
+                canvas.set_ccell(right, y, CCell { char: v_out, style: self.border_style });
             }
         }
 
@@ -158,12 +165,12 @@ impl Widget for Table<'_> {
                 let y = row_areas[rendered_rows].y;
                 
                 for x in table_area.left()..table_area.right() {
-                    canvas.set_ccell(x, y, CCell { char: h_in, style: self.style });
+                    canvas.set_ccell(x, y, CCell { char: h_in, style: self.border_style });
                 }
 
                 if self.draw_outer_border {
-                    canvas.set_ccell(area.left(), y, CCell { char: left_tee, style: self.style });
-                    canvas.set_ccell(area.right().saturating_sub(1), y, CCell { char: right_tee, style: self.style });
+                    canvas.set_ccell(area.left(), y, CCell { char: left_tee, style: self.border_style });
+                    canvas.set_ccell(area.right().saturating_sub(1), y, CCell { char: right_tee, style: self.border_style });
                 }
             }
 
@@ -209,19 +216,19 @@ impl Widget for Table<'_> {
                     let y_end = row_areas[rendered_rows].bottom();
 
                     for y in y_start..y_end {
-                        canvas.set_ccell(x, y, CCell { char: v_in, style: self.style });
+                        canvas.set_ccell(x, y, CCell { char: v_in, style: self.border_style });
                     }
 
                     if self.draw_inner_border && rendered_rows > 0 {
-                         canvas.set_ccell(x, y_start, CCell { char: cross, style: self.style });
+                         canvas.set_ccell(x, y_start, CCell { char: cross, style: self.border_style });
                     }
 
                     if self.draw_outer_border {
                         if rendered_rows == 0 {
-                            canvas.set_ccell(x, area.top(), CCell { char: top_tee, style: self.style });
+                            canvas.set_ccell(x, area.top(), CCell { char: top_tee, style: self.border_style });
                         }
                         if rendered_rows == row_amount - 1 {
-                             canvas.set_ccell(x, area.bottom().saturating_sub(1), CCell { char: bottom_tee, style: self.style });
+                             canvas.set_ccell(x, area.bottom().saturating_sub(1), CCell { char: bottom_tee, style: self.border_style });
                         }
                     }
                 }
