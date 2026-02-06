@@ -29,7 +29,7 @@ pub struct TableState {
     pub max_columns: Option<usize>,
 }
 
-impl<'a> Default for Table<'a> {
+impl Default for Table<'_> {
     fn default() -> Self {
         Self::new()
     }

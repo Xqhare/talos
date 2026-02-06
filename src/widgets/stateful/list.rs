@@ -21,7 +21,7 @@ pub struct ListState {
     pub scroll_offset: usize,
 }
 
-impl<'a> Default for List<'a> {
+impl Default for List<'_> {
     fn default() -> Self {
         Self::new()
     }

@@ -59,10 +59,10 @@ impl Widget for Text {
         let top = if self.align_vertically {
             if (sequences.len() as u16) < area.height {
                 let rest = area.height - sequences.len() as u16;
-                if !rest.is_multiple_of(2) {
-                    (rest / 2 + 1) + area.top()
-                } else {
+                if rest.is_multiple_of(2) {
                     (rest / 2) + area.top()
+                } else {
+                    (rest / 2 + 1) + area.top()
                 }
             } else {
                 area.top()
@@ -79,10 +79,10 @@ impl Widget for Text {
 
             let left_margin = if self.align_center {
                 let rest_width = area.width - seq.width();
-                if !rest_width.is_multiple_of(2) {
-                    rest_width / 2 + 1
-                } else {
+                if rest_width.is_multiple_of(2) {
                     rest_width / 2
+                } else {
+                    rest_width / 2 + 1
                 }
             } else {
                 0

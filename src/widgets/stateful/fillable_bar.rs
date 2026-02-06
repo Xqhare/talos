@@ -23,7 +23,7 @@ pub struct FillableBarState {
     pub fill: f32,
 }
 
-impl<'a> Default for FillableBar<'a> {
+impl Default for FillableBar<'_> {
     fn default() -> Self {
         Self::new()
     }

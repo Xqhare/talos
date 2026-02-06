@@ -19,7 +19,7 @@ pub struct SignalBoxState {
     pub signal: bool,
 }
 
-impl<'a> Default for SignalBox<'a> {
+impl Default for SignalBox<'_> {
     fn default() -> Self {
         Self::new()
     }
