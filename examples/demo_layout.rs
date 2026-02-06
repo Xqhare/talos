@@ -1,4 +1,4 @@
-use talos::{Talos, LayoutBuilder, input::{Event, KeyEvent, KeyCode}, layout::{Direction, Constraint}, widgets::{Block, traits::Widget}};
+use talos::{LayoutBuilder, Talos, input::{Event, KeyCode, KeyEvent}, layout::{Constraint, Direction}, widgets::{Block, Number, traits::Widget}};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -45,7 +45,24 @@ fn main() -> Result<(), talos::TalosError> {
         Block::new().title("Header", codex, false).render(canvas, chunks[0], codex);
 
         // Content
-        Block::new().title("Content", codex, true).render(canvas, chunks[1], codex);
+        let mut content_block = Block::new().title("Content", codex, true);
+        content_block.render(canvas, chunks[1], codex);
+        let inner_content = content_block.inner(chunks[1]);
+
+        let inner_chunks = LayoutBuilder::new()
+            .direction(Direction::Horizontal)
+            .add_constraint(Constraint::Percentage(33))
+            .add_constraint(Constraint::Percentage(33))
+            .add_constraint(Constraint::Percentage(33))
+            .build()
+            .split(inner_content);
+
+        let u8 = 1;
+        let i8 = -2;
+        let float = 3.5;
+        Number::new(u8, codex).render(canvas, inner_chunks[0], codex);
+        Number::new(i8, codex).render(canvas, inner_chunks[1], codex);
+        Number::new(float, codex).render(canvas, inner_chunks[2], codex);
         // 4. Present to Terminal
         talos.present()?;
 

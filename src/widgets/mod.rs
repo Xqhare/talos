@@ -5,6 +5,9 @@ pub use block::Block;
 mod text;
 pub use text::Text;
 
+mod number;
+pub use number::Number;
+
 mod list;
 pub use list::{List, ListState};
 
