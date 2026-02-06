@@ -103,7 +103,9 @@ fn main() -> Result<(), talos::TalosError> {
             .with_rows(table_vec.iter_mut())
             .with_alternate_style(table_alternate_style)
             .alternate_colour_vertically()
-            .alternate_colour_horizontally();
+            .alternate_colour_horizontally()
+            .draw_inner_border()
+            .draw_outer_border();
 
         table.style(table_style);
         table.render(canvas, content_size, codex);
