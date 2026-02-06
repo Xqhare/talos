@@ -8,11 +8,7 @@ pub use text::Text;
 mod number;
 pub use number::Number;
 
-mod list;
-pub use list::{List, ListState};
-
-mod signal_box;
-pub use signal_box::{SignalBox, SignalBoxState};
+pub mod stateful;
 
 pub mod traits {
     use crate::{codex::Codex, layout::Rect, render::{Canvas, Style}};
