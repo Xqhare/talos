@@ -16,29 +16,65 @@ This project is educational in nature. I hope it may prove useful to myself and 
 It is part of my larger goal to create my own development ecosystem.\
 I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.
 
+## Features
+
+### Core
+
+- Zero-Dependency: Built directly on top of `libc`
+- Signal handling
+    - Automatically handles `SIGWINCH` and `SIGINT`/`SIGTERM`
+- Input handling
+    - Xterm parser
+    - Keyboard support
+        - Standard keys
+        - Functions keys (F1-F12)
+        - Modifiers (Shift, Control, Alt)
+    - Mouse support
+        - Button support
+        - Drags & Scrolls
+- Rendering
+    - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and TrueColor / RGB).
+    - Text Attributes (Bold, Dim, Italic, Underline, Blink, Reverse, and Strikethrough)
+    - Layout engine: Supports horizontal and vertical alignment and using Constraints
+    - Codex
+        - Emulation of old school code pages for character rendering
+        - Includes as default:
+            - Windows-1252
+            - CP437
+            - UTF Geometric Shapes block
+            - UTF Miscellaneous Technical Symbols block
+
+### Widgets
+
+- Simple Widgets
+    - Block: A container widget with configurable borders (Normal or Fat), titles, and subtitles in six different positions.
+    - Text: Supports text wrapping, horizontal centering, and vertical alignment.
+    - Number: Renders numeric values as text.
+- Stateful Widgets
+    - List: Supports vertical and horizontal scrollable lists with selection symbols and styles.
+    - Table: Supports grid-based data with optional inner/outer borders and alternating row/column colors.
+    - Fillable Bar (Progress Bar): Supports horizontal and vertical bars with optional percentage displays and "glow" (shading) effects.
+    - Signal Box: A simple toggleable boolean indicator using geometric symbols.
+
 ## Roadmap
 
-- [x] Core
-    - [x] Mouse input support (eventually)
-    - [x] Optimise Codex
 - [ ] Addons
     - [ ] Theme to manage many different styles
         - [ ] Probably just a hashmap of styles with names
+    - [ ] AreaManager to manage many areas
+        - [ ] Probably just a hashmap of areas with names
+        - Simplifiy mouse support: `AreaManager.get_area(x, y)`
 - [ ] Documentation
     - [ ] Examples
+        - [x] Demos
+        - [ ] Docs
     - [ ] API
         - [ ] Public
         - [ ] Internal
     - [ ] Readme
 - [ ] Widgets
-    - [x] Simple Widgets
-        - [x] Text wrapping in `Text` widget
-        - [x] Boolean rendering widget
-        - [x] Number rendering widget
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
-        - [x] List widget
-        - [x] Table widget
         - [ ] Chart widget
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar
@@ -46,28 +82,17 @@ I have limited the scope of the project at some points to make it easier on myse
             - [ ] Line (Only points. No interconnecting lines)
             - [ ] Support for `usize`, `isize` and `f32` & `f64`
                 - `isize` and `float` will need the x-axis to be in the middle to support negative values
-        - [x] Progress bar / Fillable bar widget
-            - [x] Horizontal
-            - [x] Vertical
-            - [x] Toggleable numeric display in %
-- [ ] Maybe
-    - [ ] Custom page loader
-    - [ ] Mouse position reporting without a mouse button pressed
-        - [ ] Backend
-            - [x] Xterm Parser
-            - [ ] Flags to enable mouse reporting in TerminalIO
-                - Needs to be configurable
-        - [x] Frontend
-    - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
-        - If performance suffers, implement a layer system - seems like a lot of work for not much benefit in most applications.
-- [ ] Probably never - Way too much work, but would be nice
-    - [ ] Unicode support & remove Code pages
-    - [ ] Windows support
-        - [ ] Read the damn win docs again and determine needed foreign functions needed
-        - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
-        - [ ] FFI for `shell32.dll` (Shellhook?) and `ole32.dll` (memory management & clipboard) probably needed
-    - [ ] Mac support
-        - [ ] Define what needs to be done - FFI wise
+
+## Usage
+
+### Add to Cargo.toml
+
+To use Talos, and keep it up to date, add the following to your `Cargo.toml`:
+
+```toml
+[dependencies]
+talos = { git = "https://github.com/Xqhare/talos" }
+```
 
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
@@ -106,4 +131,25 @@ Each entry must have a displayed width of 1 and must be stored in valid utf-8.
 
 Talos builds a cache of the code pages and checks if a char is in a code page before displaying it.\
 Should a char not be in a code page, it will be displayed as a question mark.
+
+### Features to consider
+
+- [ ] Maybe
+    - [ ] Custom page loader
+    - [ ] Mouse position reporting without a mouse button pressed
+        - [ ] Backend
+            - [x] Xterm Parser
+            - [ ] Flags to enable mouse reporting in TerminalIO
+                - Needs to be configurable
+        - [x] Frontend
+    - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
+        - If performance suffers, implement a layer system - seems like a lot of work for not much benefit in most applications.
+- [ ] Probably never - Way too much work, but would be nice
+    - [ ] Unicode support & remove Code pages
+    - [ ] Windows support
+        - [ ] Read the damn win docs again and determine needed foreign functions needed
+        - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
+        - [ ] FFI for `shell32.dll` (Shellhook?) and `ole32.dll` (memory management & clipboard) probably needed
+    - [ ] Mac support
+        - [ ] Define what needs to be done - FFI wise
 
