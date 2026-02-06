@@ -58,6 +58,11 @@ pub struct Talos {
     parser: Parser,
 }
 
+pub enum Present {
+    Resized,
+    Presented,
+}
+
 impl Talos {
     #[must_use] 
     pub fn builder() -> TalosBuilder {
@@ -76,26 +81,21 @@ impl Talos {
         self.canvas.clear();
     }
 
-    // TODO: move the return type to a Result<enum>
-    // Something like `TalosResult<Present::Resized>` and `TalosResult<Present::Presented>`
-    //
-    // Redrawing could also be solved with recursion - that would need to be toggleable though and
-    // need a recursion limit to prevent infinites.
     /// Present the canvas to the terminal
-    ///
-    /// Returns whether the terminal was resized.
-    /// Returns `false` if the terminal was resized.
-    /// Returns `true` if the terminal was not resized.
-    ///
-    /// While the logic of the returned boolean seems flipped, it describes if `present`
-    /// finished what it was supposed to do. If a resize event happened, `present` exited
-    /// without drawing to the terminal.
-    ///
     /// The new size is stored in `self.size`.
-    pub fn present(&mut self) -> TalosResult<bool> {
+    ///
+    /// # Returns
+    /// Returns whether the terminal was resized.
+    /// If the terminal was resized, `present` will not draw anything to the terminal.
+    /// Returns `Ok(Present::Resized)` if the terminal was resized.
+    /// Returns `Ok(Present::Presented)` if the terminal was not resized.
+    ///
+    /// # Errors
+    /// Returns an error if the terminal was terminated.
+    pub fn present(&mut self) -> TalosResult<Present> {
         let resized = self.handle_signals()?;
         if resized {
-            return Ok(false);
+            return Ok(Present::Resized);
         }
 
         self.output_buffer.clear();
@@ -129,7 +129,7 @@ impl Talos {
         if self.handle_signals()? {
             // Resized! - Just show one blank frame - should be imperceivable anyways
             self.output_buffer.clear();
-            return Ok(false);
+            return Ok(Present::Presented);
         }
 
         self.terminal.stdout().write_all(&self.output_buffer)?;
@@ -138,7 +138,7 @@ impl Talos {
         // Pointer swapping of the buffers
         std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
-        Ok(true)
+        Ok(Present::Presented)
     }
 
     pub fn codex(&mut self) -> &mut Codex {
@@ -150,6 +150,9 @@ impl Talos {
     ///
     /// Eagerly evaluates all bytes read, and returns an `Event::Unknown` if
     /// the bytes cannot be parsed.
+    ///
+    /// # Errors
+    /// Returns an error if the terminal was terminated.
     pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
         let _ = self.handle_signals()?;
 
