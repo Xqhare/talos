@@ -40,14 +40,16 @@ I have limited the scope of the project at some points to make it easier on myse
         - [x] List widget
         - [ ] Table widget
         - [ ] Chart widget
-            - [ ] Column
-            - [ ] Bar
-            - [ ] Line
+            - [ ] Column / Bar
+            - [ ] Stacked Column / Bar
+            - [ ] Min - Max Chart (Two points per x coordinate, connected with vertical lines)
+            - [ ] Line (Only points. No interconnecting lines)
             - [ ] Support for `usize`, `isize` and `f32` & `f64`
                 - `isize` and `float` will need the x-axis to be in the middle to support negative values
-        - [ ] Progress bar / Fillable bar widget
-            - [ ] Horizontal
-            - [ ] Vertical
+        - [x] Progress bar / Fillable bar widget
+            - [x] Horizontal
+            - [x] Vertical
+            - [x] Toggleable numeric display in %
 - [ ] Maybe
     - [ ] Custom page loader
     - [ ] Mouse position reporting without a mouse button pressed
