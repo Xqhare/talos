@@ -38,7 +38,7 @@ I have limited the scope of the project at some points to make it easier on myse
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
         - [x] List widget
-        - [ ] Table widget
+        - [x] Table widget
         - [ ] Chart widget
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar
