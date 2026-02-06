@@ -9,7 +9,7 @@ pub struct Text {
     content: TextContent,
     style: Style,
     align_center: bool,
-    align_vertically: bool
+    align_vertically: bool,
 }
 
 impl Text {
@@ -19,7 +19,7 @@ impl Text {
             content: content,
             style: Style::default(),
             align_center: false,
-            align_vertically: false
+            align_vertically: false,
         }
     }
 
@@ -39,7 +39,6 @@ impl Widget for Text {
         self.style = style;
     }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-
         // Update wrap limit
         if let Some(wrap_limit) = self.content.get_wrap_limit() {
             if wrap_limit > area.width {
@@ -54,7 +53,7 @@ impl Widget for Text {
         // `area.width` wide
         let sequences: &[Sequence] = self.content.get_sequences();
         //let mut out = Vec::with_capacity(sequences.len());
-        
+
         let top = if self.align_vertically {
             if (sequences.len() as u16) < area.height {
                 let rest = area.height - sequences.len() as u16;
@@ -97,21 +96,22 @@ impl Widget for Text {
                 break;
             }
             for glyph in seq.glyphs() {
-
                 if x >= area.right() {
                     // Hard clip the edge of the provided area - even if we drop parts of a line
                     break;
                 }
-                
-                canvas.set_ccell(x, y, CCell {
-                    char: *glyph,
-                    style: self.style,
-                });
-                
+
+                canvas.set_ccell(
+                    x,
+                    y,
+                    CCell {
+                        char: *glyph,
+                        style: self.style,
+                    },
+                );
+
                 x += 1;
             }
-
         }
-
     }
 }

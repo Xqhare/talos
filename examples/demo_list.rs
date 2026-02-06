@@ -1,4 +1,14 @@
-use talos::{Talos, LayoutBuilder, render::{Colour, Normal, Style}, input::{Event, KeyEvent, KeyCode}, layout::{Direction, Constraint}, widgets::{Block, Text, stateful::{List, ListState}, traits::Widget}};
+use talos::{
+    LayoutBuilder, Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::{Constraint, Direction},
+    render::{Colour, Normal, Style},
+    widgets::{
+        Block, Text,
+        stateful::{List, ListState},
+        traits::Widget,
+    },
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,18 +16,17 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
     let mut vertical_list_state: ListState = ListState {
         selected: Some(0),
-        scroll_offset: 0
+        scroll_offset: 0,
     };
     let mut horizontal_list_state: ListState = ListState {
         selected: Some(0),
-        scroll_offset: 0
+        scroll_offset: 0,
     };
 
     while running {
@@ -26,21 +35,49 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Up, .. }) => {
-                        vertical_list_state.selected = vertical_list_state.selected.as_ref().and_then(|s| Some(s.saturating_sub(1)))
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Up, ..
+                    }) => {
+                        vertical_list_state.selected = vertical_list_state
+                            .selected
+                            .as_ref()
+                            .and_then(|s| Some(s.saturating_sub(1)))
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Down, .. }) => {
-                        vertical_list_state.selected = vertical_list_state.selected.as_ref().and_then(|s| Some(s.saturating_add(1)))
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Down,
+                        ..
+                    }) => {
+                        vertical_list_state.selected = vertical_list_state
+                            .selected
+                            .as_ref()
+                            .and_then(|s| Some(s.saturating_add(1)))
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Left, .. }) => {
-                        horizontal_list_state.selected = horizontal_list_state.selected.as_ref().and_then(|s| Some(s.saturating_sub(1)))
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Left,
+                        ..
+                    }) => {
+                        horizontal_list_state.selected = horizontal_list_state
+                            .selected
+                            .as_ref()
+                            .and_then(|s| Some(s.saturating_sub(1)))
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Right, .. }) => {
-                        horizontal_list_state.selected = horizontal_list_state.selected.as_ref().and_then(|s| Some(s.saturating_add(1)))
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Right,
+                        ..
+                    }) => {
+                        horizontal_list_state.selected = horizontal_list_state
+                            .selected
+                            .as_ref()
+                            .and_then(|s| Some(s.saturating_add(1)))
                     }
                     _ => {}
                 }
@@ -206,22 +243,22 @@ fn main() -> Result<(), talos::TalosError> {
             .add_constraint(Constraint::Percentage(16))
             .add_constraint(Constraint::Min(20))
             .build()
-            .split(size); 
+            .split(size);
 
         // 2. Draw
         // Header
         let mut head = Block::new().title("Header", codex, false);
-            head.render(canvas, chunks[0], codex);
+        head.render(canvas, chunks[0], codex);
 
         let head_inner = head.inner(chunks[0]);
-        
-        let _header_text = Text::new("To move the lists, use the arrow keys!", &codex).render(canvas, head_inner, codex);
+
+        let _header_text = Text::new("To move the lists, use the arrow keys!", &codex)
+            .render(canvas, head_inner, codex);
 
         // Content
         let mut content_block = Block::new().title("Content", codex, true);
 
         content_block.render(canvas, chunks[1], codex);
-
 
         let content_size = content_block.inner(chunks[1]);
 

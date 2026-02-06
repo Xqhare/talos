@@ -1,4 +1,10 @@
-use talos::{Talos, input::{Event, KeyCode, KeyEvent}, layout::Rect, render::{Colour, Normal, Style}, widgets::{Block, Text, traits::Widget}};
+use talos::{
+    Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::Rect,
+    render::{Colour, Normal, Style},
+    widgets::{Block, Text, traits::Widget},
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,8 +12,7 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
@@ -17,8 +22,13 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
                     _ => {}
@@ -77,7 +87,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         // Let's draw a white & black block in the middle
         let area = Rect::new(15, 15, 50, 10);
-        
+
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Black))
             .set_bg(Colour::Normal(Normal::White))

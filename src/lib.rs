@@ -9,16 +9,16 @@
 
 use std::io::Write;
 
-use input::poll_input_bytes;
+use codex::Codex;
 use input::Parser;
+use input::poll_input_bytes;
 use ui::render::CCell;
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::write_all_bytes;
-use codex::Codex;
 
 mod builder;
-pub use builder::{ParserBuilder, LayoutBuilder, TalosBuilder};
+pub use builder::{LayoutBuilder, ParserBuilder, TalosBuilder};
 mod error;
 pub use error::{TalosError, TalosResult};
 
@@ -35,8 +35,8 @@ mod content;
 mod ui;
 
 pub mod input;
-pub use ui::render;
 pub use ui::layout;
+pub use ui::render;
 mod utils;
 pub mod widgets;
 
@@ -116,7 +116,10 @@ impl Talos {
 
                     // Write styled char
                     ccell.style.generate(&mut self.output_buffer);
-                    write_all_bytes(&mut self.output_buffer, self.codex.resolve(ccell.char).as_bytes())?;
+                    write_all_bytes(
+                        &mut self.output_buffer,
+                        self.codex.resolve(ccell.char).as_bytes(),
+                    )?;
                     prev_x_cell = x;
                 }
             }
@@ -157,7 +160,9 @@ impl Talos {
             self.parser.max_poll_input_buffer,
             self.parser.buffer_linear_growth_step,
         )? {
-            self.parser.parser.parse(bytes, &mut self.parser.event_buffer)?;
+            self.parser
+                .parser
+                .parse(bytes, &mut self.parser.event_buffer)?;
         } else {
             self.parser.parser.flush(&mut self.parser.event_buffer);
         }

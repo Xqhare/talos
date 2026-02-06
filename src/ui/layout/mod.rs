@@ -113,7 +113,7 @@ impl Layout {
                 }
                 Constraint::Ratio(num, den) => {
                     if *den == 0 {
-                        results[i] = 0; 
+                        results[i] = 0;
                     } else {
                         let size = (total_space as u32 * *num as u32 / *den as u32) as u16;
                         results[i] = size;
@@ -148,9 +148,9 @@ impl Layout {
                         size += 1;
                         remainder -= 1;
                     }
-                    
+
                     size = std::cmp::max(size, *min_req);
-                    
+
                     results[i] = size;
                 }
             }

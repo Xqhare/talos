@@ -1,4 +1,10 @@
-use crate::{error::TalosResult, input::{Event, event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind}}};
+use crate::{
+    error::TalosResult,
+    input::{
+        Event,
+        event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind},
+    },
+};
 
 use super::InputParser;
 
@@ -46,7 +52,10 @@ impl InputParser for XtermParser {
 
     fn flush(&mut self, output: &mut Vec<Event>) {
         if self.state == ParserState::Esc {
-            output.push(Event::KeyEvent(KeyEvent::new(KeyCode::Esc, KeyModifiers::default())));
+            output.push(Event::KeyEvent(KeyEvent::new(
+                KeyCode::Esc,
+                KeyModifiers::default(),
+            )));
             self.reset_state();
         }
     }
@@ -77,7 +86,10 @@ impl XtermParser {
             // Basic UTF-8 accumulation
             self.pending_buffer.push(byte);
             if let Some((ch, len)) = self.try_parse_utf8(&self.pending_buffer) {
-                output.push(Event::KeyEvent(KeyEvent::new(KeyCode::Char(ch), KeyModifiers::default())));
+                output.push(Event::KeyEvent(KeyEvent::new(
+                    KeyCode::Char(ch),
+                    KeyModifiers::default(),
+                )));
                 self.pending_buffer.drain(..len);
             }
         }
@@ -89,7 +101,10 @@ impl XtermParser {
             b'O' => self.state = ParserState::Ss3,
             _ => {
                 // Not a known sequence starter, treat previous ESC as key and re-process byte
-                output.push(Event::KeyEvent(KeyEvent::new(KeyCode::Esc, KeyModifiers::default())));
+                output.push(Event::KeyEvent(KeyEvent::new(
+                    KeyCode::Esc,
+                    KeyModifiers::default(),
+                )));
                 self.state = ParserState::Normal;
                 self.handle_normal(byte, output);
             }
@@ -100,7 +115,10 @@ impl XtermParser {
         match byte {
             b'<' => self.is_sgr_mouse = true,
             b'0'..=b'9' => {
-                self.current_param = self.current_param.saturating_mul(10).saturating_add((byte - b'0') as u16);
+                self.current_param = self
+                    .current_param
+                    .saturating_mul(10)
+                    .saturating_add((byte - b'0') as u16);
                 self.has_param_digit = true;
             }
             b';' => {
@@ -108,7 +126,8 @@ impl XtermParser {
                 self.current_param = 0;
                 self.has_param_digit = false;
             }
-            0x40..=0x7E => { // Final Byte
+            0x40..=0x7E => {
+                // Final Byte
                 if self.has_param_digit {
                     self.params.push(self.current_param);
                 }
@@ -116,7 +135,7 @@ impl XtermParser {
                 let event = if self.is_sgr_mouse {
                     self.parse_sgr_mouse(byte)
                 } else {
-                    self.finalize_csi(byte)   
+                    self.finalize_csi(byte)
                 };
 
                 if let Some(ev) = event {
@@ -146,7 +165,11 @@ impl XtermParser {
     }
 
     fn finalize_csi(&self, final_byte: u8) -> Option<Event> {
-        let modifier_param = if self.params.len() > 1 { self.params[1] } else { 1 };
+        let modifier_param = if self.params.len() > 1 {
+            self.params[1]
+        } else {
+            1
+        };
         let modifiers = parse_modifier_param(modifier_param);
 
         let key_code = match final_byte {
@@ -156,23 +179,35 @@ impl XtermParser {
             b'D' => Some(KeyCode::Left),
             b'H' => Some(KeyCode::Home),
             b'F' => Some(KeyCode::End),
-            b'Z' => return Some(Event::KeyEvent(KeyEvent::new(KeyCode::Tab, KeyModifiers { shift: true, none: false, ctrl: false, alt: false }))),
-            b'~' => {
-                match self.params.first().copied().unwrap_or(0) {
-                    1 => Some(KeyCode::Home),
-                    2 => Some(KeyCode::Insert),
-                    3 => Some(KeyCode::Delete),
-                    4 => Some(KeyCode::End),
-                    5 => Some(KeyCode::PageUp),
-                    6 => Some(KeyCode::PageDown),
-                    11..=15 | 17..=21 | 23..=24 => {
-                        let f_map = [0, 1, 2, 3, 4, 5, 0, 6, 7, 8, 9, 10, 0, 11, 12];
-                        let idx = (self.params[0] - 11) as usize;
-                        if idx < f_map.len() && f_map[idx] != 0 { Some(KeyCode::F(f_map[idx])) } else { None }
-                    }
-                    _ => None,
-                }
+            b'Z' => {
+                return Some(Event::KeyEvent(KeyEvent::new(
+                    KeyCode::Tab,
+                    KeyModifiers {
+                        shift: true,
+                        none: false,
+                        ctrl: false,
+                        alt: false,
+                    },
+                )));
             }
+            b'~' => match self.params.first().copied().unwrap_or(0) {
+                1 => Some(KeyCode::Home),
+                2 => Some(KeyCode::Insert),
+                3 => Some(KeyCode::Delete),
+                4 => Some(KeyCode::End),
+                5 => Some(KeyCode::PageUp),
+                6 => Some(KeyCode::PageDown),
+                11..=15 | 17..=21 | 23..=24 => {
+                    let f_map = [0, 1, 2, 3, 4, 5, 0, 6, 7, 8, 9, 10, 0, 11, 12];
+                    let idx = (self.params[0] - 11) as usize;
+                    if idx < f_map.len() && f_map[idx] != 0 {
+                        Some(KeyCode::F(f_map[idx]))
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            },
             _ => None,
         };
 
@@ -186,7 +221,14 @@ impl XtermParser {
             127 | 8 => (KeyCode::Backspace, KeyModifiers::default()),
             1..=26 => {
                 let ch = (byte + 96u8) as char;
-                (KeyCode::Char(ch), KeyModifiers { ctrl: true, none: false, ..KeyModifiers::default() })
+                (
+                    KeyCode::Char(ch),
+                    KeyModifiers {
+                        ctrl: true,
+                        none: false,
+                        ..KeyModifiers::default()
+                    },
+                )
             }
             _ => return None,
         };
@@ -194,7 +236,9 @@ impl XtermParser {
     }
 
     fn try_parse_utf8(&self, buffer: &[u8]) -> Option<(char, usize)> {
-        if buffer.is_empty() { return None; }
+        if buffer.is_empty() {
+            return None;
+        }
         let first = buffer[0];
         let len = match first {
             0x00..=0x7F => 1,
@@ -205,7 +249,8 @@ impl XtermParser {
         };
 
         if buffer.len() >= len {
-            std::str::from_utf8(&buffer[..len]).ok()
+            std::str::from_utf8(&buffer[..len])
+                .ok()
                 .and_then(|s| s.chars().next().map(|ch| (ch, len)))
         } else {
             None
@@ -214,7 +259,9 @@ impl XtermParser {
 
     fn parse_sgr_mouse(&self, final_byte: u8) -> Option<Event> {
         // SGR format: ESC [ < button ; column ; row (m or M)
-        if self.params.len() < 3 { return None; }
+        if self.params.len() < 3 {
+            return None;
+        }
 
         let b_code = self.params[0];
         let col = self.params[1].saturating_sub(1);
@@ -269,6 +316,8 @@ fn parse_modifier_param(param: u16) -> KeyModifiers {
 
     KeyModifiers {
         none: !shift && !alt && !ctrl,
-        shift, alt, ctrl,
+        shift,
+        alt,
+        ctrl,
     }
 }

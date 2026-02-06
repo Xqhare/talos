@@ -1,4 +1,10 @@
-use talos::{Talos, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::Rect, widgets::{Block, Text, traits::Widget}};
+use talos::{
+    Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::Rect,
+    render::{Colour, Normal, Style},
+    widgets::{Block, Text, traits::Widget},
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,8 +12,7 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
@@ -17,8 +22,13 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
                     _ => {}
@@ -32,7 +42,12 @@ fn main() -> Result<(), talos::TalosError> {
 
         let big_area_left = Rect::new(1, 1, canvas.max_width() / 2, canvas.max_height());
 
-        let big_area_right = Rect::new(canvas.max_width() / 2 + 1, 1, canvas.max_width() / 2, canvas.max_height());
+        let big_area_right = Rect::new(
+            canvas.max_width() / 2 + 1,
+            1,
+            canvas.max_width() / 2,
+            canvas.max_height(),
+        );
 
         let style_left = Style::builder()
             .set_fg(Colour::Normal(Normal::Yellow))
@@ -43,15 +58,11 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::Green))
             .build();
 
-        let mut large_block_left: Block = Block::new()
-            .title("", codex, false)
-            .with_bg_fill();
+        let mut large_block_left: Block = Block::new().title("", codex, false).with_bg_fill();
 
         large_block_left.style(style_left);
 
-        let mut large_block_right: Block = Block::new()
-            .title("", codex, false)
-            .with_bg_fill();
+        let mut large_block_right: Block = Block::new().title("", codex, false).with_bg_fill();
 
         large_block_right.style(style_right);
 
@@ -72,13 +83,12 @@ fn main() -> Result<(), talos::TalosError> {
 
         left_text.style(left_text_style);
 
-        left_text
-            .render(canvas, left_block_inner, codex);
+        left_text.render(canvas, left_block_inner, codex);
 
         large_block_right.render(canvas, big_area_right, codex);
 
         let right_block_inner = large_block_right.inner(big_area_right);
-        
+
         let right_text_style = Style::builder()
             .set_bg(Colour::Normal(Normal::Green))
             .set_fg(Colour::Normal(Normal::Yellow))
@@ -91,12 +101,11 @@ fn main() -> Result<(), talos::TalosError> {
 
         right_text.style(right_text_style);
 
-        right_text
-            .render(canvas, right_block_inner, codex);
+        right_text.render(canvas, right_block_inner, codex);
 
         // Let's draw a white & black block in the middle
         let area = Rect::new(70, 10, 50, 30);
-        
+
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Black))
             .set_bg(Colour::Normal(Normal::White))
@@ -126,10 +135,9 @@ fn main() -> Result<(), talos::TalosError> {
 
         text.style(text_style);
 
-        text
-            .render(canvas, block_inner, codex);
+        text.render(canvas, block_inner, codex);
 
-                // 4. Present to Terminal
+        // 4. Present to Terminal
         talos.present()?;
 
         // Cap framerate slightly to save CPU

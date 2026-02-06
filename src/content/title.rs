@@ -1,6 +1,5 @@
 use crate::{codex::Codex, render::Glyph};
 
-
 /// Represents the contents of a title
 ///
 /// Has 6 positions, any or all of which may be `None`.
@@ -58,7 +57,12 @@ impl Default for TitleContents {
 }
 
 impl TitleContents {
-    pub fn set_position(&mut self, position: TitlePosition, string: impl Into<String>, codex: &Codex) {
+    pub fn set_position(
+        &mut self,
+        position: TitlePosition,
+        string: impl Into<String>,
+        codex: &Codex,
+    ) {
         match position {
             TitlePosition::TopLeft => self.set_top_left(string, codex),
             TitlePosition::TopCenter => self.set_top_center(string, codex),
@@ -103,7 +107,8 @@ impl TitleContents {
 
     fn set_bottom_center(&mut self, string: impl Into<String>, codex: &Codex) {
         self.bottom_center = Some(string.into());
-        self.bottom_center_buffer = Some(decode_string(&self.bottom_center.as_ref().unwrap(), codex));
+        self.bottom_center_buffer =
+            Some(decode_string(&self.bottom_center.as_ref().unwrap(), codex));
     }
 
     fn set_bottom_right(&mut self, string: impl Into<String>, codex: &Codex) {

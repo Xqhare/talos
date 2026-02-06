@@ -10,7 +10,6 @@ pub struct StyleBuilder {
 }
 
 impl StyleBuilder {
-
     pub fn set_fg(mut self, fg: Colour) -> Self {
         self.fg = Some(fg);
         self

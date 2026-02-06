@@ -1,6 +1,4 @@
-
 use crate::input::{InputParser, Parser, XtermParser};
-
 
 pub struct ParserBuilder {
     parser: Box<dyn InputParser>,

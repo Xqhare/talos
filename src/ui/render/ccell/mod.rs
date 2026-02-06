@@ -1,4 +1,3 @@
-
 use crate::codex::pages::SPACE_GLYPH;
 
 use super::{Glyph, Style};

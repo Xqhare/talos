@@ -1,4 +1,10 @@
-use talos::{Talos, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::Rect, widgets::{Block, Text, traits::Widget}};
+use talos::{
+    Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::Rect,
+    render::{Colour, Normal, Style},
+    widgets::{Block, Text, traits::Widget},
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,8 +12,7 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
@@ -17,8 +22,13 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
                     _ => {}
@@ -32,7 +42,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         // Let's draw a white & black block in the middle
         let area = Rect::new(15, 15, 90, 10);
-        
+
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Black))
             .set_bg(Colour::Normal(Normal::White))
@@ -50,7 +60,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         block.render(canvas, area, codex);
         let area2 = Rect::new(2, 2, 100, 10);
-        
+
         let style2 = Style::builder()
             .set_fg(Colour::Normal(Normal::White))
             .set_bg(Colour::Normal(Normal::Magenta))
@@ -70,7 +80,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         block2.render(canvas, area2, codex);
         let area3 = Rect::new(10, 30, 80, 10);
-        
+
         let style3 = Style::builder()
             .set_fg(Colour::Normal(Normal::Magenta))
             .set_bg(Colour::Normal(Normal::Black))

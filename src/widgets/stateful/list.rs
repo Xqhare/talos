@@ -1,4 +1,9 @@
-use crate::{codex::{Codex, pages::SPACE_GLYPH}, layout::Rect, render::{CCell, Glyph, Style}, widgets::traits::Widget};
+use crate::{
+    codex::{Codex, pages::SPACE_GLYPH},
+    layout::Rect,
+    render::{CCell, Glyph, Style},
+    widgets::traits::Widget,
+};
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
 //    rendered. This is an artifact of the current implementation moving the offset around and can
@@ -37,7 +42,11 @@ impl<'a> List<'a> {
         self
     }
 
-    pub fn with_items<I, W>(mut self, items: I) -> Self where I: IntoIterator<Item = &'a mut W>, W: Widget + 'a {
+    pub fn with_items<I, W>(mut self, items: I) -> Self
+    where
+        I: IntoIterator<Item = &'a mut W>,
+        W: Widget + 'a,
+    {
         self.items = items.into_iter().map(|i| i as &'a mut dyn Widget).collect();
         self
     }
@@ -62,77 +71,109 @@ impl Widget for List<'_> {
     fn style(&mut self, style: Style) {
         self.selected_style = style;
     }
-    fn render(&mut self, canvas: &mut crate::render::Canvas, area: crate::layout::Rect, codex: &crate::codex::Codex) {
-
-        if self.items.is_empty() { return; }
+    fn render(
+        &mut self,
+        canvas: &mut crate::render::Canvas,
+        area: crate::layout::Rect,
+        codex: &crate::codex::Codex,
+    ) {
+        if self.items.is_empty() {
+            return;
+        }
 
         let x_offset = if self.selected_symbol.is_some() { 3 } else { 0 };
-        
+
         let selected_idx = self.state.as_ref().and_then(|s| s.selected);
 
         if self.horizontal {
-
             let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
-                
                 let relative_idx = i - offset;
-                
+
                 let current_x = if relative_idx == 0 {
                     area.x
                 } else {
                     canvas.last_cell().map_or(area.x, |(lx, _)| lx + 1)
                 };
 
-                if current_x >= area.right() { break; }
+                if current_x >= area.right() {
+                    break;
+                }
 
                 let is_selected = Some(i) == selected_idx;
 
                 if is_selected {
                     item.style(self.selected_style);
-                    
+
                     if let Some(symbol) = self.selected_symbol {
-                        canvas.set_ccell(current_x + 1, area.y, CCell { char: symbol, style: self.selected_style });
-                        canvas.set_ccell(current_x + 2, area.y, CCell { char: SPACE_GLYPH, style: self.selected_style });
+                        canvas.set_ccell(
+                            current_x + 1,
+                            area.y,
+                            CCell {
+                                char: symbol,
+                                style: self.selected_style,
+                            },
+                        );
+                        canvas.set_ccell(
+                            current_x + 2,
+                            area.y,
+                            CCell {
+                                char: SPACE_GLYPH,
+                                style: self.selected_style,
+                            },
+                        );
                     }
                 }
 
-                let x_symbol_padding = if is_selected && self.selected_symbol.is_some() { 3 } else { 0 };
+                let x_symbol_padding = if is_selected && self.selected_symbol.is_some() {
+                    3
+                } else {
+                    0
+                };
 
-                if current_x + x_symbol_padding >= area.right() - 2 { break; }
+                if current_x + x_symbol_padding >= area.right() - 2 {
+                    break;
+                }
 
                 let item_area = Rect::new(
                     current_x + x_symbol_padding,
-                    area.y, 
-                    area.right().saturating_sub(current_x + x_symbol_padding), 
-                    area.height
+                    area.y,
+                    area.right().saturating_sub(current_x + x_symbol_padding),
+                    area.height,
                 );
 
                 item.render(canvas, item_area, codex);
 
                 // Scrolling the list if needed
                 if is_selected {
-                    let pos = canvas.last_cell().map_or_else(
-                        || current_x,
-                        |(lx, _)| lx
-                    );
+                    let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
                     if pos >= area.right() - 5 {
                         self.state.as_mut().map(|s| s.scroll_offset += 3);
                     }
-                    if i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) {
+                    if i == self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0)
+                        && self.state.as_ref().map(|s| s.scroll_offset) != Some(0)
+                    {
                         self.state.as_mut().map(|s| s.scroll_offset -= 1);
                     }
                 }
                 // Add a space between horizontal items
                 let space_x = canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
                 if space_x < area.right() {
-                    canvas.set_ccell(space_x, area.y, CCell { char: SPACE_GLYPH, style: Style::default() });
+                    canvas.set_ccell(
+                        space_x,
+                        area.y,
+                        CCell {
+                            char: SPACE_GLYPH,
+                            style: Style::default(),
+                        },
+                    );
                 }
             }
         } else {
             // Ensure the selected item is visible before we start rendering.
             if let (Some(state), Some(selected)) = (self.state.as_mut(), selected_idx) {
                 let height = area.height as usize;
-                
+
                 if selected < state.scroll_offset {
                     state.scroll_offset = selected;
                 } else if selected >= state.scroll_offset + height {
@@ -143,11 +184,12 @@ impl Widget for List<'_> {
             let offset = self.state.as_ref().map(|s| s.scroll_offset).unwrap_or(0);
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
-                
                 let line_index = i - offset;
                 let y = area.y.saturating_add(line_index as u16);
 
-                if y >= area.bottom() { break; }
+                if y >= area.bottom() {
+                    break;
+                }
 
                 let is_selected = Some(i) == selected_idx;
 
@@ -155,18 +197,28 @@ impl Widget for List<'_> {
                     item.style(self.selected_style);
 
                     if let Some(symbol) = self.selected_symbol {
-                        canvas.set_ccell(area.x + 1, y, CCell { char: symbol, style: self.selected_style });
-                        canvas.set_ccell(area.x + 2, y, CCell { char: SPACE_GLYPH, style: self.selected_style });
+                        canvas.set_ccell(
+                            area.x + 1,
+                            y,
+                            CCell {
+                                char: symbol,
+                                style: self.selected_style,
+                            },
+                        );
+                        canvas.set_ccell(
+                            area.x + 2,
+                            y,
+                            CCell {
+                                char: SPACE_GLYPH,
+                                style: self.selected_style,
+                            },
+                        );
                     }
                 }
 
-                let item_area = Rect::new(
-                    area.x + x_offset, 
-                    y, 
-                    area.width.saturating_sub(x_offset), 
-                    1
-                );
-                
+                let item_area =
+                    Rect::new(area.x + x_offset, y, area.width.saturating_sub(x_offset), 1);
+
                 item.render(canvas, item_area, codex);
             }
         }

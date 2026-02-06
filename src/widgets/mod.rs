@@ -1,4 +1,3 @@
-
 mod block;
 pub use block::Block;
 
@@ -11,7 +10,11 @@ pub use number::Number;
 pub mod stateful;
 
 pub mod traits {
-    use crate::{codex::Codex, layout::Rect, render::{Canvas, Style}};
+    use crate::{
+        codex::Codex,
+        layout::Rect,
+        render::{Canvas, Style},
+    };
     pub trait Widget {
         /// Renders the widget into the specified area
         ///

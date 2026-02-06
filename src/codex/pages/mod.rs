@@ -56,9 +56,12 @@ pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
     match g {
         0..=127 => {
             // Windows 1252 is page 0 -> Upper byte = 0
-            if REG_WIN_1252.0 == 0 { Some(WIN_1252[g as usize]) } else { None }
-        },
-        _ => return None
+            if REG_WIN_1252.0 == 0 {
+                Some(WIN_1252[g as usize])
+            } else {
+                None
+            }
+        }
+        _ => return None,
     }
 }
-

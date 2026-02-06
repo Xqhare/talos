@@ -11,4 +11,3 @@ mod style;
 pub use style::Style;
 
 pub type Glyph = u16;
-

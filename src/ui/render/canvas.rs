@@ -16,7 +16,7 @@ impl Canvas {
             buffer,
             width,
             height,
-            last_set_cell: None
+            last_set_cell: None,
         }
     }
 

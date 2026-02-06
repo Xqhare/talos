@@ -1,5 +1,3 @@
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Point {
     pub x: u16,
@@ -14,6 +12,9 @@ impl Point {
 
 impl From<(u16, u16)> for Point {
     fn from(value: (u16, u16)) -> Self {
-        Self { x: value.0, y: value.1 }
+        Self {
+            x: value.0,
+            y: value.1,
+        }
     }
 }

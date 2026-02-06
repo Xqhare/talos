@@ -24,7 +24,7 @@ impl TextContent {
 
     pub fn set_wrap_limit(&mut self, max_width: u16, codex: &Codex) {
         if self.max_width == Some(max_width) {
-            return
+            return;
         }
         self.max_width = Some(max_width);
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
@@ -39,7 +39,11 @@ impl TextContent {
     }
 
     // TODO: Cleanup of nested ifs
-    fn parse_content_to_glyphs(content: &str, codex: &Codex, max_width: Option<u16>) -> Vec<Sequence> {
+    fn parse_content_to_glyphs(
+        content: &str,
+        codex: &Codex,
+        max_width: Option<u16>,
+    ) -> Vec<Sequence> {
         // Overallocates a fair bit
         let mut out = Vec::with_capacity(content.len());
 
@@ -57,12 +61,18 @@ impl TextContent {
                     // Remove the trailing newline, push the word and start a new line
                     let word = &word[..word.len() - 1];
                     current_line.extend(word.chars().map(|ch| codex.lookup(ch)));
-                    out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
+                    out.push(Sequence::new(
+                        std::mem::take(&mut current_line),
+                        current_width,
+                    ));
                     current_width = 0;
                     continue;
                 }
                 if word == "\n" {
-                    out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
+                    out.push(Sequence::new(
+                        std::mem::take(&mut current_line),
+                        current_width,
+                    ));
                     current_width = 0;
                     continue;
                 }
@@ -76,12 +86,18 @@ impl TextContent {
                     current_width += word_len;
                 } else if current_width + word_len == max_width {
                     current_line.extend(word_glyphs);
-                    out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
+                    out.push(Sequence::new(
+                        std::mem::take(&mut current_line),
+                        current_width,
+                    ));
                     current_width = 0;
                 } else {
                     // If line isn't empty, push it and start new line
                     if !current_line.is_empty() {
-                        out.push(Sequence::new(std::mem::take(&mut current_line), current_width));
+                        out.push(Sequence::new(
+                            std::mem::take(&mut current_line),
+                            current_width,
+                        ));
                     }
 
                     // Handle words longer than max_width by slicing
@@ -91,7 +107,7 @@ impl TextContent {
                         out.push(Sequence::new(remaining_glyphs, max_width));
                         remaining_glyphs = tail;
                     }
-                    
+
                     // Put the remaining part of the word on the current line
                     current_width = remaining_glyphs.len() as u16;
                     current_line = remaining_glyphs;
@@ -101,7 +117,6 @@ impl TextContent {
             if !current_line.is_empty() {
                 out.push(Sequence::new(current_line, current_width));
             }
-            
         } else {
             let split_input: Vec<&str> = content.split_inclusive('\n').collect();
             // if no max width is set, just assume that it'll fit
@@ -112,7 +127,6 @@ impl TextContent {
                 }
                 out.push(Sequence::new(buffer, line.len() as u16));
             }
-            
         }
 
         out

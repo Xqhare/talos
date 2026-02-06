@@ -1,4 +1,14 @@
-use talos::{Talos, LayoutBuilder, input::{Event, KeyEvent, KeyCode}, render::{Colour, Normal, Style}, layout::{Direction, Constraint}, widgets::{Block, Text, stateful::{SignalBox, SignalBoxState, FillableBar, FillableBarState}, traits::Widget}};
+use talos::{
+    LayoutBuilder, Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::{Constraint, Direction},
+    render::{Colour, Normal, Style},
+    widgets::{
+        Block, Text,
+        stateful::{FillableBar, FillableBarState, SignalBox, SignalBoxState},
+        traits::Widget,
+    },
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,22 +16,15 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
-    let mut signal_box_state = SignalBoxState {
-        signal: true
-    };
+    let mut signal_box_state = SignalBoxState { signal: true };
 
-    let mut fillable_bar_state = FillableBarState {
-        fill: 0.0
-    };
+    let mut fillable_bar_state = FillableBarState { fill: 0.0 };
 
-    let mut fillable_vertical_bar_state = FillableBarState {
-        fill: 0.0
-    };
+    let mut fillable_vertical_bar_state = FillableBarState { fill: 0.0 };
 
     while running {
         // 2. Handle Input
@@ -29,23 +32,42 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('c'), .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('c'),
+                        ..
+                    }) => {
                         signal_box_state.signal = !signal_box_state.signal;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Up, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Up, ..
+                    }) => {
                         fillable_bar_state.fill = fillable_bar_state.fill + 0.1;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Down, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Down,
+                        ..
+                    }) => {
                         fillable_bar_state.fill = fillable_bar_state.fill - 0.1;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Left, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Left,
+                        ..
+                    }) => {
                         fillable_vertical_bar_state.fill = fillable_vertical_bar_state.fill - 0.1;
                     }
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Right, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Right,
+                        ..
+                    }) => {
                         fillable_vertical_bar_state.fill = fillable_vertical_bar_state.fill + 0.1;
                     }
                     _ => {}
@@ -100,7 +122,6 @@ fn main() -> Result<(), talos::TalosError> {
         text.style(left_style);
         text.render(canvas, left_chunks[0], codex);
 
-
         let mut right_block: Block = Block::new()
             .title("Right Block", codex, false)
             .with_beautify_border_breaks()
@@ -123,15 +144,25 @@ fn main() -> Result<(), talos::TalosError> {
             .set_fg(Colour::Normal(Normal::Black))
             .build();
 
-        let mut fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state).show_percentage().glow();
+        let mut fillable_bar = FillableBar::new()
+            .with_state(&mut fillable_bar_state)
+            .show_percentage()
+            .glow();
         fillable_bar.style(fill_style);
         fillable_bar.render(canvas, right_chunks[0], codex);
 
-        let mut text = Text::new("Press 'up/down' or 'left/right' to change fill percentage!", codex);
+        let mut text = Text::new(
+            "Press 'up/down' or 'left/right' to change fill percentage!",
+            codex,
+        );
         text.style(right_style);
         text.render(canvas, right_chunks[1], codex);
 
-        let mut fillable_vertical_bar = FillableBar::new().with_state(&mut fillable_vertical_bar_state).vertical().glow().show_percentage();
+        let mut fillable_vertical_bar = FillableBar::new()
+            .with_state(&mut fillable_vertical_bar_state)
+            .vertical()
+            .glow()
+            .show_percentage();
         fillable_vertical_bar.style(fill_style);
         fillable_vertical_bar.render(canvas, right_chunks[2], codex);
 

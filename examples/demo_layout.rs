@@ -1,4 +1,9 @@
-use talos::{LayoutBuilder, Talos, input::{Event, KeyCode, KeyEvent}, layout::{Constraint, Direction}, widgets::{Block, Number, traits::Widget}};
+use talos::{
+    LayoutBuilder, Talos,
+    input::{Event, KeyCode, KeyEvent},
+    layout::{Constraint, Direction},
+    widgets::{Block, Number, traits::Widget},
+};
 
 // A simple helper to make the loop cleaner
 use std::thread;
@@ -6,8 +11,7 @@ use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
-    let mut talos = Talos::builder()
-        .build()?;
+    let mut talos = Talos::builder().build()?;
 
     let mut running = true;
 
@@ -17,8 +21,13 @@ fn main() -> Result<(), talos::TalosError> {
             for event in events {
                 match event {
                     // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Char('q'), .. }) |
-                    Event::KeyEvent(KeyEvent { code: KeyCode::Esc, .. }) => {
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('q'),
+                        ..
+                    })
+                    | Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Esc, ..
+                    }) => {
                         running = false;
                     }
                     _ => {}
@@ -38,11 +47,13 @@ fn main() -> Result<(), talos::TalosError> {
             .add_constraint(Constraint::Percentage(16))
             .add_constraint(Constraint::Min(20))
             .build()
-            .split(size); 
+            .split(size);
 
         // 2. Draw
         // Header
-        Block::new().title("Header", codex, false).render(canvas, chunks[0], codex);
+        Block::new()
+            .title("Header", codex, false)
+            .render(canvas, chunks[0], codex);
 
         // Content
         let mut content_block = Block::new().title("Content", codex, true);

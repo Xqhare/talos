@@ -1,4 +1,9 @@
-use crate::{codex::{Codex, pages::SPACE_GLYPH}, layout::Rect, render::{CCell, Canvas, Style}, widgets::{Number, traits::Widget}};
+use crate::{
+    codex::{Codex, pages::SPACE_GLYPH},
+    layout::Rect,
+    render::{CCell, Canvas, Style},
+    widgets::{Number, traits::Widget},
+};
 
 /// A fillable bar
 ///
@@ -58,9 +63,9 @@ impl Widget for FillableBar<'_> {
         let fill = self.state.as_ref().map(|s| s.fill).unwrap_or(0.0);
         // BODGE: flip bg and fg
         self.style = Style::builder()
-                        .set_fg(self.style.get_bg().unwrap())
-                        .set_bg(self.style.get_fg().unwrap())
-                        .build();
+            .set_fg(self.style.get_bg().unwrap())
+            .set_bg(self.style.get_fg().unwrap())
+            .build();
         if self.vertical {
             // 1. Calculate fill based on Bottom-to-Top logic
             let fill_height = (area.height as f32 * fill) as u16;
@@ -68,7 +73,7 @@ impl Widget for FillableBar<'_> {
 
             for y_off in 0..area.height {
                 let y = area.y + y_off;
-                
+
                 // Determine the character and style for this entire row
                 let (char, cell_style) = if y_off < empty_height {
                     (SPACE_GLYPH, self.style)
@@ -88,14 +93,21 @@ impl Widget for FillableBar<'_> {
 
                 // 2. Iterate over the Width (This allows the bar to be 2, 3, or N cells wide)
                 for x_off in 0..area.width {
-                    canvas.set_ccell(area.x + x_off, y, CCell { char, style: cell_style });
+                    canvas.set_ccell(
+                        area.x + x_off,
+                        y,
+                        CCell {
+                            char,
+                            style: cell_style,
+                        },
+                    );
                 }
             }
 
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(percentage, codex);
-                
+
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
                 if fill_height > area.height / 2 {
@@ -106,23 +118,29 @@ impl Widget for FillableBar<'_> {
                 number.style(number_style);
 
                 // 3. Render Text at Bottom, spanning the full width
-                let number_area = Rect { 
-                    x: area.width / 2 + area.x, 
-                    y: area.height / 2 + area.y, 
-                    width: area.width, 
-                    height: 1 
+                let number_area = Rect {
+                    x: area.width / 2 + area.x,
+                    y: area.height / 2 + area.y,
+                    width: area.width,
+                    height: 1,
                 };
-                
+
                 number.render(canvas, number_area, codex);
-                
+
                 // Add '%' sign if it fits
                 if let Some((last_x, last_y)) = canvas.last_cell() {
                     if last_x + 1 < area.right() {
-                        canvas.set_ccell(last_x + 1, last_y, CCell { char: codex.lookup('%'), style: number_style });
+                        canvas.set_ccell(
+                            last_x + 1,
+                            last_y,
+                            CCell {
+                                char: codex.lookup('%'),
+                                style: number_style,
+                            },
+                        );
                     }
                 }
             }
-            
         } else {
             let fill_width = (area.width as f32 * fill) as u16;
 
@@ -131,7 +149,7 @@ impl Widget for FillableBar<'_> {
 
                 let (char, cell_style) = if x_off < fill_width {
                     let depth = fill_width.saturating_sub(1).saturating_sub(x_off);
-                    
+
                     if self.glow && depth == 0 && fill < 1.0 {
                         (codex.lookup('░'), self.style)
                     } else if self.glow && depth == 1 && fill < 1.0 {
@@ -146,14 +164,21 @@ impl Widget for FillableBar<'_> {
                 };
 
                 for y_off in 0..area.height {
-                    canvas.set_ccell(x, area.y + y_off, CCell { char, style: cell_style });
+                    canvas.set_ccell(
+                        x,
+                        area.y + y_off,
+                        CCell {
+                            char,
+                            style: cell_style,
+                        },
+                    );
                 }
             }
 
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(percentage, codex);
-                
+
                 let mut number_style = self.style;
                 if fill_width > area.width / 2 {
                     let fg = self.style.get_fg().unwrap();
@@ -162,21 +187,27 @@ impl Widget for FillableBar<'_> {
                 }
                 number.style(number_style);
 
-                let number_area = Rect { 
+                let number_area = Rect {
                     x: area.x + area.width.div_ceil(2).saturating_sub(1), // Rough horizontal center
                     y: area.y + area.height.div_ceil(2).saturating_sub(1), // Vertical center
-                    width: area.width, 
-                    height: 1 
+                    width: area.width,
+                    height: 1,
                 };
-                
+
                 number.render(canvas, number_area, codex);
                 if let Some((last_x, last_y)) = canvas.last_cell() {
                     if last_x + 1 < area.right() {
-                        canvas.set_ccell(last_x + 1, last_y, CCell { char: codex.lookup('%'), style: number_style });
+                        canvas.set_ccell(
+                            last_x + 1,
+                            last_y,
+                            CCell {
+                                char: codex.lookup('%'),
+                                style: number_style,
+                            },
+                        );
                     }
                 }
             }
         }
     }
 }
-
