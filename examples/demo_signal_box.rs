@@ -19,6 +19,10 @@ fn main() -> Result<(), talos::TalosError> {
         fill: 0.0
     };
 
+    let mut fillable_vertical_bar_state = FillableBarState {
+        fill: 0.0
+    };
+
     while running {
         // 2. Handle Input
         if let Some(events) = talos.poll_input()? {
@@ -37,6 +41,12 @@ fn main() -> Result<(), talos::TalosError> {
                     }
                     Event::KeyEvent(KeyEvent { code: KeyCode::Down, .. }) => {
                         fillable_bar_state.fill = fillable_bar_state.fill - 0.1;
+                    }
+                    Event::KeyEvent(KeyEvent { code: KeyCode::Left, .. }) => {
+                        fillable_vertical_bar_state.fill = fillable_vertical_bar_state.fill - 0.1;
+                    }
+                    Event::KeyEvent(KeyEvent { code: KeyCode::Right, .. }) => {
+                        fillable_vertical_bar_state.fill = fillable_vertical_bar_state.fill + 0.1;
                     }
                     _ => {}
                 }
@@ -99,8 +109,9 @@ fn main() -> Result<(), talos::TalosError> {
 
         let right_chunks = LayoutBuilder::new()
             .direction(Direction::Vertical)
-            .add_constraint(Constraint::Percentage(50))
-            .add_constraint(Constraint::Percentage(50))
+            .add_constraint(Constraint::Min(1))
+            .add_constraint(Constraint::Min(1))
+            .add_constraint(Constraint::Min(1))
             .build()
             .split(right_block.inner(chunks[1]));
 
@@ -112,13 +123,17 @@ fn main() -> Result<(), talos::TalosError> {
             .set_fg(Colour::Normal(Normal::Black))
             .build();
 
-        let mut fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state).show_percentage();
+        let mut fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state).show_percentage().glow();
         fillable_bar.style(fill_style);
         fillable_bar.render(canvas, right_chunks[0], codex);
 
-        let mut text = Text::new("Press 'up/down' to change fill percentage!", codex);
+        let mut text = Text::new("Press 'up/down' or 'left/right' to change fill percentage!", codex);
         text.style(right_style);
         text.render(canvas, right_chunks[1], codex);
+
+        let mut fillable_vertical_bar = FillableBar::new().with_state(&mut fillable_vertical_bar_state).vertical().glow().show_percentage();
+        fillable_vertical_bar.style(fill_style);
+        fillable_vertical_bar.render(canvas, right_chunks[2], codex);
 
         // 4. Present to Terminal
         talos.present()?;
