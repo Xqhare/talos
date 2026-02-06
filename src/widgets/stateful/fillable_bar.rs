@@ -2,9 +2,7 @@ use crate::{codex::{Codex, pages::SPACE_GLYPH}, layout::Rect, render::{CCell, Ca
 
 /// A fillable bar
 ///
-/// Always one Cell high if horizontal
-/// If vertical, one Cell wide, except if show_percentage is true. Then four Cells wide with the
-/// bar taking two of them.
+/// Always tries to fill all given space
 pub struct FillableBar<'a> {
     style: Style,
     state: Option<&'a mut FillableBarState>,
