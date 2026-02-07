@@ -57,6 +57,7 @@ impl Widget for Text {
         //let mut out = Vec::with_capacity(sequences.len());
 
         let top = if self.align_vertically {
+            #[allow(clippy::cast_possible_truncation)]
             if (sequences.len() as u16) < area.height {
                 let rest = area.height - sequences.len() as u16;
                 if rest.is_multiple_of(2) {
@@ -88,9 +89,11 @@ impl Widget for Text {
                 0
             };
 
+            #[allow(clippy::cast_possible_truncation)]
             let y = top + i as u16;
             let mut x = area.left() + left_margin;
 
+            #[allow(clippy::cast_possible_truncation)]
             if x + seq.glyphs().len() as u16 > area.right() {
                 x = area.left();
             }
