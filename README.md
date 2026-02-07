@@ -94,6 +94,11 @@ To use Talos, and keep it up to date, add the following to your `Cargo.toml`:
 talos = { git = "https://github.com/Xqhare/talos" }
 ```
 
+## Technical Details
+
+For most fields or arguments that take a `usize`, the maximum value is `u16::MAX`.
+This is because of cast truncation - This means, for example, that a `Table` may only ever have up to around 65,000 rows and columns.
+
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
 
