@@ -10,6 +10,8 @@ use crate::{
 ///
 /// For now each row is laid out separately.
 /// This means that, if a row is wider than another, the columns will not line up.
+#[must_use] 
+#[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
     state: Option<&'a mut TableState>,
     rows: Vec<Vec<&'a mut dyn Widget>>,
@@ -36,7 +38,6 @@ impl Default for Table<'_> {
 }
 
 impl<'a> Table<'a> {
-    #[must_use] 
     pub fn new() -> Self {
         Self {
             state: None,
@@ -56,7 +57,6 @@ impl<'a> Table<'a> {
         self
     }
 
-    #[must_use] 
     pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
         self.rows.push(row);
         self
@@ -75,37 +75,31 @@ impl<'a> Table<'a> {
         self
     }
 
-    #[must_use] 
     pub fn with_alternate_style(mut self, style: Style) -> Self {
         self.alternate_style = style;
         self
     }
 
-    #[must_use] 
     pub fn with_border_style(mut self, style: Style) -> Self {
         self.border_style = style;
         self
     }
 
-    #[must_use] 
     pub fn alternate_colour_vertically(mut self) -> Self {
         self.alternate_colour_vertically = true;
         self
     }
 
-    #[must_use] 
     pub fn alternate_colour_horizontally(mut self) -> Self {
         self.alternate_colour_horizontally = true;
         self
     }
 
-    #[must_use] 
     pub fn draw_outer_border(mut self) -> Self {
         self.draw_outer_border = true;
         self
     }
 
-    #[must_use] 
     pub fn draw_inner_border(mut self) -> Self {
         self.draw_inner_border = true;
         self
@@ -116,6 +110,8 @@ impl Widget for Table<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    // TODO: This is a mess - if anything breaks its gonna need a refactor
+    #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let tl = codex.lookup('╔');
         let tr = codex.lookup('╗');
@@ -243,13 +239,12 @@ impl Widget for Table<'_> {
         let row_layout = row_layout.build();
         let row_areas = row_layout.split(table_area);
 
-        let mut rendered_rows = 0;
-
-        for (i, row) in self
+        for (rendered_rows, (i, row)) in self
             .rows
             .iter_mut()
             .enumerate()
             .skip(self.state.as_ref().map_or(0, |s| s.y_offset))
+            .enumerate()
         {
             if rendered_rows >= row_amount {
                 break;
@@ -304,6 +299,7 @@ impl Widget for Table<'_> {
                     row.len()
                 };
             let col_percentage = 100usize.saturating_div(col_amount);
+            #[allow(clippy::cast_possible_truncation)]
             for _ in 0..col_amount {
                 col_layout =
                     col_layout.add_constraint(Constraint::Percentage(col_percentage as u16));
@@ -312,11 +308,11 @@ impl Widget for Table<'_> {
 
             let col_areas = col_layout.split(row_areas[rendered_rows]);
 
-            let mut rendered_cols = 0;
-            for (j, col) in row
+            for (rendered_cols, (j, col)) in row
                 .iter_mut()
                 .enumerate()
                 .skip(self.state.as_ref().map_or(0, |s| s.x_offset))
+                .enumerate()
             {
                 if rendered_cols >= col_amount {
                     break;
@@ -401,10 +397,8 @@ impl Widget for Table<'_> {
 
                 col.render(canvas, cell_area, codex);
 
-                rendered_cols += 1;
             }
 
-            rendered_rows += 1;
         }
     }
 }
