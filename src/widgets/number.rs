@@ -18,7 +18,7 @@ pub struct Number {
 }
 
 impl Number {
-    pub fn new<N>(content: N, codex: &Codex) -> Self
+    pub fn new<N>(content: &N, codex: &Codex) -> Self
     where
         N: Add<Output = N> + Mul<Output = N> + Display,
     {
@@ -37,12 +37,13 @@ impl Widget for Number {
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         self.content.set_wrap_limit(area.width, codex);
         for (i, seq) in self.content.get_sequences().iter().enumerate() {
-            // Only left to right
+            #[allow(clippy::cast_possible_truncation)]
             let x = area.x + i as u16;
             if x >= area.right() {
                 break;
             }
             for (i, glyph) in seq.glyphs().iter().enumerate() {
+                #[allow(clippy::cast_possible_truncation)]
                 canvas.set_ccell(
                     x + i as u16,
                     area.y,

@@ -71,9 +71,9 @@ fn main() -> Result<(), talos::TalosError> {
         let u8 = 1;
         let i8 = -2;
         let float = 3.5;
-        Number::new(u8, codex).render(canvas, inner_chunks[0], codex);
-        Number::new(i8, codex).render(canvas, inner_chunks[1], codex);
-        Number::new(float, codex).render(canvas, inner_chunks[2], codex);
+        Number::new(&u8, codex).render(canvas, inner_chunks[0], codex);
+        Number::new(&i8, codex).render(canvas, inner_chunks[1], codex);
+        Number::new(&float, codex).render(canvas, inner_chunks[2], codex);
         // 4. Present to Terminal
         talos.present()?;
 

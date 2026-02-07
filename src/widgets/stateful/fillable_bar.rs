@@ -115,7 +115,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(percentage, codex);
+                let mut number = Number::new(&percentage, codex);
 
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
@@ -187,7 +187,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(percentage, codex);
+                let mut number = Number::new(&percentage, codex);
 
                 let mut number_style = self.style;
                 if fill_width > area.width / 2 {
