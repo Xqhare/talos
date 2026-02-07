@@ -8,6 +8,7 @@ use crate::{
 /// A fillable bar
 ///
 /// Always tries to fill all given space
+#[must_use] 
 pub struct FillableBar<'a> {
     style: Style,
     state: Option<&'a mut FillableBarState>,
@@ -30,7 +31,6 @@ impl Default for FillableBar<'_> {
 }
 
 impl<'a> FillableBar<'a> {
-    #[must_use] 
     pub fn new() -> Self {
         Self {
             style: Style::default(),
@@ -46,19 +46,16 @@ impl<'a> FillableBar<'a> {
         self
     }
 
-    #[must_use] 
     pub fn show_percentage(mut self) -> Self {
         self.show_percentage = true;
         self
     }
 
-    #[must_use] 
     pub fn glow(mut self) -> Self {
         self.glow = true;
         self
     }
 
-    #[must_use] 
     pub fn vertical(mut self) -> Self {
         self.vertical = true;
         self
@@ -69,6 +66,7 @@ impl Widget for FillableBar<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let fill = self.state.as_ref().map_or(0.0, |s| s.fill);
         // BODGE: flip bg and fg
@@ -77,7 +75,7 @@ impl Widget for FillableBar<'_> {
             .set_bg(self.style.get_fg().unwrap())
             .build();
         if self.vertical {
-            // 1. Calculate fill based on Bottom-to-Top logic
+            #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             let fill_height = (f32::from(area.height) * fill) as u16;
             let empty_height = area.height.saturating_sub(fill_height);
 
@@ -114,6 +112,7 @@ impl Widget for FillableBar<'_> {
                 }
             }
 
+            #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(percentage, codex);
@@ -151,6 +150,7 @@ impl Widget for FillableBar<'_> {
                     }
             }
         } else {
+            #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             let fill_width = (f32::from(area.width) * fill) as u16;
 
             for x_off in 0..area.width {
@@ -184,6 +184,7 @@ impl Widget for FillableBar<'_> {
                 }
             }
 
+            #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(percentage, codex);
