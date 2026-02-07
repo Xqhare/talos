@@ -8,6 +8,7 @@ use crate::{
 // 1. The shown selected item, if going backwards, is always the second from the start, as
 //    rendered. This is an artifact of the current implementation moving the offset around and can
 //    probably not be fixed.
+#[must_use] 
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: Option<&'a mut ListState>,
@@ -28,7 +29,6 @@ impl Default for List<'_> {
 }
 
 impl<'a> List<'a> {
-    #[must_use] 
     pub fn new() -> Self {
         Self {
             items: Vec::new(),
@@ -39,7 +39,6 @@ impl<'a> List<'a> {
         }
     }
 
-    #[must_use] 
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
         self
@@ -64,13 +63,11 @@ impl<'a> List<'a> {
         self
     }
 
-    #[must_use] 
     pub fn with_selected_style(mut self, style: Style) -> Self {
         self.selected_style = style;
         self
     }
 
-    #[must_use] 
     pub fn with_selected_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.selected_symbol = Some(codex.lookup(char));
         self
@@ -81,6 +78,7 @@ impl Widget for List<'_> {
     fn style(&mut self, style: Style) {
         self.selected_style = style;
     }
+    #[allow(clippy::too_many_lines)]
     fn render(
         &mut self,
         canvas: &mut crate::render::Canvas,
@@ -157,13 +155,11 @@ impl Widget for List<'_> {
                 // Scrolling the list if needed
                 if is_selected {
                     let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
-                    if pos >= area.right() - 5 {
-                        self.state.as_mut().map(|s| s.scroll_offset += 3);
+                    if pos >= area.right() - 5 && let Some(s) = self.state.as_mut() {
+                            s.scroll_offset += 3;
                     }
-                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset)
-                        && self.state.as_ref().map(|s| s.scroll_offset) != Some(0)
-                    {
-                        self.state.as_mut().map(|s| s.scroll_offset -= 1);
+                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) && let Some(s) = self.state.as_mut() {
+                        s.scroll_offset -= 1;
                     }
                 }
                 // Add a space between horizontal items
@@ -195,6 +191,7 @@ impl Widget for List<'_> {
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
+                #[allow(clippy::cast_possible_truncation)]
                 let y = area.y.saturating_add(line_index as u16);
 
                 if y >= area.bottom() {
