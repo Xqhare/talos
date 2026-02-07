@@ -70,7 +70,7 @@ impl TalosBuilder {
         // Initialize TerminalIO based on these settings
         let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         let (rows, cols) = terminal.size()?;
-        let codex = Codex::new()?;
+        let codex = Codex::new();
 
         let buffer_size = (cols as usize) * (rows as usize);
         let previous_buffer = vec![CCell::default(); buffer_size];

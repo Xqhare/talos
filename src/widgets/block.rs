@@ -510,7 +510,7 @@ mod tests {
     fn test_block_render_borders() -> TalosResult<()> {
         // 1. Setup Headless Environment
         let mut canvas = Canvas::new(10, 10); // 10x10 virtual grid
-        let codex = Codex::new()?; // Standard glyph lookups (CP437/Windows1252)
+        let codex = Codex::new(); // Standard glyph lookups (CP437/Windows1252)
 
         // 2. Define Area and Widget
         let area = Rect::new(0, 0, 5, 5); // 5x5 box at top-left
@@ -571,7 +571,7 @@ mod tests {
     fn test_block_clipping() -> TalosResult<()> {
         // Test that block doesn't draw outside its Rect
         let mut canvas = Canvas::new(10, 10);
-        let codex = Codex::new()?;
+        let codex = Codex::new();
         use crate::widgets::traits::Widget;
 
         // Draw a block starting at (2,2) with size 3x3
@@ -601,7 +601,7 @@ mod tests {
     #[test]
     fn test_block_title() -> TalosResult<()> {
         let mut canvas = Canvas::new(20, 5);
-        let codex = Codex::new()?;
+        let codex = Codex::new();
         use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);

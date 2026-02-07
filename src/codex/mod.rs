@@ -17,7 +17,7 @@ pub struct Codex {
 }
 
 impl Codex {
-    pub fn new() -> TalosResult<Self> {
+    pub fn new() -> Self {
         let mut codex = Codex {
             // Currently only `windows-1252` and `cp437` are planned but init
             // all pages with `None` will not expand the memory footprint but save from
@@ -26,29 +26,59 @@ impl Codex {
             reverse_map: HashMap::new(),
         };
 
-        codex.register_startup_page(REG_WIN_1252.0, REG_WIN_1252.1)?;
-        codex.register_startup_page(REG_CP437.0, REG_CP437.1)?;
-        codex.register_startup_page(REG_UTF_MISC_TECHNICAL.0, REG_UTF_MISC_TECHNICAL.1)?;
-        codex.register_startup_page(REG_UTF_GEOMETRIC_SHAPES.0, REG_UTF_GEOMETRIC_SHAPES.1)?;
+        codex.register_startup_page(REG_WIN_1252.0, REG_WIN_1252.1);
+        codex.register_startup_page(REG_CP437.0, REG_CP437.1);
+        codex.register_startup_page(REG_UTF_MISC_TECHNICAL.0, REG_UTF_MISC_TECHNICAL.1);
+        codex.register_startup_page(REG_UTF_GEOMETRIC_SHAPES.0, REG_UTF_GEOMETRIC_SHAPES.1);
 
-        Ok(codex)
+        codex
     }
 
-    fn register_startup_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
+    /// Internal function to register a new page.
+    /// Does not check if ID is in default range.
+    ///
+    /// # Arguments
+    /// * `id` - The page id
+    /// * `page` - The page
+    /// 
+    /// # Panics
+    /// Panics if the page is invalid or if the page id is already in use.
+    /// This is fine as I guarantee that the default pages and their ID's are valid.
+    /// I want to panic to check my work during development.
+    fn register_startup_page(&mut self, id: u8, page: &'static Page) {
         if self.pages[id as usize].is_some() {
-            return Err(TalosError::PageIdInUse(id));
+            let _: TalosResult<()> = Err(TalosError::PageIdInUse(id)).expect("Default Page is guaranteed to be valid");
         }
-        validate_page(page)?;
+        validate_page(page).expect("Default Page is guaranteed to be valid");
 
         self.pages[id as usize] = Some(page);
 
         self.update_cache(id, page);
-
-        Ok(())
     }
 
+    /// Register a new page
+    ///
+    /// # Arguments
+    /// * `id` - The page id
+    /// * `page` - The page
+    ///
+    /// # Returns
+    /// Returns `Ok(())` if the page was registered successfully.
+    ///
+    /// # Errors
+    /// Returns an error if the page id is already in use or the page is invalid.
+    /// Returns an error if the page id is inside the default pages range of 0-15.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::codex::Codex;
+    /// use talos::codex::pages::REG_UTF_GEOMETRIC_SHAPES;
+    ///
+    /// let mut codex = Codex::new().unwrap();
+    /// assert!(codex.register_page(16, REG_UTF_GEOMETRIC_SHAPES.1).is_ok());
+    /// ```
     pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
-        if id == REG_WIN_1252.0 || id == REG_CP437.0 {
+        if id < 16 {
             return Err(TalosError::DefaultPageId(id));
         }
 
