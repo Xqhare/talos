@@ -96,8 +96,16 @@ talos = { git = "https://github.com/Xqhare/talos" }
 
 ## Technical Details
 
-For most fields or arguments that take a `usize`, the maximum value is `u16::MAX`.
-This is because of cast truncation - This means, for example, that a `Table` may only ever have up to around 65,000 rows and columns.
+Most coordinate calculations are limited to `u16::MAX`.
+This is because of cast truncation in the calculations to `u16`.\
+This means, for example, that a `Table` may only ever have up to around 65,000 rows and columns.
+
+However, it is very unlikely that this will cause any issues in practice.
+
+### Custom Code Pages
+
+It is recommended that any custom code pages use an ID of `16` or higher.\
+The range of `0` to `15` is softly reserved for the default code pages.
 
 ## Project Design
 `libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
