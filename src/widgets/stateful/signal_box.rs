@@ -8,7 +8,7 @@ use crate::{
 /// A simple signal box
 ///
 /// Takes up one cell, changes symbol based on state
-#[must_use] 
+#[must_use]
 pub struct SignalBox<'a> {
     state: Option<&'a mut SignalBoxState>,
     style: Style,

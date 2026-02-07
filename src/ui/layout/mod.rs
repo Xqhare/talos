@@ -27,7 +27,7 @@ impl Default for Layout {
 }
 
 impl Layout {
-    #[must_use] 
+    #[must_use]
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
@@ -38,7 +38,7 @@ impl Layout {
 
     // Using a heap allocation for the return here is fine.
     /// Splits the given area into smaller Rects based on the layout constraints.
-    #[must_use] 
+    #[must_use]
     pub fn split(&self, area: Rect) -> Vec<Rect> {
         // 1. Apply Margin
         // If margin is too big, return empty rects or handling gracefully?

@@ -23,13 +23,13 @@ impl Text {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn align_center(mut self) -> Self {
         self.align_center = true;
         self
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn align_vertically(mut self) -> Self {
         self.align_vertically = true;
         self

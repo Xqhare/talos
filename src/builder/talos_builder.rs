@@ -32,18 +32,18 @@ impl Default for TalosBuilder {
 }
 
 impl TalosBuilder {
-    #[must_use] 
+    #[must_use]
     pub fn with_input_parser(mut self, input_parser: Parser) -> Self {
         self.input_parser = input_parser;
         self
     }
-    #[must_use] 
+    #[must_use]
     pub fn with_cursor(mut self) -> Self {
         self.hide_cursor = false;
         self
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn with_alternate_screen(mut self) -> Self {
         self.alternate_screen = true;
         self
@@ -56,7 +56,7 @@ impl TalosBuilder {
     ///
     /// If disableing the panic handler, `Talos` expects you to set up a custom panic handler, called
     /// before building `Talos`.
-    #[must_use] 
+    #[must_use]
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
         self

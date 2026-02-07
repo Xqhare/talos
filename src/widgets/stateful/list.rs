@@ -8,7 +8,7 @@ use crate::{
 // 1. The shown selected item, if going backwards, is always the second from the start, as
 //    rendered. This is an artifact of the current implementation moving the offset around and can
 //    probably not be fixed.
-#[must_use] 
+#[must_use]
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: Option<&'a mut ListState>,
@@ -155,10 +155,15 @@ impl Widget for List<'_> {
                 // Scrolling the list if needed
                 if is_selected {
                     let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
-                    if pos >= area.right() - 5 && let Some(s) = self.state.as_mut() {
-                            s.scroll_offset += 3;
+                    if pos >= area.right() - 5
+                        && let Some(s) = self.state.as_mut()
+                    {
+                        s.scroll_offset += 3;
                     }
-                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset) && self.state.as_ref().map(|s| s.scroll_offset) != Some(0) && let Some(s) = self.state.as_mut() {
+                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset)
+                        && self.state.as_ref().map(|s| s.scroll_offset) != Some(0)
+                        && let Some(s) = self.state.as_mut()
+                    {
                         s.scroll_offset -= 1;
                     }
                 }

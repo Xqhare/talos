@@ -8,7 +8,7 @@ use crate::{
 /// A fillable bar
 ///
 /// Always tries to fill all given space
-#[must_use] 
+#[must_use]
 pub struct FillableBar<'a> {
     style: Style,
     state: Option<&'a mut FillableBarState>,
@@ -138,16 +138,17 @@ impl Widget for FillableBar<'_> {
 
                 // Add '%' sign if it fits
                 if let Some((last_x, last_y)) = canvas.last_cell()
-                    && last_x + 1 < area.right() {
-                        canvas.set_ccell(
-                            last_x + 1,
-                            last_y,
-                            CCell {
-                                char: codex.lookup('%'),
-                                style: number_style,
-                            },
-                        );
-                    }
+                    && last_x + 1 < area.right()
+                {
+                    canvas.set_ccell(
+                        last_x + 1,
+                        last_y,
+                        CCell {
+                            char: codex.lookup('%'),
+                            style: number_style,
+                        },
+                    );
+                }
             }
         } else {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
@@ -206,16 +207,17 @@ impl Widget for FillableBar<'_> {
 
                 number.render(canvas, number_area, codex);
                 if let Some((last_x, last_y)) = canvas.last_cell()
-                    && last_x + 1 < area.right() {
-                        canvas.set_ccell(
-                            last_x + 1,
-                            last_y,
-                            CCell {
-                                char: codex.lookup('%'),
-                                style: number_style,
-                            },
-                        );
-                    }
+                    && last_x + 1 < area.right()
+                {
+                    canvas.set_ccell(
+                        last_x + 1,
+                        last_y,
+                        CCell {
+                            char: codex.lookup('%'),
+                            style: number_style,
+                        },
+                    );
+                }
             }
         }
     }

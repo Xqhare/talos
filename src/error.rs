@@ -34,10 +34,9 @@ impl std::fmt::Display for TalosError {
             TalosError::IOError(e) => write!(f, "IOError: {e}"),
             TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {s}"),
             TalosError::InvalidState => write!(f, "InvalidState"),
-            TalosError::DefaultPageId(id) => write!(
-                f,
-                "Page ID '{id}' is a default page - Page ID unavailable."
-            ),
+            TalosError::DefaultPageId(id) => {
+                write!(f, "Page ID '{id}' is a default page - Page ID unavailable.")
+            }
             TalosError::PageIdInUse(id) => write!(f, "Page ID '{id}' already in use"),
             TalosError::GenericError(s) => write!(f, "GenericError: {s}"),
         }

@@ -10,7 +10,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    #[must_use] 
+    #[must_use]
     pub fn new(width: u16, height: u16) -> Self {
         let buffer = make_default_buffer(width, height);
         Self {
@@ -21,17 +21,17 @@ impl Canvas {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn max_height(&self) -> u16 {
         self.height.saturating_sub(1)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn max_width(&self) -> u16 {
         self.width.saturating_sub(1)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn size_rect(&self) -> Rect {
         Rect::new(0, 0, self.width, self.height)
     }
@@ -41,7 +41,7 @@ impl Canvas {
     }
 
     /// Safely gets a cell. Returns default (space) if out of bounds.
-    #[must_use] 
+    #[must_use]
     pub fn get_ccell(&self, x: u16, y: u16) -> CCell {
         if x >= self.width || y >= self.height {
             return CCell::default();
@@ -71,7 +71,7 @@ impl Canvas {
 
     /// Returns the coordinate of the last set cell (x, y)
     /// Returns None if no cell has been set
-    #[must_use] 
+    #[must_use]
     pub fn last_cell(&self) -> Option<(u16, u16)> {
         self.last_set_cell
     }

@@ -13,7 +13,7 @@ impl Default for LayoutBuilder {
 }
 
 impl LayoutBuilder {
-    #[must_use] 
+    #[must_use]
     pub fn new() -> LayoutBuilder {
         LayoutBuilder {
             direction: Direction::Horizontal,
@@ -39,7 +39,7 @@ impl LayoutBuilder {
         self
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn build(&self) -> Layout {
         Layout::new(self.direction, self.constraints.clone(), self.margin)
     }

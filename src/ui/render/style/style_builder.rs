@@ -2,8 +2,7 @@ use crate::render::Colour;
 
 use super::Style;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[derive(Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct StyleBuilder {
     fg: Option<Colour>,
     bg: Option<Colour>,
@@ -101,4 +100,3 @@ impl StyleBuilder {
         }
     }
 }
-

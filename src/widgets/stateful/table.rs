@@ -10,7 +10,7 @@ use crate::{
 ///
 /// For now each row is laid out separately.
 /// This means that, if a row is wider than another, the columns will not line up.
-#[must_use] 
+#[must_use]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
     state: Option<&'a mut TableState>,
@@ -396,9 +396,7 @@ impl Widget for Table<'_> {
                 col.style(col_style);
 
                 col.render(canvas, cell_area, codex);
-
             }
-
         }
     }
 }

@@ -8,8 +8,7 @@ use utils::{handle_bg, handle_fg};
 
 mod utils;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[derive(Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Style {
     fg: Option<Colour>,
     bg: Option<Colour>,
@@ -19,17 +18,17 @@ pub struct Style {
 }
 
 impl Style {
-    #[must_use] 
+    #[must_use]
     pub fn builder() -> StyleBuilder {
         StyleBuilder::default()
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_fg(&self) -> Option<Colour> {
         self.fg
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn get_bg(&self) -> Option<Colour> {
         self.bg
     }
@@ -84,4 +83,3 @@ impl Style {
         output_buffer.extend_from_slice(b"m");
     }
 }
-

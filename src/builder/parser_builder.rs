@@ -23,28 +23,28 @@ impl Default for ParserBuilder {
 }
 
 impl ParserBuilder {
-    #[must_use] 
+    #[must_use]
     pub fn with_initial_poll_input_buffer_size(mut self, poll_input_buffer_size: usize) -> Self {
         self.initial_poll_input_buffer_size = poll_input_buffer_size;
         self
     }
     /// The default supports a maximum of around 1MB of input per frame
-    #[must_use] 
+    #[must_use]
     pub fn with_max_poll_input_buffer(mut self, max_poll_input_buffer: usize) -> Self {
         self.max_poll_input_buffer = max_poll_input_buffer;
         self
     }
-    #[must_use] 
+    #[must_use]
     pub fn with_buffer_linear_growth_step(mut self, buffer_linear_growth_step: usize) -> Self {
         self.buffer_linear_growth_step = buffer_linear_growth_step;
         self
     }
-    #[must_use] 
+    #[must_use]
     pub fn with_input_parser(mut self, input_parser: Box<dyn InputParser>) -> Self {
         self.parser = input_parser;
         self
     }
-    #[must_use] 
+    #[must_use]
     pub fn build(self) -> Parser {
         let poll_input_buffer = vec![0u8; self.initial_poll_input_buffer_size];
 

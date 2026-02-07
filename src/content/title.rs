@@ -38,7 +38,6 @@ pub enum TitlePosition {
     BottomRight,
 }
 
-
 impl TitleContents {
     pub fn set_position(
         &mut self,

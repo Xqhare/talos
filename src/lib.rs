@@ -1,10 +1,8 @@
 // Uncomment below when appropriate
 #![warn(clippy::pedantic)]
 #![warn(clippy::all)]
-
 // Uncomment below when approaching stable
 //#![warn(missing_docs)]
-
 #![doc = include_str!("../README.md")]
 
 use std::io::Write;
@@ -64,7 +62,7 @@ pub enum Present {
 }
 
 impl Talos {
-    #[must_use] 
+    #[must_use]
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }

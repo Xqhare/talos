@@ -40,14 +40,15 @@ impl Codex {
     /// # Arguments
     /// * `id` - The page id
     /// * `page` - The page
-    /// 
+    ///
     /// # Panics
     /// Panics if the page is invalid or if the page id is already in use.
     /// This is fine as I guarantee that the default pages and their ID's are valid.
     /// I want to panic to check my work during development.
     fn register_startup_page(&mut self, id: u8, page: &'static Page) {
         if self.pages[id as usize].is_some() {
-            let _: TalosResult<()> = Err(TalosError::PageIdInUse(id)).expect("Default Page is guaranteed to be valid");
+            let _: TalosResult<()> =
+                Err(TalosError::PageIdInUse(id)).expect("Default Page is guaranteed to be valid");
         }
         validate_page(page).expect("Default Page is guaranteed to be valid");
 
@@ -94,7 +95,7 @@ impl Codex {
         Ok(())
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn resolve(&self, glyph: Glyph) -> &str {
         if let Some(char) = pre_computed_char(glyph) {
             return char;
@@ -109,7 +110,7 @@ impl Codex {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn lookup(&self, ch: char) -> Glyph {
         if ch.is_ascii() {
             return ch as u16;

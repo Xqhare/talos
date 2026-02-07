@@ -51,7 +51,7 @@ pub fn validate_page(page: &Page) -> TalosResult<()> {
     Ok(())
 }
 
-#[must_use] 
+#[must_use]
 pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
     match g {
         0..=127 => {

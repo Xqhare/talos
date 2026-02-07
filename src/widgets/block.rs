@@ -19,7 +19,7 @@ impl Default for Block {
 }
 
 impl Block {
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         Self {
             title: TitleContents::default(),
@@ -30,7 +30,7 @@ impl Block {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn with_fat_border(mut self) -> Self {
         self.fat_border = true;
         self
@@ -80,13 +80,13 @@ impl Block {
         self
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn with_beautify_border_breaks(mut self) -> Self {
         self.beautfy_border_breaks = true;
         self
@@ -94,7 +94,7 @@ impl Block {
 
     /// Returns the inner area inside the block's borders.
     /// Useful for rendering child widgets inside this block.
-    #[must_use] 
+    #[must_use]
     pub fn inner(&self, area: Rect) -> Rect {
         if area.width < 2 || area.height < 2 {
             return Rect::default();
