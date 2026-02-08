@@ -15,7 +15,7 @@ impl Default for LayoutBuilder {
 }
 
 impl LayoutBuilder {
-    /// Creates a new LayoutBuilder
+    /// Creates a new `LayoutBuilder`
     ///
     /// # Example
     /// ```

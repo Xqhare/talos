@@ -51,7 +51,7 @@ type Height = u16;
 /// assert!(talos.is_ok());
 /// ```
 ///
-/// For more information on building the struct, see [TalosBuilder](struct.TalosBuilder.html).
+/// For more information on building the struct, see [`TalosBuilder`](struct.TalosBuilder.html).
 pub struct Talos {
     terminal: TerminalIO,
     canvas: Canvas,
@@ -80,7 +80,7 @@ impl Talos {
     ///
     /// This builder can be used to configure `Talos`.
     ///
-    /// For an exhaustive list of options, see the [TalosBuilder](struct.TalosBuilder.html) struct.
+    /// For an exhaustive list of options, see the [`TalosBuilder`](struct.TalosBuilder.html) struct.
     /// Most options are shown in the example below.
     ///
     /// # Example

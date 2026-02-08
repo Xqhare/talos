@@ -2,9 +2,9 @@ use crate::layout::Rect;
 
 use super::CCell;
 
-/// A canvas is a 2D array of [CCell](struct.CCell.html)s
+/// A canvas is a 2D array of [`CCell`](struct.CCell.html)s
 pub struct Canvas {
-    /// A 2D array of [CCell](struct.CCell.html)s
+    /// A 2D array of [`CCell`](struct.CCell.html)s
     pub buffer: Vec<CCell>,
     width: u16,
     height: u16,

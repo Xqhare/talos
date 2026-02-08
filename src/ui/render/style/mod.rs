@@ -10,7 +10,7 @@ mod utils;
 
 /// Represents a style
 ///
-/// The style is generated from a [StyleBuilder](struct.StyleBuilder.html)
+/// The style is generated from a [`StyleBuilder`](struct.StyleBuilder.html)
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Style {
     fg: Option<Colour>,
@@ -21,7 +21,7 @@ pub struct Style {
 }
 
 impl Style {
-    /// Returns a new StyleBuilder
+    /// Returns a new `StyleBuilder`
     #[must_use]
     pub fn builder() -> StyleBuilder {
         StyleBuilder::default()

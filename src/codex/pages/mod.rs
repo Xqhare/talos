@@ -17,7 +17,7 @@ use crate::{
 /// each page is a different encoding.
 ///
 /// By default, `windows-1252` and `cp437` are provided.
-/// Providing the `ISO 8859` family, other windows pages, or even MacRoman is easily done.
+/// Providing the `ISO 8859` family, other windows pages, or even `MacRoman` is easily done.
 pub type Page = [&'static str; 256];
 
 /// Warning sign, used for unknown characters

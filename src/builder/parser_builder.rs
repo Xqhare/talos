@@ -52,6 +52,7 @@ impl ParserBuilder {
         self
     }
     /// Builds the parser with the current settings
+    #[must_use] 
     pub fn build(self) -> Parser {
         let poll_input_buffer = vec![0u8; self.initial_poll_input_buffer_size];
 
