@@ -64,6 +64,7 @@ pub enum KeyCode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct KeyModifiers {
     pub none: bool,
     pub shift: bool,
