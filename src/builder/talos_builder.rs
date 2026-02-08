@@ -62,6 +62,10 @@ impl TalosBuilder {
         self
     }
 
+    /// Build the `Talos` instance
+    ///
+    /// # Errors
+    /// Returns an error if the terminal could not be initialized
     pub fn build(self) -> TalosResult<Talos> {
         // Set up panic handler as the very first thing
         if self.set_up_panic_handler {
