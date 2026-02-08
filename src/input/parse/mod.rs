@@ -5,6 +5,10 @@ use super::Event;
 mod xterm;
 pub use xterm::XtermParser;
 
+/// The input parser interface trait
+///
+/// If you want to create a custom input parser, you need to implement this trait - take a look at
+/// the [`Event`](struct.Event.html) struct for more information.
 pub trait InputParser {
     /// Creates a new parser
     fn new() -> Self
