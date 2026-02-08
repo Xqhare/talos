@@ -2,7 +2,9 @@ use crate::layout::Rect;
 
 use super::CCell;
 
+/// A canvas is a 2D array of [CCell](struct.CCell.html)s
 pub struct Canvas {
+    /// A 2D array of [CCell](struct.CCell.html)s
     pub buffer: Vec<CCell>,
     width: u16,
     height: u16,
@@ -10,6 +12,11 @@ pub struct Canvas {
 }
 
 impl Canvas {
+    /// Creates a new canvas
+    ///
+    /// # Arguments
+    /// * `width` - The width of the canvas
+    /// * `height` - The height of the canvas
     #[must_use]
     pub fn new(width: u16, height: u16) -> Self {
         let buffer = make_default_buffer(width, height);
@@ -21,21 +28,25 @@ impl Canvas {
         }
     }
 
+    /// Returns the height of the canvas
     #[must_use]
     pub fn max_height(&self) -> u16 {
         self.height.saturating_sub(1)
     }
 
+    /// Returns the width of the canvas
     #[must_use]
     pub fn max_width(&self) -> u16 {
         self.width.saturating_sub(1)
     }
 
+    /// Returns the size of the canvas
     #[must_use]
     pub fn size_rect(&self) -> Rect {
         Rect::new(0, 0, self.width, self.height)
     }
 
+    /// Clears the canvas
     pub fn clear(&mut self) {
         self.buffer.fill(CCell::default());
     }
