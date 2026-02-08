@@ -58,6 +58,7 @@ I have limited the scope of the project at some points to make it easier on myse
 
 ## Images
 
+| | |
 |--------------- | --------------- |
 | <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_fat_border_all_titles_beauty.png" alt="Talos Logo" width="500" height="100"/>   | <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_normal_all_titles_beauty.png" alt="Talos Logo" width="500" height="100"/>   |
 | <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_layout.png" alt="Talos Logo" width="600" height="300"/>   | <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_table.png" alt="Talos Logo" width="600" height="300"/>   |
