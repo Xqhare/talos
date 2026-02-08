@@ -10,6 +10,7 @@ pub use point::Point;
 mod constraint;
 pub use constraint::Constraint;
 
+/// A struct to construct a layout from a list of constraints
 #[must_use]
 pub struct Layout {
     direction: Direction,
@@ -28,6 +29,23 @@ impl Default for Layout {
 }
 
 impl Layout {
+    /// Creates a new Layout
+    ///
+    /// # Arguments
+    /// * `direction` - The direction of the layout
+    /// * `constraints` - The constraints of the layout
+    /// * `margin` - The margin of the layout
+    ///
+    /// # Example
+    /// ```
+    /// use talos::ui::layout::Layout;
+    ///
+    /// let layout = Layout::new(talos::ui::layout::Direction::Horizontal, vec![talos::ui::layout::Constraint::Length(10), talos::ui::layout::Constraint::Length(10)], 10);
+    /// assert_eq!(layout.direction, talos::ui::layout::Direction::Horizontal);
+    /// assert_eq!(layout.constraints, vec![talos::ui::layout::Constraint::Length(10), talos::ui::layout::Constraint::Length(10)]);
+    /// assert_eq!(layout.margin, 10);
+    /// ```
+    #[must_use]
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
@@ -38,6 +56,9 @@ impl Layout {
 
     // Using a heap allocation for the return here is fine.
     /// Splits the given area into smaller Rects based on the layout constraints.
+    ///
+    /// # Arguments
+    /// * `area` - The area to split
     #[must_use]
     pub fn split(&self, area: Rect) -> Vec<Rect> {
         // 1. Apply Margin
