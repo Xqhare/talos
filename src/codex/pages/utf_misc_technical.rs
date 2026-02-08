@@ -261,8 +261,8 @@ pub const MISC_TECHNICAL: Page = [
     "⏯",
     // 0x23F0 - 0x23FF
     UNKNOWN_CHAR,
-    "⏱",
-    "⏲",
+    UNKNOWN_CHAR,
+    UNKNOWN_CHAR,
     UNKNOWN_CHAR,
     "⏴",
     "⏵",
@@ -275,5 +275,5 @@ pub const MISC_TECHNICAL: Page = [
     "⏼",
     "⏽",
     "⏾",
-    "⏿",
+    UNKNOWN_CHAR,
 ];
