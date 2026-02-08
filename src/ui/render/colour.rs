@@ -4,14 +4,20 @@ pub const FG_PRE_DIGIT_BRIGHT: u8 = 9;
 pub const BG_PRE_DIGIT_NORMAL: u8 = 4;
 pub const BG_PRE_DIGIT_BRIGHT: u8 = 10;
 
+/// Colour is a representation of a terminal colour
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Colour {
+    /// Normal 8 colours
     Normal(Normal),
+    /// Bright 8 colours
     Bright(Bright),
+    /// More colours
     Extended(Extended),
 }
 
+/// Normal 8 colours
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum Normal {
     Black,
     Red,
@@ -24,6 +30,7 @@ pub enum Normal {
 }
 
 impl Normal {
+    /// Returns the index of the colour for the terminal
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -39,7 +46,9 @@ impl Normal {
     }
 }
 
+/// Bright 8 colours
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum Bright {
     Black,
     Red,
@@ -52,6 +61,7 @@ pub enum Bright {
 }
 
 impl Bright {
+    /// Returns the index of the colour for the terminal
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -67,9 +77,12 @@ impl Bright {
     }
 }
 
+/// More colours - All RGB colours
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Extended {
+    /// Simple one byte RGB
     ColourMode(ColourMode),
+    /// Large three byte RGB (no alpha)
     TrueColour(TrueColour),
 }
 
@@ -77,12 +90,15 @@ pub const COLOURMODE_SIGNAL_BIT: u8 = 5;
 pub const EXTENDED_FG_BIT: u8 = 38;
 pub const EXTENDED_BG_BIT: u8 = 48;
 
+/// One byte RGB
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColourMode {
+    /// One byte RGB
     RgbBit(u8),
 }
 
 impl ColourMode {
+    /// Returns the index of the colour for the terminal
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -93,12 +109,15 @@ impl ColourMode {
 
 pub const TRUE_COLOURMODE_SIGNAL_BIT: u8 = 2;
 
+/// Three byte RGB
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TrueColour {
+    /// Three byte RGB
     RGB(u8, u8, u8),
 }
 
 impl TrueColour {
+    /// Returns the index of the colour for the terminal
     #[must_use]
     pub fn decode(self) -> (u8, u8, u8) {
         match self {
