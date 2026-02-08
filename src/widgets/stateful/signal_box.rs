@@ -8,6 +8,17 @@ use crate::{
 /// A simple signal box
 ///
 /// Takes up one cell, changes symbol based on state
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let mut signal_box_state = SignalBoxState { signal: true };
+/// let signal_box = SignalBox::new().with_state(&mut signal_box_state);
+/// # assert!(true);
+/// ```
 #[must_use]
 pub struct SignalBox<'a> {
     state: Option<&'a mut SignalBoxState>,
@@ -16,7 +27,9 @@ pub struct SignalBox<'a> {
     signal_off_symbol: Glyph,
 }
 
+/// The state of a signal box
 pub struct SignalBoxState {
+    /// Whether the signal is on or off
     pub signal: bool,
 }
 
@@ -27,6 +40,17 @@ impl Default for SignalBox<'_> {
 }
 
 impl<'a> SignalBox<'a> {
+    /// Creates a new, empty signal box
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::SignalBox};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let signal_box = SignalBox::new();
+    /// # assert!(true);
+    /// ```
     pub fn new() -> Self {
         Self {
             state: None,
@@ -37,16 +61,32 @@ impl<'a> SignalBox<'a> {
         }
     }
 
+    /// Sets the state of the signal box
+    ///
+    /// The state must be externally managed.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut signal_box_state = SignalBoxState { signal: true };
+    /// let signal_box = SignalBox::new().with_state(&mut signal_box_state);
+    /// # assert!(true);
+    /// ```
     pub fn with_state(mut self, state: &'a mut SignalBoxState) -> Self {
         self.state = Some(state);
         self
     }
 
+    /// Sets the on symbol of the signal box
     pub fn with_signal_on_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_on_symbol = codex.lookup(char);
         self
     }
 
+    /// Sets the off symbol of the signal box
     pub fn with_signal_off_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_off_symbol = codex.lookup(char);
         self
