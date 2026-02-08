@@ -66,8 +66,8 @@ I have limited the scope of the project at some points to make it easier on myse
 ---
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_layout.png" alt="A simple layout" width="600" height="300"/>
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_table.png" alt="A simple table" width="600" height="300"/>   
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_layout.png" alt="A simple layout" width="750" height="400"/>
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_table.png" alt="A simple table" width="750" height="400"/>   
 </p>
 
 ---
