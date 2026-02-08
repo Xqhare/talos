@@ -55,28 +55,28 @@ impl Style {
             handle_bg(bg, output_buffer);
         }
         if self.bit_flag != 0 {
-            if self.bit_flag & 0b10000000 != 0 {
+            if self.bit_flag & 0b1000_0000 != 0 {
                 output_buffer.extend_from_slice(b";1");
             }
-            if self.bit_flag & 0b01000000 != 0 {
+            if self.bit_flag & 0b0100_0000 != 0 {
                 output_buffer.extend_from_slice(b";2");
             }
-            if self.bit_flag & 0b00100000 != 0 {
+            if self.bit_flag & 0b0010_0000 != 0 {
                 output_buffer.extend_from_slice(b";3");
             }
-            if self.bit_flag & 0b00010000 != 0 {
+            if self.bit_flag & 0b0001_0000 != 0 {
                 output_buffer.extend_from_slice(b";4");
             }
-            if self.bit_flag & 0b00001000 != 0 {
+            if self.bit_flag & 0b0000_1000 != 0 {
                 output_buffer.extend_from_slice(b";5");
             }
-            if self.bit_flag & 0b00000100 != 0 {
+            if self.bit_flag & 0b0000_0100 != 0 {
                 output_buffer.extend_from_slice(b";7");
             }
-            if self.bit_flag & 0b00000010 != 0 {
+            if self.bit_flag & 0b0000_0010 != 0 {
                 output_buffer.extend_from_slice(b";9");
             }
-            if self.bit_flag & 0b00000001 != 0 {
+            if self.bit_flag & 0b0000_0001 != 0 {
                 output_buffer.extend_from_slice(b";6");
             }
         }
