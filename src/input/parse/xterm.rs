@@ -17,6 +17,7 @@ enum ParserState {
     Ss3,
 }
 
+/// The Xterm input parser
 pub struct XtermParser {
     state: ParserState,
     params: Vec<u16>,
@@ -62,6 +63,7 @@ impl InputParser for XtermParser {
 }
 
 impl XtermParser {
+    /// Resets the parser state
     fn reset_state(&mut self) {
         self.state = ParserState::Normal;
         self.params.clear();
@@ -71,6 +73,7 @@ impl XtermParser {
         self.is_sgr_mouse = false;
     }
 
+    /// Handles a byte in the normal state
     fn handle_normal(&mut self, byte: u8, output: &mut Vec<Event>) {
         if byte == 0x1B {
             self.state = ParserState::Esc;
@@ -95,6 +98,7 @@ impl XtermParser {
         }
     }
 
+    /// Handles a byte in the ESC state
     fn handle_esc(&mut self, byte: u8, output: &mut Vec<Event>) {
         match byte {
             b'[' => self.state = ParserState::Csi,
@@ -111,6 +115,7 @@ impl XtermParser {
         }
     }
 
+    /// Handles a byte in the CSI state
     fn handle_csi(&mut self, byte: u8, output: &mut Vec<Event>) {
         match byte {
             b'<' => self.is_sgr_mouse = true,
@@ -147,6 +152,7 @@ impl XtermParser {
         }
     }
 
+    /// Handles a byte in the SS3 state
     fn handle_ss3(&mut self, byte: u8, output: &mut Vec<Event>) {
         let code = match byte {
             b'P' => Some(KeyCode::F(1)),
@@ -164,6 +170,7 @@ impl XtermParser {
         self.reset_state();
     }
 
+    /// Finalizes a CSI sequence
     fn finalize_csi(&self, final_byte: u8) -> Option<Event> {
         let modifier_param = if self.params.len() > 1 {
             self.params[1]
@@ -214,6 +221,7 @@ impl XtermParser {
         key_code.map(|code| Event::KeyEvent(KeyEvent::new(code, modifiers)))
     }
 
+    /// Finalizes a SGR mouse sequence
     fn parse_sgr_mouse(&self, final_byte: u8) -> Option<Event> {
         // SGR format: ESC [ < button ; column ; row (m or M)
         if self.params.len() < 3 {
