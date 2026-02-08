@@ -85,14 +85,6 @@ I have limited the scope of the project at some points to make it easier on myse
     - [ ] `AreaManager` to manage many areas
         - [ ] Probably just a hashmap of areas with names
         - Simplifiy mouse support: `AreaManager.get_area(x, y)`
-- [x] Documentation
-    - [x] Examples
-        - [x] Demos
-        - [x] Docs
-    - [x] API
-        - [x] Public
-        - [x] Internal
-    - [x] Readme
 - [ ] Widgets
     - [ ] Stateful Widgets
         - [ ] Text Input Widget
@@ -257,46 +249,16 @@ However, it is very unlikely that this will cause any issues in practice.
 
 ### Custom Code Pages
 
-It is recommended that any custom code pages use an ID of `16` or higher.\
-The range of `0` to `15` is softly reserved for the default code pages.
-
-## Project Design
-`libc` will be used as the base, the bindings will be taken from the rust crate `libc`.
-
-I need to enter and exit `RawMode`.
-
-A small ANSI Engine will be used to create the output.
-The engine will use Canvas - a way to store the output and call `write()` once per frame after frame creation.
-The engine will have a `Widget` trait.
-
-A basic layout engine.
-
-All constructions will be done using the builder pattern.
-
-The developer experience should be as simple, intuitive and fast as I can make it.
-
-While Windows and Mac support are not planned at all, the architecture should be at least somewhat extendable if I ever change my mind.
-
-Talos emulates the use of old school code pages. While this decision has major downsides, it not only simplifies but also adds the weird flair each of my projects needs and is one of the core tenants of Talos.
-Windows-1252 and CP437 by default.
-User can provide their own, but have to ensure that every displayed character has the same width of one. 
-This is done for simplicity in the code.
-To support unicode, I would have to implement `unicode-segmentation` and probably `unicode-width` to keep the dependencies to only `libc`.
-
-Talos never halts execution, meaning it does not wait on input or similar. To adjust the speed of the program, one can use `thread::sleep` as the user of Talos.
-
-To keep the scope small, I want to push as much on the user as I can. This includes state management, and managing the currently focused widget.
-This also means that events (e.g. `on_click`) must be handled by the user. 
-
-### Code Pages
-
 There are a total of 256 possible code pages. The first two (Index 0 and 1) are reserved for windows-1252 and cp437 respectively.
 
-Each code page has 256 entries. Each entry represents a character.\
-Each entry must have a displayed width of 1 and must be stored in valid utf-8.
+Each code page has 256 entries and each entry represents a character.\
+Every entry must have a displayed width of 1 and must be stored in valid utf-8.
 
 Talos builds a cache of the code pages and checks if a char is in a code page before displaying it.\
 Should a char not be in a code page, it will be displayed as a question mark.
+
+It is recommended that any custom code pages use an ID of `16` or higher.\
+The range of `0` to `15` is softly reserved for the default code pages.
 
 ### Features to consider
 
