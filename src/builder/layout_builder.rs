@@ -1,5 +1,7 @@
 use crate::layout::{Constraint, Direction, Layout};
 
+/// A builder for a Layout
+#[must_use]
 pub struct LayoutBuilder {
     direction: Direction,
     constraints: Vec<Constraint>,
@@ -13,7 +15,17 @@ impl Default for LayoutBuilder {
 }
 
 impl LayoutBuilder {
-    #[must_use]
+    /// Creates a new LayoutBuilder
+    ///
+    /// # Example
+    /// ```
+    /// use talos::builder::LayoutBuilder;
+    ///
+    /// let layout_builder = LayoutBuilder::new();
+    /// assert_eq!(layout_builder.direction, talos::layout::Direction::Horizontal);
+    /// assert_eq!(layout_builder.constraints, Vec::new());
+    /// assert_eq!(layout_builder.margin, 0);
+    /// ```
     pub fn new() -> LayoutBuilder {
         LayoutBuilder {
             direction: Direction::Horizontal,
@@ -21,24 +33,24 @@ impl LayoutBuilder {
             margin: 0,
         }
     }
-}
-
-impl LayoutBuilder {
+    /// Sets the direction of the layout
     pub fn direction(&mut self, direction: Direction) -> &mut Self {
         self.direction = direction;
         self
     }
-
+    /// Sets the margin of the layout
     pub fn margin(&mut self, margin: u16) -> &mut Self {
         self.margin = margin;
         self
     }
 
+    /// Adds a constraint to the layout - there is no limit
     pub fn add_constraint(&mut self, constraint: Constraint) -> &mut Self {
         self.constraints.push(constraint);
         self
     }
 
+    /// Builds the layout
     pub fn build(&self) -> Layout {
         Layout::new(self.direction, self.constraints.clone(), self.margin)
     }
