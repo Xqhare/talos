@@ -11,6 +11,8 @@ use crate::{
 
 pub mod pages;
 
+#[derive(Debug, Clone, Default)]
+#[must_use]
 pub struct Codex {
     pages: Vec<Option<&'static Page>>,
     reverse_map: HashMap<char, Glyph>,
@@ -35,6 +37,8 @@ impl Codex {
     }
 
     /// Internal function to register a new page.
+    /// ONLY USE FOR ADDING DEFAULT PAGES
+    ///
     /// Does not check if ID is in default range.
     ///
     /// # Arguments
@@ -46,11 +50,10 @@ impl Codex {
     /// This is fine as I guarantee that the default pages and their ID's are valid.
     /// I want to panic to check my work during development.
     fn register_startup_page(&mut self, id: u8, page: &'static Page) {
-        if self.pages[id as usize].is_some() {
-            let _: TalosResult<()> =
-                Err(TalosError::PageIdInUse(id)).expect("Default Page is guaranteed to be valid");
+        assert!(self.pages[id as usize].is_none(), "{1}: {:?}", TalosError::PageIdInUse(id), "Default Page ID is guaranteed to be valid");
+        if let Err(err) = validate_page(page) {
+            panic!("{1}: {:?}", err, "Default Page contents are guaranteed to be valid")
         }
-        validate_page(page).expect("Default Page is guaranteed to be valid");
 
         self.pages[id as usize] = Some(page);
 
@@ -124,6 +127,7 @@ impl Codex {
     fn update_cache(&mut self, id: u8, page: &'static Page) {
         for (index, &symbol) in page.iter().enumerate() {
             if let Some(ch) = symbol.chars().next() {
+                #[allow(clippy::cast_possible_truncation)] // Index must be less than 256
                 let glyph_id = (u16::from(id) << 8) | (index as u16);
                 self.reverse_map.entry(ch).or_insert(glyph_id);
             }
