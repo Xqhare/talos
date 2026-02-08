@@ -39,7 +39,6 @@ impl LayoutBuilder {
         self
     }
 
-    #[must_use]
     pub fn build(&self) -> Layout {
         Layout::new(self.direction, self.constraints.clone(), self.margin)
     }
