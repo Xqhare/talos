@@ -97,7 +97,6 @@ impl Talos {
     /// .build();
     /// assert!(talos.is_ok());
     /// ```
-    #[must_use]
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }
