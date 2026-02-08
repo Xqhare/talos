@@ -20,5 +20,8 @@ pub trait InputParser {
     /// Returns an error if the parser failed to parse the bytes
     fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()>;
     /// Flushes the parser
+    ///
+    /// # Arguments
+    /// * `output` - The output buffer to write events to
     fn flush(&mut self, output: &mut Vec<Event>);
 }
