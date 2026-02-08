@@ -41,7 +41,7 @@ pub enum TitlePosition {
 impl TitleContents {
     pub fn set_position(
         &mut self,
-        position: TitlePosition,
+        position: &TitlePosition,
         string: impl Into<String>,
         codex: &Codex,
     ) {
@@ -55,7 +55,7 @@ impl TitleContents {
         }
     }
 
-    pub fn get_position(&self, position: TitlePosition) -> Option<&[Glyph]> {
+    pub fn get_position(&self, position: &TitlePosition) -> Option<&[Glyph]> {
         match position {
             TitlePosition::TopLeft => self.top_left_buffer.as_deref(),
             TitlePosition::TopCenter => self.top_center_buffer.as_deref(),

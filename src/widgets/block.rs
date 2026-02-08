@@ -47,35 +47,35 @@ impl Block {
     pub fn title(mut self, title: impl Into<String>, codex: &Codex, centered: bool) -> Self {
         if centered {
             self.title
-                .set_position(TitlePosition::TopCenter, title, codex);
+                .set_position(&TitlePosition::TopCenter, title, codex);
         } else {
             self.title
-                .set_position(TitlePosition::TopLeft, title, codex);
+                .set_position(&TitlePosition::TopLeft, title, codex);
         }
         self
     }
 
     pub fn top_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
-            .set_position(TitlePosition::TopRight, subtitle, codex);
+            .set_position(&TitlePosition::TopRight, subtitle, codex);
         self
     }
 
     pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
-            .set_position(TitlePosition::BottomRight, subtitle, codex);
+            .set_position(&TitlePosition::BottomRight, subtitle, codex);
         self
     }
 
     pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
-            .set_position(TitlePosition::BottomCenter, subtitle, codex);
+            .set_position(&TitlePosition::BottomCenter, subtitle, codex);
         self
     }
 
     pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
-            .set_position(TitlePosition::BottomLeft, subtitle, codex);
+            .set_position(&TitlePosition::BottomLeft, subtitle, codex);
         self
     }
 
@@ -262,7 +262,7 @@ impl Widget for Block {
             0
         };
 
-        if let Some(title) = &self.title.get_position(TitlePosition::TopLeft) {
+        if let Some(title) = &self.title.get_position(&TitlePosition::TopLeft) {
             let mut start_x = left + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -297,7 +297,7 @@ impl Widget for Block {
                     },
                 );
             }
-        } else if let Some(title) = &self.title.get_position(TitlePosition::TopCenter) {
+        } else if let Some(title) = &self.title.get_position(&TitlePosition::TopCenter) {
             let start_x = (area.width as usize / 2).saturating_sub(title.len() / 2);
             #[allow(clippy::cast_possible_truncation)]
             let mut start_x = left + start_x as u16 + 1;
@@ -337,7 +337,7 @@ impl Widget for Block {
         }
 
         // Draw subtitles if set
-        if let Some(top_subtitle) = &self.title.get_position(TitlePosition::TopRight) {
+        if let Some(top_subtitle) = &self.title.get_position(&TitlePosition::TopRight) {
             #[allow(clippy::cast_possible_truncation)]
             let mut start_x = right - top_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
@@ -394,7 +394,7 @@ impl Widget for Block {
             0
         };
 
-        if let Some(bottom_left_subtitle) = &self.title.get_position(TitlePosition::BottomLeft) {
+        if let Some(bottom_left_subtitle) = &self.title.get_position(&TitlePosition::BottomLeft) {
             let mut start_x = left + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -431,7 +431,7 @@ impl Widget for Block {
             }
         }
 
-        if let Some(bottom_center_subtitle) = &self.title.get_position(TitlePosition::BottomCenter)
+        if let Some(bottom_center_subtitle) = &self.title.get_position(&TitlePosition::BottomCenter)
         {
             let start_x =
                 (area.width as usize / 2).saturating_sub(bottom_center_subtitle.len() / 2);
@@ -472,7 +472,7 @@ impl Widget for Block {
             }
         }
 
-        if let Some(bottom_right_subtitle) = &self.title.get_position(TitlePosition::BottomRight) {
+        if let Some(bottom_right_subtitle) = &self.title.get_position(&TitlePosition::BottomRight) {
             #[allow(clippy::cast_possible_truncation)]
             let mut start_x = right - bottom_right_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
