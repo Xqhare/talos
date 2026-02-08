@@ -9,8 +9,12 @@ use crate::{
     render::Glyph,
 };
 
+/// Codex pages
 pub mod pages;
 
+/// The codex
+///
+/// A codex is a collection of pages
 #[derive(Debug, Clone, Default)]
 #[must_use]
 pub struct Codex {
@@ -19,6 +23,15 @@ pub struct Codex {
 }
 
 impl Codex {
+    /// Creates a new codex
+    /// 
+    /// # Example
+    /// ```rust
+    /// use talos::codex::Codex;
+    ///
+    /// let codex = Codex::new();
+    /// # assert!(true);
+    /// ```
     pub fn new() -> Self {
         let mut codex = Codex {
             // Currently only `windows-1252` and `cp437` are planned but init
@@ -98,6 +111,24 @@ impl Codex {
         Ok(())
     }
 
+    /// Resolve a glyph to a character
+    /// 
+    /// # Arguments
+    /// * `glyph` - The glyph
+    ///
+    /// # Returns
+    /// Returns the character
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::codex::Codex;
+    ///
+    /// let codex = Codex::new();
+    /// let glyph = codex.lookup('a');
+    /// let char = codex.resolve(glyph);
+    /// assert_eq!(char, "a");
+    /// ```
+    ///
     #[must_use]
     pub fn resolve(&self, glyph: Glyph) -> &str {
         if let Some(char) = pre_computed_char(glyph) {
@@ -113,6 +144,24 @@ impl Codex {
         }
     }
 
+    /// Resolve a character to a glyph
+    /// 
+    /// # Arguments
+    /// * `ch` - The character
+    ///
+    /// # Returns
+    /// Returns the glyph
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::codex::Codex;
+    ///
+    /// let codex = Codex::new();
+    /// let glyph = codex.lookup('a');
+    /// let char = codex.resolve(glyph);
+    /// assert_eq!(char, "a");
+    /// ```
+    ///
     #[must_use]
     pub fn lookup(&self, ch: char) -> Glyph {
         if ch.is_ascii() {
