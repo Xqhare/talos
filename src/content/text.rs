@@ -78,9 +78,10 @@ impl TextContent {
                 }
 
                 let word_glyphs: Vec<Glyph> = word.chars().map(|ch| codex.lookup(ch)).collect();
+                #[allow(clippy::cast_possible_truncation)]
                 let word_len = word_glyphs.len() as u16;
 
-                // If word fits in current line
+                #[allow(clippy::comparison_chain)]
                 if current_width + word_len < max_width {
                     current_line.extend(word_glyphs);
                     current_width += word_len;
@@ -102,6 +103,7 @@ impl TextContent {
 
                     // Handle words longer than max_width by slicing
                     let mut remaining_glyphs = word_glyphs;
+                    #[allow(clippy::cast_possible_truncation)]
                     while remaining_glyphs.len() as u16 > max_width {
                         let tail = remaining_glyphs.split_off(max_width as usize);
                         out.push(Sequence::new(remaining_glyphs, max_width));
@@ -109,7 +111,9 @@ impl TextContent {
                     }
 
                     // Put the remaining part of the word on the current line
-                    current_width = remaining_glyphs.len() as u16;
+                    #[allow(clippy::cast_possible_truncation)]
+                    let new_width = remaining_glyphs.len() as u16;
+                    current_width = new_width;
                     current_line = remaining_glyphs;
                 }
             }
@@ -125,6 +129,7 @@ impl TextContent {
                 for ch in line.chars() {
                     buffer.push(codex.lookup(ch));
                 }
+                #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
                 out.push(Sequence::new(buffer, line.len() as u16));
             }
         }
