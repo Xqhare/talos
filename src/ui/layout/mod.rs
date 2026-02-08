@@ -10,6 +10,7 @@ pub use point::Point;
 mod constraint;
 pub use constraint::Constraint;
 
+#[must_use]
 pub struct Layout {
     direction: Direction,
     constraints: Vec<Constraint>,
@@ -27,7 +28,6 @@ impl Default for Layout {
 }
 
 impl Layout {
-    #[must_use]
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
@@ -109,6 +109,7 @@ impl Layout {
                 }
                 Constraint::Percentage(p) => {
                     // Simple integer math: total * p / 100
+                    #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
                     let size = (u32::from(total_space) * u32::from(*p) / 100) as u16;
                     results[i] = size;
                     used_space = used_space.saturating_add(size);
@@ -117,6 +118,7 @@ impl Layout {
                     if *den == 0 {
                         results[i] = 0;
                     } else {
+                        #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
                         let size = (u32::from(total_space) * *num / *den) as u16;
                         results[i] = size;
                         used_space = used_space.saturating_add(size);
