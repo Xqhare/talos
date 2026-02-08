@@ -78,7 +78,7 @@ impl Codex {
     /// use talos::codex::Codex;
     /// use talos::codex::pages::REG_UTF_GEOMETRIC_SHAPES;
     ///
-    /// let mut codex = Codex::new().unwrap();
+    /// let mut codex = Codex::new();
     /// assert!(codex.register_page(16, REG_UTF_GEOMETRIC_SHAPES.1).is_ok());
     /// ```
     pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
