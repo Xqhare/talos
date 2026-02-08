@@ -107,7 +107,7 @@ impl Talos {
     /// ```rust
     /// use talos::Talos;
     ///
-    /// let mut talos = Talos::builder().without_panic_handler().build().unwrap();
+    /// let mut talos = Talos::builder().build().unwrap();
     /// let canvas = talos.canvas_mut();
     /// # assert!(true);
     /// ```
