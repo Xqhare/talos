@@ -4,6 +4,7 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
+#[must_use]
 pub struct Block {
     title: TitleContents,
     style: Style,
@@ -19,7 +20,6 @@ impl Default for Block {
 }
 
 impl Block {
-    #[must_use]
     pub fn new() -> Self {
         Self {
             title: TitleContents::default(),
@@ -30,7 +30,6 @@ impl Block {
         }
     }
 
-    #[must_use]
     pub fn with_fat_border(mut self) -> Self {
         self.fat_border = true;
         self
@@ -80,13 +79,11 @@ impl Block {
         self
     }
 
-    #[must_use]
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
     }
 
-    #[must_use]
     pub fn with_beautify_border_breaks(mut self) -> Self {
         self.beautfy_border_breaks = true;
         self
@@ -112,6 +109,7 @@ impl Widget for Block {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 {
             return;
@@ -277,6 +275,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in title.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -287,6 +286,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + title.len() as u16,
@@ -299,6 +299,7 @@ impl Widget for Block {
             }
         } else if let Some(title) = &self.title.get_position(TitlePosition::TopCenter) {
             let start_x = (area.width as usize / 2).saturating_sub(title.len() / 2);
+            #[allow(clippy::cast_possible_truncation)]
             let mut start_x = left + start_x as u16 + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -311,6 +312,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in title.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -321,6 +323,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + title.len() as u16,
@@ -335,6 +338,7 @@ impl Widget for Block {
 
         // Draw subtitles if set
         if let Some(top_subtitle) = &self.title.get_position(TitlePosition::TopRight) {
+            #[allow(clippy::cast_possible_truncation)]
             let mut start_x = right - top_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -347,6 +351,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in top_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -357,6 +362,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + top_subtitle.len() as u16,
@@ -401,6 +407,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in bottom_left_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -411,6 +418,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_left_subtitle.len() as u16,
@@ -427,6 +435,7 @@ impl Widget for Block {
         {
             let start_x =
                 (area.width as usize / 2).saturating_sub(bottom_center_subtitle.len() / 2);
+            #[allow(clippy::cast_possible_truncation)]
             let mut start_x = left + start_x as u16 + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -439,6 +448,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in bottom_center_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -449,6 +459,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_center_subtitle.len() as u16,
@@ -462,6 +473,7 @@ impl Widget for Block {
         }
 
         if let Some(bottom_right_subtitle) = &self.title.get_position(TitlePosition::BottomRight) {
+            #[allow(clippy::cast_possible_truncation)]
             let mut start_x = right - bottom_right_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -474,6 +486,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
+            #[allow(clippy::cast_possible_truncation)]
             for (i, glyph) in bottom_right_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -484,6 +497,7 @@ impl Widget for Block {
                     },
                 );
             }
+            #[allow(clippy::cast_possible_truncation)]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_right_subtitle.len() as u16,
