@@ -15,6 +15,20 @@ pub struct Parser {
     pub max_poll_input_buffer: usize,
 }
 
+/// Internal helper function
+///
+/// Reads as much as possible from the input stream into the `poll_input_buffer`
+///
+/// Returns the number of bytes read
+///
+/// # Arguments
+/// * `std_in` - The input stream to read from
+/// * `poll_input_buffer` - The buffer to read into
+/// * `max_poll_input_buffer` - The maximum size of the `poll_input_buffer`
+/// * `buffer_linear_growth_step` - The amount to grow the `poll_input_buffer` by when it is full
+///
+/// # Errors
+/// Returns an error if the input stream returns an error
 pub fn poll_input_bytes<'a, R: Read>(
     std_in: &mut R,
     poll_input_buffer: &'a mut Vec<u8>,
