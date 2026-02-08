@@ -4,6 +4,19 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
+/// A block widget
+///
+/// Basic building block for your UI
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::Block};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let block = Block::new().title("Hello, world!", &codex, false);
+/// # assert!(true);
+/// ```
 #[must_use]
 pub struct Block {
     title: TitleContents,
@@ -20,6 +33,7 @@ impl Default for Block {
 }
 
 impl Block {
+    /// Creates a new, empty block
     pub fn new() -> Self {
         Self {
             title: TitleContents::default(),
@@ -30,6 +44,9 @@ impl Block {
         }
     }
 
+    /// Sets the block to use a fat border
+    ///
+    /// By default, the block uses a thin border
     pub fn with_fat_border(mut self) -> Self {
         self.fat_border = true;
         self
@@ -55,35 +72,61 @@ impl Block {
         self
     }
 
+    /// Sets the top subtitle of the block
+    /// This subtitle will be on the top right corner
+    ///
+    /// # Arguments
+    /// * `subtitle` - The string of the subtitle
+    /// * `codex` - The codex to use
     pub fn top_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::TopRight, subtitle, codex);
         self
     }
 
+    /// Sets the bottom subtitle of the block
+    /// This subtitle will be on the bottom right corner
+    ///
+    /// # Arguments
+    /// * `subtitle` - The string of the subtitle
+    /// * `codex` - The codex to use
     pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomRight, subtitle, codex);
         self
     }
 
+    /// Sets the bottom subtitle of the block
+    /// This subtitle will be on the bottom center
+    ///
+    /// # Arguments
+    /// * `subtitle` - The string of the subtitle
+    /// * `codex` - The codex to use
     pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomCenter, subtitle, codex);
         self
     }
 
+    /// Sets the bottom subtitle of the block
+    /// This subtitle will be on the bottom left corner
+    ///
+    /// # Arguments
+    /// * `subtitle` - The string of the subtitle
+    /// * `codex` - The codex to use
     pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomLeft, subtitle, codex);
         self
     }
 
+    /// Sets the block to fill the background set in the style of the block
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
     }
 
+    /// Sets the block to beautify the border breaks for the title and subtitles
     pub fn with_beautify_border_breaks(mut self) -> Self {
         self.beautfy_border_breaks = true;
         self
