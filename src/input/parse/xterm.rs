@@ -79,13 +79,13 @@ impl XtermParser {
 
         // Handle Control Codes and UTF-8
         if byte < 32 || byte == 127 {
-            if let Some(event) = self.parse_control_byte(byte) {
+            if let Some(event) = parse_control_byte(byte) {
                 output.push(event);
             }
         } else {
             // Basic UTF-8 accumulation
             self.pending_buffer.push(byte);
-            if let Some((ch, len)) = self.try_parse_utf8(&self.pending_buffer) {
+            if let Some((ch, len)) = try_parse_utf8(&self.pending_buffer) {
                 output.push(Event::KeyEvent(KeyEvent::new(
                     KeyCode::Char(ch),
                     KeyModifiers::default(),
@@ -214,49 +214,6 @@ impl XtermParser {
         key_code.map(|code| Event::KeyEvent(KeyEvent::new(code, modifiers)))
     }
 
-    fn parse_control_byte(&self, byte: u8) -> Option<Event> {
-        let (code, modifiers) = match byte {
-            13 | 10 => (KeyCode::Enter, KeyModifiers::default()),
-            9 => (KeyCode::Tab, KeyModifiers::default()),
-            127 | 8 => (KeyCode::Backspace, KeyModifiers::default()),
-            1..=26 => {
-                let ch = (byte + 96u8) as char;
-                (
-                    KeyCode::Char(ch),
-                    KeyModifiers {
-                        ctrl: true,
-                        none: false,
-                        ..KeyModifiers::default()
-                    },
-                )
-            }
-            _ => return None,
-        };
-        Some(Event::KeyEvent(KeyEvent::new(code, modifiers)))
-    }
-
-    fn try_parse_utf8(&self, buffer: &[u8]) -> Option<(char, usize)> {
-        if buffer.is_empty() {
-            return None;
-        }
-        let first = buffer[0];
-        let len = match first {
-            0x00..=0x7F => 1,
-            0xC0..=0xDF => 2,
-            0xE0..=0xEF => 3,
-            0xF0..=0xF7 => 4,
-            _ => return None,
-        };
-
-        if buffer.len() >= len {
-            std::str::from_utf8(&buffer[..len])
-                .ok()
-                .and_then(|s| s.chars().next().map(|ch| (ch, len)))
-        } else {
-            None
-        }
-    }
-
     fn parse_sgr_mouse(&self, final_byte: u8) -> Option<Event> {
         // SGR format: ESC [ < button ; column ; row (m or M)
         if self.params.len() < 3 {
@@ -321,3 +278,46 @@ fn parse_modifier_param(param: u16) -> KeyModifiers {
         ctrl,
     }
 }
+
+fn parse_control_byte(byte: u8) -> Option<Event> {
+        let (code, modifiers) = match byte {
+            13 | 10 => (KeyCode::Enter, KeyModifiers::default()),
+            9 => (KeyCode::Tab, KeyModifiers::default()),
+            127 | 8 => (KeyCode::Backspace, KeyModifiers::default()),
+            1..=26 => {
+                let ch = (byte + 96u8) as char;
+                (
+                    KeyCode::Char(ch),
+                    KeyModifiers {
+                        ctrl: true,
+                        none: false,
+                        ..KeyModifiers::default()
+                    },
+                )
+            }
+            _ => return None,
+        };
+        Some(Event::KeyEvent(KeyEvent::new(code, modifiers)))
+    }
+
+    fn try_parse_utf8(buffer: &[u8]) -> Option<(char, usize)> {
+        if buffer.is_empty() {
+            return None;
+        }
+        let first = buffer[0];
+        let len = match first {
+            0x00..=0x7F => 1,
+            0xC0..=0xDF => 2,
+            0xE0..=0xEF => 3,
+            0xF0..=0xF7 => 4,
+            _ => return None,
+        };
+
+        if buffer.len() >= len {
+            std::str::from_utf8(&buffer[..len])
+                .ok()
+                .and_then(|s| s.chars().next().map(|ch| (ch, len)))
+        } else {
+            None
+        }
+    }
