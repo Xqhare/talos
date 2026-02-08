@@ -2,7 +2,7 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::all)]
 // Uncomment below when approaching stable
-//#![warn(missing_docs)]
+#![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
 use std::io::Write;
@@ -41,6 +41,17 @@ pub mod widgets;
 type Width = u16;
 type Height = u16;
 
+/// The main struct of the library
+///
+/// # Example
+/// ```rust
+/// use talos::Talos;
+///
+/// let talos = Talos::builder().build();
+/// assert!(talos.is_ok());
+/// ```
+///
+/// For more information on building the struct, see the `Talos::builder()` function.
 pub struct Talos {
     terminal: TerminalIO,
     canvas: Canvas,
@@ -56,25 +67,79 @@ pub struct Talos {
     parser: Parser,
 }
 
+/// Return type of `Talos::present`
 pub enum Present {
+    /// The terminal was resized, and because of that nothing was drawn
     Resized,
+    /// The terminal was not resized - the canvas was drawn
     Presented,
 }
 
 impl Talos {
+    /// Returns a new `TalosBuilder`
+    ///
+    /// This builder can be used to configure `Talos`.
+    ///
+    /// For an exhaustive list of options, see the `TalosBuilder` struct.
+    /// Most options are shown in the example below.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder()
+    /// .with_cursor() // Show the Terminal cursor
+    /// .with_alternate_screen() // Use the alternate screen
+    /// .without_panic_handler() // Disable the panic handler
+    /// .build();
+    /// assert!(talos.is_ok());
+    /// ```
     #[must_use]
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }
 
+    /// Returns a mutable reference to the canvas
+    ///
+    /// Consider using `Talos::render_ctx` instead
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().without_panic_handler().build().unwrap();
+    /// let canvas = talos.canvas_mut();
+    /// # assert!(true);
+    /// ```
     pub fn canvas_mut(&mut self) -> &mut Canvas {
         &mut self.canvas
     }
 
+    /// Returns a tuple containing the canvas and the codex in the form `(canvas, codex)`.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (canvas, codex) = talos.render_ctx();
+    /// # assert!(true);
+    /// ```
     pub fn render_ctx(&mut self) -> (&mut Canvas, &Codex) {
         (&mut self.canvas, &self.codex)
     }
 
+    /// Clear the canvas.
+    /// Call at the beginning of every frame.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// talos.begin_frame();
+    /// # assert!(true);
+    /// ```
     pub fn begin_frame(&mut self) {
         self.canvas.clear();
     }
@@ -90,6 +155,14 @@ impl Talos {
     ///
     /// # Errors
     /// Returns an error if the terminal was terminated.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// assert!(talos.present().is_ok());
+    /// ```
     pub fn present(&mut self) -> TalosResult<Present> {
         let resized = self.handle_signals()?;
         if resized {
@@ -139,7 +212,22 @@ impl Talos {
         Ok(Present::Presented)
     }
 
-    pub fn codex(&mut self) -> &mut Codex {
+    /// Returns a mutable reference to the codex
+    ///
+    /// Consider using `Talos::render_ctx` instead 
+    /// A mutable reference is only needed to add more pages to the codex.
+    ///
+    /// For more on adding pages to the codex, see the documentation of `Codex`.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let codex = talos.codex_mut();
+    /// # assert!(true);
+    /// ```
+    pub fn codex_mut(&mut self) -> &mut Codex {
         &mut self.codex
     }
 
@@ -151,6 +239,34 @@ impl Talos {
     ///
     /// # Errors
     /// Returns an error if the terminal was terminated.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::Talos;
+    /// use talos::input::{Event, KeyEvent, KeyCode};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// # let mut c = 0;
+    /// let mut run = true;
+    /// while run {
+    ///     if let Ok(Some(events)) = talos.poll_input() {
+    ///         for event in events {
+    ///             match event {
+    ///                 Event::KeyEvent(KeyEvent {
+    ///                     code: KeyCode::Char('q'),
+    ///                     ..
+    ///                 }) => {
+    ///                     run = false;
+    ///                 }
+    ///                 _ => {}
+    ///             }
+    ///         }
+    ///     }
+    ///     # c += 1;
+    ///     # if c > 10 { break; }
+    /// }
+    /// # assert!(true);
+    /// ```
     pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
         let _ = self.handle_signals()?;
 
@@ -174,10 +290,14 @@ impl Talos {
 
     /// Handles signals from the OS
     ///
-    /// Returns `true` whether the terminal was resized OR terminated.
-    /// Returns `false` if the terminal was not resized or terminated.
+    /// Returns `true` whether the terminal was resized 
+    /// Returns `false` if the terminal was not resized 
+    /// ENDS THE PROCESS if the terminate signal was received
     ///
     /// If the terminal was terminated, the terminal is restored and the process exits.
+    ///
+    /// # Errors
+    /// Returns an error if internal I/O errors occur
     fn handle_signals(&mut self) -> TalosResult<bool> {
         if check_terminate() {
             // We need to shut down now - No state will be saved, just restore the terminal
