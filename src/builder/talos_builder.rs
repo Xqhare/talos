@@ -9,6 +9,20 @@ use crate::{
 
 use super::ParserBuilder;
 
+/// A builder for the [Talos](struct.Talos.html) struct
+///
+/// # Example
+/// ```rust
+/// use talos::Talos;
+///
+/// let talos = Talos::builder()
+/// .with_cursor() // Show the Terminal cursor
+/// .with_alternate_screen() // Use the alternate screen
+/// .without_panic_handler() // Disable the panic handler
+/// .build();
+/// assert!(talos.is_ok());
+/// ```
+#[must_use]
 pub struct TalosBuilder {
     hide_cursor: bool,
     alternate_screen: bool,
@@ -32,18 +46,19 @@ impl Default for TalosBuilder {
 }
 
 impl TalosBuilder {
-    #[must_use]
+    /// Sets the input parser to a custom one
     pub fn with_input_parser(mut self, input_parser: Parser) -> Self {
         self.input_parser = input_parser;
         self
     }
-    #[must_use]
+
+    /// Enables the Terminal cursor
     pub fn with_cursor(mut self) -> Self {
         self.hide_cursor = false;
         self
     }
 
-    #[must_use]
+    /// Uses the alternate screen
     pub fn with_alternate_screen(mut self) -> Self {
         self.alternate_screen = true;
         self
@@ -56,7 +71,6 @@ impl TalosBuilder {
     ///
     /// If disableing the panic handler, `Talos` expects you to set up a custom panic handler, called
     /// before building `Talos`.
-    #[must_use]
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
         self
