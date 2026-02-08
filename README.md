@@ -60,9 +60,17 @@ I have limited the scope of the project at some points to make it easier on myse
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_fat_border_all_titles_beauty.png" alt="A block with fat borders" width="500" height="100"/>
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_normal_all_titles_beauty.png" alt="A block with normal borders" width="500" height="100"/>   
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_normal_all_titles_beauty.png" alt="A block with normal borders" width="500" height="100"/> 
+</p>
+---
+
+<p align="center">
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_layout.png" alt="A simple layout" width="600" height="300"/>
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_table.png" alt="A simple table" width="600" height="300"/>   
+</p>
+---
+
+<p align="center">
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_much_text.png" alt="A lot of text" width="600" height="300"/> 
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_signal_box.png" alt="Talos can handle state" width="600" height="300"/>   
 </p>
