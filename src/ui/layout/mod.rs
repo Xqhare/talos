@@ -45,7 +45,6 @@ impl Layout {
     /// assert_eq!(layout.constraints, vec![talos::ui::layout::Constraint::Length(10), talos::ui::layout::Constraint::Length(10)]);
     /// assert_eq!(layout.margin, 10);
     /// ```
-    #[must_use]
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
