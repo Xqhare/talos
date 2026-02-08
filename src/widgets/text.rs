@@ -4,7 +4,23 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
+/// A text widget
+///
+/// Basic building block for your UI
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::Text};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let text = Text::new("Hello, world!", &codex)
+///     .align_center()
+///     .align_vertically();
+/// # assert!(true);
+/// ```
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct Text {
     content: TextContent,
     style: Style,
@@ -13,6 +29,17 @@ pub struct Text {
 }
 
 impl Text {
+    /// Create a new text widget from a string
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::Text};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex);
+    /// # assert!(true);
+    /// ```
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
         let content = TextContent::new(content, codex, None);
         Self {
@@ -23,13 +50,33 @@ impl Text {
         }
     }
 
-    #[must_use]
+    /// Align the text to the center of the rendered area
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::Text};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex).align_center();
+    /// # assert!(true);
+    /// ```
     pub fn align_center(mut self) -> Self {
         self.align_center = true;
         self
     }
 
-    #[must_use]
+    /// Align the text vertically
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::Text};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex).align_vertically();
+    /// # assert!(true);
+    /// ```
     pub fn align_vertically(mut self) -> Self {
         self.align_vertically = true;
         self
