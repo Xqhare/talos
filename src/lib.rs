@@ -28,14 +28,17 @@ use crate::ui::render::Canvas;
 use crate::utils::move_render_cursor;
 
 mod backend;
+/// Codex
 pub mod codex;
 mod content;
 mod ui;
 
+/// Input
 pub mod input;
 pub use ui::layout;
 pub use ui::render;
 mod utils;
+/// Widgets
 pub mod widgets;
 
 type Width = u16;
