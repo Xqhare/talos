@@ -10,6 +10,20 @@ use crate::{
 ///
 /// For now each row is laid out separately.
 /// This means that, if a row is wider than another, the columns will not line up.
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let table_state = TableState::default();
+/// let table = Table::new()
+///     .with_state(&mut table_state)
+///     .add_row(vec![&mut Text::new("Hello")]);
+///     .add_row(vec![&mut Text::new("World")]);
+/// # assert!(true);
+/// ```
 #[must_use]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
@@ -24,10 +38,35 @@ pub struct Table<'a> {
     draw_inner_border: bool,
 }
 
+/// The state of the table
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let table_state = TableState {
+///     x_offset: 0,
+///     y_offset: 0,
+///     max_rows: None,
+///     max_columns: None,
+/// };
+/// # assert!(true);
+/// ```
+#[derive(Default)]
 pub struct TableState {
+    /// The x offset of the table - used for scrolling
     pub x_offset: usize,
+    /// The y offset of the table - used for scrolling
     pub y_offset: usize,
+    /// The maximum number of rows to display at once
+    ///
+    /// If `None`, the table will try and fit all rows into the available space
     pub max_rows: Option<usize>,
+    /// The maximum number of columns to display at once
+    ///
+    /// If `None`, the table will try and fit all columns into the available space
     pub max_columns: Option<usize>,
 }
 
@@ -38,6 +77,17 @@ impl Default for Table<'_> {
 }
 
 impl<'a> Table<'a> {
+    /// Creates a new, empty table
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::Table};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table = Table::new();
+    /// # assert!(true);
+    /// ```
     pub fn new() -> Self {
         Self {
             state: None,
@@ -52,16 +102,69 @@ impl<'a> Table<'a> {
         }
     }
 
+    /// Sets the state of the table
+    ///
+    /// The state must be externally managed.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table_state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new().with_state(&mut table_state);
+    /// # assert!(true);
+    /// ```
     pub fn with_state(mut self, state: &'a mut TableState) -> Self {
         self.state = Some(state);
         self
     }
 
+    /// Adds a row to the table
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table_state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new().with_state(&mut table_state).add_row(vec![&mut Text::new("Hello")]);
+    /// # assert!(true);
+    /// ```
     pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
         self.rows.push(row);
         self
     }
 
+    /// Sets the rows of the table
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table_state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new().with_state(&mut table_state).with_rows(vec![vec![&mut Text::new("Hello")], vec![&mut Text::new("World")]]);
+    /// # assert!(true);
+    /// ```
     pub fn with_rows<I, R, W>(mut self, rows: I) -> Self
     where
         I: IntoIterator<Item = R>,
@@ -75,31 +178,44 @@ impl<'a> Table<'a> {
         self
     }
 
+    /// Sets the style of the table to be used when drawing the table and either
+    /// `alternate_colour_vertically` or `alternate_colour_horizontally` is set to true.
+    ///
+    /// If both are `true`, the table will be drawn in a checkered pattern.
     pub fn with_alternate_style(mut self, style: Style) -> Self {
         self.alternate_style = style;
         self
     }
 
+    /// Sets the style of the table border
     pub fn with_border_style(mut self, style: Style) -> Self {
         self.border_style = style;
         self
     }
 
+    /// Makes the Table use alternating colouring vertically
+    ///
+    /// If this and `alternate_colour_horizontally` are both `true`, the table will be drawn in a checkered pattern
     pub fn alternate_colour_vertically(mut self) -> Self {
         self.alternate_colour_vertically = true;
         self
     }
 
+    /// Makes the Table use alternating colouring horizontally
+    ///
+    /// If this and `alternate_colour_vertically` are both `true`, the table will be drawn in a checkered pattern
     pub fn alternate_colour_horizontally(mut self) -> Self {
         self.alternate_colour_horizontally = true;
         self
     }
 
+    /// Draws a border around the table
     pub fn draw_outer_border(mut self) -> Self {
         self.draw_outer_border = true;
         self
     }
 
+    /// Draws a border inside the table, between columns and rows
     pub fn draw_inner_border(mut self) -> Self {
         self.draw_inner_border = true;
         self
