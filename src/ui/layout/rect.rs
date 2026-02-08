@@ -1,15 +1,41 @@
 use std::cmp::{max, min};
 
+/// A rectangle (x, y, width, height)
+///
+/// x and y are the coordinates of the top left corner of the rectangle
+///
 /// Coordinates of a rectangle are stored as relative to the top left corner (1,1)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Rect {
+    /// The x-coordinate of the top left corner
     pub x: u16,
+    /// The y-coordinate of the top left corner
     pub y: u16,
+    /// The width of the rectangle
     pub width: u16,
+    /// The height of the rectangle
     pub height: u16,
 }
 
 impl Rect {
+    /// Creates a new rectangle
+    ///
+    /// # Arguments
+    /// * `x` - The x-coordinate of the top left corner
+    /// * `y` - The y-coordinate of the top left corner
+    /// * `width` - The width of the rectangle
+    /// * `height` - The height of the rectangle
+    ///
+    /// # Example
+    /// ```
+    /// use talos::ui::layout::Rect;
+    ///
+    /// let rect = Rect::new(1, 1, 10, 10);
+    /// assert_eq!(rect.x, 1);
+    /// assert_eq!(rect.y, 1);
+    /// assert_eq!(rect.width, 10);
+    /// assert_eq!(rect.height, 10);
+    /// ```
     #[must_use]
     pub fn new(x: u16, y: u16, width: u16, height: u16) -> Self {
         Self {
