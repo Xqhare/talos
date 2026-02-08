@@ -73,8 +73,8 @@ I have limited the scope of the project at some points to make it easier on myse
 ---
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_much_text.png" alt="A lot of text" width="600" height="300"/> 
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_signal_box.png" alt="Talos can handle state" width="600" height="300"/>   
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_much_text.png" alt="A lot of text" width="750" height="400"/> 
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_signal_box.png" alt="Talos can handle state" width="750" height="400"/>   
 </p>
 
 ## Roadmap
