@@ -11,6 +11,24 @@ use crate::{
     widgets::traits::Widget,
 };
 
+/// A widget that displays a number
+///
+/// Basic building block for your UI
+///
+/// In contrast to [Text](struct.Text.html), this widget does not support alignment
+/// and does not support wrapping
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::Number};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let u_number = Number::new(&42, &codex);
+/// let i_number = Number::new(&-42, &codex);
+/// let f_number = Number::new(&3.14, &codex);
+/// # assert!(true);
+/// ```
 #[derive(Debug, Clone)]
 pub struct Number {
     content: TextContent,
@@ -18,6 +36,25 @@ pub struct Number {
 }
 
 impl Number {
+    /// Create a new number widget
+    ///
+    /// # Arguments
+    /// * `content` - The number to display
+    /// * `codex` - The codex to use for glyph lookup
+    ///
+    /// `content` may be any float, signed or unsigned integer of any size
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::Number};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let u_number = Number::new(&42, &codex);
+    /// let i_number = Number::new(&-42, &codex);
+    /// let f_number = Number::new(&3.14, &codex);
+    /// # assert!(true);
+    /// ```
     pub fn new<N>(content: &N, codex: &Codex) -> Self
     where
         N: Add<Output = N> + Mul<Output = N> + Display,
