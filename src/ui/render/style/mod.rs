@@ -8,6 +8,9 @@ use utils::{handle_bg, handle_fg};
 
 mod utils;
 
+/// Represents a style
+///
+/// The style is generated from a [StyleBuilder](struct.StyleBuilder.html)
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Style {
     fg: Option<Colour>,
@@ -18,16 +21,19 @@ pub struct Style {
 }
 
 impl Style {
+    /// Returns a new StyleBuilder
     #[must_use]
     pub fn builder() -> StyleBuilder {
         StyleBuilder::default()
     }
 
+    /// Returns the foreground colour
     #[must_use]
     pub fn get_fg(&self) -> Option<Colour> {
         self.fg
     }
 
+    /// Returns the background colour
     #[must_use]
     pub fn get_bg(&self) -> Option<Colour> {
         self.bg
