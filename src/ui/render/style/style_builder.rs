@@ -22,72 +22,72 @@ impl StyleBuilder {
 
     pub fn set_bold(mut self, bold: bool) -> Self {
         if bold {
-            self.bit_flag |= 0b10000000;
+            self.bit_flag |= 0b1000_0000;
         } else {
-            self.bit_flag &= !0b10000000;
+            self.bit_flag &= !0b1000_0000;
         }
         self
     }
 
     pub fn set_dim(mut self, dim: bool) -> Self {
         if dim {
-            self.bit_flag |= 0b01000000;
+            self.bit_flag |= 0b0100_0000;
         } else {
-            self.bit_flag &= !0b01000000;
+            self.bit_flag &= !0b0100_0000;
         }
         self
     }
 
     pub fn set_italic(mut self, italic: bool) -> Self {
         if italic {
-            self.bit_flag |= 0b00100000;
+            self.bit_flag |= 0b0010_0000;
         } else {
-            self.bit_flag &= !0b00100000;
+            self.bit_flag &= !0b0010_0000;
         }
         self
     }
 
     pub fn set_underline(mut self, underline: bool) -> Self {
         if underline {
-            self.bit_flag |= 0b00010000;
+            self.bit_flag |= 0b0001_0000;
         } else {
-            self.bit_flag &= !0b00010000;
+            self.bit_flag &= !0b0001_0000;
         }
         self
     }
 
     pub fn set_blink(mut self, blink: bool) -> Self {
         if blink {
-            self.bit_flag |= 0b00001000;
+            self.bit_flag |= 0b0000_1000;
         } else {
-            self.bit_flag &= !0b00001000;
+            self.bit_flag &= !0b0000_1000;
         }
         self
     }
 
     pub fn set_reverse(mut self, reverse: bool) -> Self {
         if reverse {
-            self.bit_flag |= 0b00000100;
+            self.bit_flag |= 0b0000_0100;
         } else {
-            self.bit_flag &= !0b00000100;
+            self.bit_flag &= !0b0000_0100;
         }
         self
     }
 
     pub fn set_hidden(mut self, hidden: bool) -> Self {
         if hidden {
-            self.bit_flag |= 0b00000010;
+            self.bit_flag |= 0b0000_0010;
         } else {
-            self.bit_flag &= !0b00000010;
+            self.bit_flag &= !0b0000_0010;
         }
         self
     }
 
     pub fn set_strikethrough(mut self, strikethrough: bool) -> Self {
         if strikethrough {
-            self.bit_flag |= 0b00000001;
+            self.bit_flag |= 0b0000_0001;
         } else {
-            self.bit_flag &= !0b00000001;
+            self.bit_flag &= !0b0000_0001;
         }
         self
     }
