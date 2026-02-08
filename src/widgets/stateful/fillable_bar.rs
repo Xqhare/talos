@@ -8,6 +8,20 @@ use crate::{
 /// A fillable bar
 ///
 /// Always tries to fill all given space
+///
+/// If using a a bar in the vertical dircection, and you want to enable the `percentage`, make sure
+/// to set the width to at least 4.
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let mut fillable_bar_state = FillableBarState { fill: 0.5 };
+/// let fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state);
+/// # assert!(true);
+/// ```
 #[must_use]
 pub struct FillableBar<'a> {
     style: Style,
@@ -20,7 +34,9 @@ pub struct FillableBar<'a> {
 /// The state of a fillable bar
 ///
 /// The fill value is between 0.0 and 1.0
+#[derive(Default)]
 pub struct FillableBarState {
+    /// The fill value
     pub fill: f32,
 }
 
@@ -31,6 +47,18 @@ impl Default for FillableBar<'_> {
 }
 
 impl<'a> FillableBar<'a> {
+    /// Creates a new, empty fillable bar
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut fillable_bar_state = FillableBarState { fill: 0.5 };
+    /// let fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state);
+    /// # assert!(true);
+    /// ```
     pub fn new() -> Self {
         Self {
             style: Style::default(),
@@ -41,21 +69,25 @@ impl<'a> FillableBar<'a> {
         }
     }
 
+    /// Sets the state of the fillable bar
     pub fn with_state(mut self, state: &'a mut FillableBarState) -> Self {
         self.state = Some(state);
         self
     }
 
+    /// Show the percentage in text in the middle of the bar
     pub fn show_percentage(mut self) -> Self {
         self.show_percentage = true;
         self
     }
 
+    /// Makes the bar glow or fade
     pub fn glow(mut self) -> Self {
         self.glow = true;
         self
     }
 
+    /// Makes the bar vertical
     pub fn vertical(mut self) -> Self {
         self.vertical = true;
         self
