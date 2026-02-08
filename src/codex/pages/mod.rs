@@ -23,16 +23,24 @@ pub type Page = [&'static str; 256];
 
 pub const UNKNOWN_CHAR: &str = "⚠";
 
-// resolves to first page (id 0), entry 0 - Warning sign
+// resolves to first page (id 0), entry 0 - Warning sign (Not part of Win-1252, put there by me)
 pub const UNKNOWN_CHAR_GLYPH: Glyph = 0x0000;
 pub const SPACE_GLYPH: Glyph = 0x0020;
 
-// Page ID's given here are assumed to be always valid, there are hardcoded Glyph references that require these ID values (e.g. `UNKNOWN_CHAR_GLYPH`)
+// Page ID's given here are assumed to be always valid
+// THERE ARE HARDCODED GLYPH REFERENCES THAT REQUIRE AND EXPECT THESE ID VALUES! (see above)
 pub const REG_WIN_1252: (u8, &Page) = (0, &WIN_1252);
 pub const REG_CP437: (u8, &Page) = (1, &CP437);
 pub const REG_UTF_MISC_TECHNICAL: (u8, &Page) = (2, &MISC_TECHNICAL);
 pub const REG_UTF_GEOMETRIC_SHAPES: (u8, &Page) = (3, &GEOMETRIC_SHAPES);
 
+/// Checks if a page is valid
+///
+/// # Arguments
+/// * `page` - The page to check
+///
+/// # Errors
+/// Returns an error if the page is invalid (does not have 256 entries or if any entry is not a single unicode character)
 pub fn validate_page(page: &Page) -> TalosResult<()> {
     if page.len() != 256 {
         return Err(TalosError::InvalidArgument(format!(

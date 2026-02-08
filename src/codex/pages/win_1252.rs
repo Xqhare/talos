@@ -2,7 +2,7 @@ use super::{Page, UNKNOWN_CHAR};
 
 pub const WIN_1252: Page = [
     // 0x00 - 0x0F (Control Codes)
-    "⚠",
+    "⚠", // Not part of Win-1252, put here by me - Used for unknown chars
     UNKNOWN_CHAR,
     UNKNOWN_CHAR,
     UNKNOWN_CHAR,
