@@ -8,6 +8,23 @@ use crate::{
 // 1. The shown selected item, if going backwards, is always the second from the start, as
 //    rendered. This is an artifact of the current implementation moving the offset around and can
 //    probably not be fixed.
+
+/// A list of widgets
+///
+/// # Example
+/// ```rust
+/// use talos::{Talos, widgets::{stateful::{List, ListState}, Text}};
+///
+/// let mut talos = Talos::builder().build().unwrap();
+/// let (_, codex) = talos.render_ctx();
+/// let list_state = ListState::default();
+/// let list = List::new()
+///     .with_state(&mut list_state)
+///     .horizontal()
+///     .add_item(&mut Text::new("Hello"))
+///     .add_item(&mut Text::new("World"));
+/// # assert!(true);
+/// ```
 #[must_use]
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
@@ -17,8 +34,12 @@ pub struct List<'a> {
     horizontal: bool,
 }
 
+/// The state of a list
+#[derive(Default)]
 pub struct ListState {
+    /// The index of the currently selected item
     pub selected: Option<usize>,
+    /// The offset of the list - used for scrolling
     pub scroll_offset: usize,
 }
 
@@ -29,6 +50,17 @@ impl Default for List<'_> {
 }
 
 impl<'a> List<'a> {
+    /// Creates a new, empty list
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::List};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let list = List::new();
+    /// # assert!(true);
+    /// ```
     pub fn new() -> Self {
         Self {
             items: Vec::new(),
@@ -39,16 +71,19 @@ impl<'a> List<'a> {
         }
     }
 
+    /// Sets the list to be horizontal
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
         self
     }
 
+    /// Adds an item to the list
     pub fn add_item(mut self, item: &'a mut dyn Widget) -> Self {
         self.items.push(item);
         self
     }
 
+    /// Sets the items of the list
     pub fn with_items<I, W>(mut self, items: I) -> Self
     where
         I: IntoIterator<Item = &'a mut W>,
@@ -58,16 +93,37 @@ impl<'a> List<'a> {
         self
     }
 
+    /// Sets the state of the list
+    ///
+    /// The state must be externally managed.
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::{List, ListState}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let list_state = ListState::default();
+    /// let list = List::new()
+    ///     .with_state(&mut list_state)
+    ///     .horizontal()
+    ///     .add_item(&mut Text::new("Hello"))
+    ///     .add_item(&mut Text::new("World"));
+    /// # assert!(true);
+    /// ```
     pub fn with_state(mut self, state: &'a mut ListState) -> Self {
         self.state = Some(state);
         self
     }
 
+    /// Sets the style of the selected item
     pub fn with_selected_style(mut self, style: Style) -> Self {
         self.selected_style = style;
         self
     }
 
+    /// Sets the symbol of the selected item - this is rendered in front (to the left) of the
+    /// selected item
     pub fn with_selected_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.selected_symbol = Some(codex.lookup(char));
         self
