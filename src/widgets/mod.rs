@@ -7,6 +7,7 @@ pub use text::Text;
 mod number;
 pub use number::Number;
 
+/// Stateful widgets
 pub mod stateful;
 
 /// Widget traits for creating custom widgets
