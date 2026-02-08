@@ -7,11 +7,17 @@ pub use parse::{InputParser, XtermParser};
 
 use crate::TalosResult;
 
+/// The input parser abstract interface
 pub struct Parser {
+    /// The specific input parser to use
     pub parser: Box<dyn InputParser>,
+    /// The events that have been parsed
     pub event_buffer: Vec<Event>,
+    /// The buffer to poll new bytes into
     pub poll_input_buffer: Vec<u8>,
+    /// The amount to grow the `poll_input_buffer` by when it is full
     pub buffer_linear_growth_step: usize,
+    /// The maximum size of the `poll_input_buffer`
     pub max_poll_input_buffer: usize,
 }
 
