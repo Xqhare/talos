@@ -10,4 +10,6 @@ pub use ccell::CCell;
 mod style;
 pub use style::Style;
 
+/// A glyph is a internal representation of a character.
+/// It uses the code pages inside the [Codex](struct.Codex.html) struct.
 pub type Glyph = u16;
