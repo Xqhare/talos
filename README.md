@@ -59,8 +59,8 @@ I have limited the scope of the project at some points to make it easier on myse
 ## Images
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_fat_border_all_titles_beauty.png" alt="A block with fat borders" width="500" height="100"/>
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_normal_all_titles_beauty.png" alt="A block with normal borders" width="500" height="100"/> 
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_fat_border_all_titles_beauty.png" alt="A block with fat borders" width="750" height="150"/>
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/block_normal_all_titles_beauty.png" alt="A block with normal borders" width="750" height="150"/> 
 </p>
 
 ---
