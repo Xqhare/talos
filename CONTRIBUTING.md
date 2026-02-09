@@ -8,5 +8,3 @@ These are the rules. You don't like them? Fork the project and move on with your
 3. You may only create an issue after you have created a pull request with an attempt to fix that issue.
 4. All other issues will be purged and ignored.
 
-This project uses symlinks for documentation.\
-Windows users should ensure 'Developer Mode' is enabled and Git is configured with core.symlinks=true before cloning.
