@@ -17,7 +17,7 @@ use utils::write_all_bytes;
 
 mod builder;
 pub use builder::{LayoutBuilder, ParserBuilder, TalosBuilder};
-mod error;
+pub mod error;
 pub use error::{TalosError, TalosResult};
 
 use crate::backend::TerminalIO;
