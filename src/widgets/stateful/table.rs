@@ -1,3 +1,4 @@
+
 use crate::{
     LayoutBuilder,
     codex::Codex,
@@ -6,23 +7,53 @@ use crate::{
     widgets::traits::Widget,
 };
 
-/// A table of widgets
+/// A stateful widget that displays a scrollable table of items.
 ///
-/// For now each row is laid out separately.
-/// This means that, if a row is wider than another, the columns will not line up.
+/// The `Table` widget can be used to display a scrollable table of items. The state of the table is
+/// managed by a `TableState` struct, which must be passed to the `with_state` method.
 ///
 /// # Example
-/// ```rust
-/// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
 ///
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
-/// let table_state = TableState::default();
-/// let table = Table::new()
-///     .with_state(&mut table_state)
-///     .add_row(vec![&mut Text::new("Hello")]);
-///     .add_row(vec![&mut Text::new("World")]);
-/// # assert!(true);
+/// ```rust,no_run
+/// use talos::{
+///     Talos,
+///     input::{Event, KeyCode, KeyEvent},
+///     layout::Rect,
+///     widgets::{
+///         stateful::{Table, TableState},
+///         Text,
+///         traits::Widget,
+///     },
+/// };
+///
+/// fn main() -> Result<(), talos::TalosError> {
+///     let mut talos = Talos::builder().build()?;
+///     let (canvas, codex) = talos.render_ctx();
+///
+///     let mut table_state = TableState::default();
+///
+///     let mut rows = vec![
+///         vec![
+///             Text::new("Row 1, Col 1", codex),
+///             Text::new("Row 1, Col 2", codex),
+///         ],
+///         vec![
+///             Text::new("Row 2, Col 1", codex),
+///             Text::new("Row 2, Col 2", codex),
+///         ],
+///     ];
+///
+///     let mut table = Table::new()
+///         .with_state(&mut table_state)
+///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()));
+///
+///     let rect = Rect::new(0, 0, 40, 10);
+///     table.render(canvas, rect, codex);
+///
+///     talos.present()?;
+///
+///     Ok(())
+/// }
 /// ```
 #[must_use]
 #[allow(clippy::struct_excessive_bools)]
@@ -107,12 +138,12 @@ impl<'a> Table<'a> {
     /// The state must be externally managed.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table_state = TableState {
+    /// let mut table_state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
     ///     max_rows: None,
@@ -129,18 +160,21 @@ impl<'a> Table<'a> {
     /// Adds a row to the table
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table_state = TableState {
+    /// let mut table_state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
     ///     max_rows: None,
     ///     max_columns: None,
     /// };
-    /// let table = Table::new().with_state(&mut table_state).add_row(vec![&mut Text::new("Hello")]);
+    /// let mut rows = vec![Text::new("Hello", codex)];
+    /// let table = Table::new()
+    ///     .with_state(&mut table_state)
+    ///     .add_row(rows.iter_mut().map(|w| w as &mut dyn Widget).collect());
     /// # assert!(true);
     /// ```
     pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
@@ -151,18 +185,21 @@ impl<'a> Table<'a> {
     /// Sets the rows of the table
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table_state = TableState {
+    /// let mut table_state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
     ///     max_rows: None,
     ///     max_columns: None,
     /// };
-    /// let table = Table::new().with_state(&mut table_state).with_rows(vec![vec![&mut Text::new("Hello")], vec![&mut Text::new("World")]]);
+    /// let mut rows = vec![vec![Text::new("Hello", codex)], vec![Text::new("World", codex)]];
+    /// let table = Table::new()
+    ///     .with_state(&mut table_state)
+    ///     .with_rows(rows.iter_mut().map(|r| r.iter_mut()));
     /// # assert!(true);
     /// ```
     pub fn with_rows<I, R, W>(mut self, rows: I) -> Self

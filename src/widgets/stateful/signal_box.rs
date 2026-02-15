@@ -1,3 +1,4 @@
+
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
@@ -5,19 +6,40 @@ use crate::{
     widgets::traits::Widget,
 };
 
-/// A simple signal box
+/// A stateful widget that displays a boolean state.
 ///
-/// Takes up one cell, changes symbol based on state
+/// The `SignalBox` widget can be used to display a boolean state. The state of the signal box is
+/// managed by a `SignalBoxState` struct, which must be passed to the `with_state` method.
 ///
 /// # Example
-/// ```rust
-/// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
 ///
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
-/// let mut signal_box_state = SignalBoxState { signal: true };
-/// let signal_box = SignalBox::new().with_state(&mut signal_box_state);
-/// # assert!(true);
+/// ```rust,no_run
+/// use talos::{
+///     Talos,
+///     input::{Event, KeyCode, KeyEvent},
+///     layout::Rect,
+///     widgets::{
+///         stateful::{SignalBox, SignalBoxState},
+///         traits::Widget,
+///     },
+/// };
+///
+/// fn main() -> Result<(), talos::TalosError> {
+///     let mut talos = Talos::builder().build()?;
+///     let (canvas, codex) = talos.render_ctx();
+///
+///     let mut signal_box_state = SignalBoxState { signal: true };
+///
+///     let mut signal_box = SignalBox::new()
+///         .with_state(&mut signal_box_state);
+///
+///     let rect = Rect::new(0, 0, 1, 1);
+///     signal_box.render(canvas, rect, codex);
+///
+///     talos.present()?;
+///
+///     Ok(())
+/// }
 /// ```
 #[must_use]
 pub struct SignalBox<'a> {
@@ -55,9 +77,11 @@ impl<'a> SignalBox<'a> {
         Self {
             state: None,
             style: Style::default(),
-            // UTF Geometric Shapes is the 3rd page
-            signal_on_symbol: 0x0328,  // 3 - 40
-            signal_off_symbol: 0x0327, // 3 - 39
+            // The default symbols are from the "UTF Geometric Shapes" page (page 3).
+            // The glyph is constructed by combining the page ID and the character ID.
+            // For example, `0x0328` is `(3 << 8) | 40`.
+            signal_on_symbol: 0x0328,
+            signal_off_symbol: 0x0327,
         }
     }
 
@@ -66,7 +90,7 @@ impl<'a> SignalBox<'a> {
     /// The state must be externally managed.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();

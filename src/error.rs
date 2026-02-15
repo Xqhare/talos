@@ -1,3 +1,5 @@
+//! This module contains the error types for the Talos library.
+
 /// The result type for `Talos`
 pub type TalosResult<T> = std::result::Result<T, TalosError>;
 

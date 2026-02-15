@@ -11,6 +11,17 @@ mod utils;
 /// Represents a style
 ///
 /// The style is generated from a [`StyleBuilder`](struct.StyleBuilder.html)
+///
+/// # Example
+/// ```rust
+/// use talos::render::{Colour, Normal, Style};
+///
+/// let style = Style::builder()
+///     .set_fg(Colour::Normal(Normal::Red))
+///     .set_bg(Colour::Normal(Normal::Blue))
+///     .set_bold(true)
+///     .build();
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct Style {
     fg: Option<Colour>,
@@ -22,18 +33,45 @@ pub struct Style {
 
 impl Style {
     /// Returns a new `StyleBuilder`
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::Style;
+    ///
+    /// let builder = Style::builder();
+    /// ```
     #[must_use]
     pub fn builder() -> StyleBuilder {
         StyleBuilder::default()
     }
 
     /// Returns the foreground colour
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_fg(Colour::Normal(Normal::Red))
+    ///     .build();
+    /// assert_eq!(style.get_fg(), Some(Colour::Normal(Normal::Red)));
+    /// ```
     #[must_use]
     pub fn get_fg(&self) -> Option<Colour> {
         self.fg
     }
 
     /// Returns the background colour
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_bg(Colour::Normal(Normal::Blue))
+    ///     .build();
+    /// assert_eq!(style.get_bg(), Some(Colour::Normal(Normal::Blue)));
+    /// ```
     #[must_use]
     pub fn get_bg(&self) -> Option<Colour> {
         self.bg
@@ -42,6 +80,18 @@ impl Style {
     /// Generates an ANSI control sequence from the style
     ///
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_fg(Colour::Normal(Normal::Red))
+    ///     .build();
+    /// let mut buffer = Vec::new();
+    /// style.generate(&mut buffer);
+    /// assert_eq!(buffer, b"\x1b[0;31m");
+    /// ```
     pub fn generate(self, output_buffer: &mut Vec<u8>) {
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
 

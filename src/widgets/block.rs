@@ -1,3 +1,4 @@
+
 use crate::codex::Codex;
 use crate::content::title::{TitleContents, TitlePosition};
 use crate::layout::Rect;
@@ -6,16 +7,43 @@ use crate::widgets::traits::Widget;
 
 /// A block widget
 ///
-/// Basic building block for your UI
+/// The `Block` widget is a basic building block for your UI. It is a container that can be used to
+/// group other widgets together. It can also be used to draw borders and titles.
 ///
 /// # Example
-/// ```rust
-/// use talos::{Talos, widgets::Block};
 ///
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
-/// let block = Block::new().title("Hello, world!", &codex, false);
-/// # assert!(true);
+/// ```rust
+/// use talos::{
+///     Talos,
+///     layout::Rect,
+///     render::{Colour, Normal, Style},
+///     widgets::{Block, traits::Widget},
+/// };
+///
+/// fn main() -> Result<(), talos::TalosError> {
+///     let mut talos = Talos::builder().build()?;
+///
+///     talos.begin_frame();
+///     let (canvas, codex) = talos.render_ctx();
+///
+///     let rect = Rect::new(0, 0, 20, 10);
+///     let mut block = Block::new()
+///         .title("My Block", codex, true)
+///         .with_fat_border()
+///         .with_bg_fill();
+///
+///     let style = Style::builder()
+///         .set_fg(Colour::Normal(Normal::White))
+///         .set_bg(Colour::Normal(Normal::Black))
+///         .build();
+///
+///     block.style(style);
+///     block.render(canvas, rect, codex);
+///
+///     talos.present()?;
+///
+///     Ok(())
+/// }
 /// ```
 #[must_use]
 pub struct Block {

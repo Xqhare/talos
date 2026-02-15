@@ -1,3 +1,33 @@
+//! This module contains the widgets for the Talos library.
+//!
+//! Widgets are the building blocks of your UI. Talos provides a few basic widgets, such as `Block`
+//! and `Text`. You can also create your own widgets by implementing the `Widget` trait.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use talos::{
+//!     Talos,
+//!     layout::Rect,
+//!     widgets::{Block, traits::Widget},
+//! };
+//!
+//! fn main() -> Result<(), talos::TalosError> {
+//!     let mut talos = Talos::builder().build()?;
+//!
+//!     talos.begin_frame();
+//!     let (canvas, codex) = talos.render_ctx();
+//!
+//!     let rect = Rect::new(0, 0, 10, 10);
+//!     let mut block = Block::new();
+//!     block.render(canvas, rect, codex);
+//!
+//!     talos.present()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+
 mod block;
 pub use block::Block;
 
@@ -30,7 +60,7 @@ pub mod traits {
         ///
         /// The area is relative to the top left corner of the canvas (1,1)
         ///
-        /// # Arguments
+        // # Arguments
         /// * `canvas` - The canvas to render into
         /// * `area` - The area to render into. Only this area is available for the widget to draw
         ///   into.

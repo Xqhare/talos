@@ -1,3 +1,41 @@
+//! This module contains the input handling system for the Talos library.
+//!
+//! The input system is responsible for reading user input from the terminal and parsing it into
+//! a stream of events.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use talos::{
+//!     Talos,
+//!     input::{Event, KeyCode, KeyEvent},
+//! };
+//!
+//! fn main() -> Result<(), talos::TalosError> {
+//!     let mut talos = Talos::builder().build()?;
+//!
+//!     let mut running = true;
+//!
+//!     while running {
+//!         if let Some(events) = talos.poll_input()? {
+//!             for event in events {
+//!                 match event {
+//!                     Event::KeyEvent(KeyEvent {
+//!                         code: KeyCode::Char('q'),
+//!                         ..
+//!                     }) => {
+//!                         running = false;
+//!                     }
+//!                     _ => {}
+//!                 }
+//!             }
+//!         }
+//!     }
+//!
+//!     Ok(())
+//! }
+//! ```
+
 use std::{cmp::min, io::Read};
 
 mod event;

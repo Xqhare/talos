@@ -1,4 +1,15 @@
 /// A constraint for a layout
+///
+/// # Example
+/// ```rust
+/// use talos::layout::Constraint;
+///
+/// let length_constraint = Constraint::Length(10);
+/// let percentage_constraint = Constraint::Percentage(50);
+/// let min_constraint = Constraint::Min(5);
+/// let ratio_constraint = Constraint::Ratio(1, 2);
+/// let max_constraint = Constraint::Max(20);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Constraint {
     /// Constrains to a specific length

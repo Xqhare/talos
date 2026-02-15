@@ -1,4 +1,11 @@
 /// A point (x, y)
+///
+/// # Example
+/// ```rust
+/// use talos::layout::Point;
+///
+/// let point = Point { x: 10, y: 20 };
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Point {
     /// The x-coordinate
