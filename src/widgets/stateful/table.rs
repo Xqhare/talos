@@ -1,51 +1,3 @@
-//! A stateful widget that displays a scrollable table of items.
-//!
-//! The `Table` widget can be used to display a scrollable table of items. The state of the table is
-//! managed by a `TableState` struct, which must be passed to the `with_state` method.
-//!
-//! # Example
-//!
-//! ```rust,no_run
-//! use talos::{
-//!     Talos,
-//!     input::{Event, KeyCode, KeyEvent},
-//!     layout::Rect,
-//!     widgets::{
-//!         stateful::{Table, TableState},
-//!         Text,
-//!         traits::Widget,
-//!     },
-//! };
-//!
-//! fn main() -> Result<(), talos::TalosError> {
-//!     let mut talos = Talos::builder().build()?;
-//!     let (canvas, codex) = talos.render_ctx();
-//!
-//!     let mut table_state = TableState::default();
-//!
-//!     let mut rows = vec![
-//!         vec![
-//!             Text::new("Row 1, Col 1", codex),
-//!             Text::new("Row 1, Col 2", codex),
-//!         ],
-//!         vec![
-//!             Text::new("Row 2, Col 1", codex),
-//!             Text::new("Row 2, Col 2", codex),
-//!         ],
-//!     ];
-//!
-//!     let mut table = Table::new()
-//!         .with_state(&mut table_state)
-//!         .with_rows(rows.iter_mut().map(|row| row.iter_mut()));
-//!
-//!     let rect = Rect::new(0, 0, 40, 10);
-//!     table.render(canvas, rect, codex);
-//!
-//!     talos.present()?;
-//!
-//!     Ok(())
-//! }
-//! ```
 
 use crate::{
     LayoutBuilder,
@@ -55,23 +7,53 @@ use crate::{
     widgets::traits::Widget,
 };
 
-/// A table of widgets
+/// A stateful widget that displays a scrollable table of items.
 ///
-/// For now each row is laid out separately.
-/// This means that, if a row is wider than another, the columns will not line up.
+/// The `Table` widget can be used to display a scrollable table of items. The state of the table is
+/// managed by a `TableState` struct, which must be passed to the `with_state` method.
 ///
 /// # Example
-/// ```rust,no_run
-/// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
 ///
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
-/// let mut table_state = TableState::default();
-/// let mut rows = vec![vec![Text::new("Hello", codex)]];
-/// let mut table = Table::new()
-///     .with_state(&mut table_state)
-///     .add_row(rows[0].iter_mut().map(|w| w as &mut dyn Widget).collect());
-/// # assert!(true);
+/// ```rust,no_run
+/// use talos::{
+///     Talos,
+///     input::{Event, KeyCode, KeyEvent},
+///     layout::Rect,
+///     widgets::{
+///         stateful::{Table, TableState},
+///         Text,
+///         traits::Widget,
+///     },
+/// };
+///
+/// fn main() -> Result<(), talos::TalosError> {
+///     let mut talos = Talos::builder().build()?;
+///     let (canvas, codex) = talos.render_ctx();
+///
+///     let mut table_state = TableState::default();
+///
+///     let mut rows = vec![
+///         vec![
+///             Text::new("Row 1, Col 1", codex),
+///             Text::new("Row 1, Col 2", codex),
+///         ],
+///         vec![
+///             Text::new("Row 2, Col 1", codex),
+///             Text::new("Row 2, Col 2", codex),
+///         ],
+///     ];
+///
+///     let mut table = Table::new()
+///         .with_state(&mut table_state)
+///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()));
+///
+///     let rect = Rect::new(0, 0, 40, 10);
+///     table.render(canvas, rect, codex);
+///
+///     talos.present()?;
+///
+///     Ok(())
+/// }
 /// ```
 #[must_use]
 #[allow(clippy::struct_excessive_bools)]
