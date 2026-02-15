@@ -67,9 +67,8 @@ impl Codex {
     /// ```
     pub fn new() -> Self {
         let mut codex = Codex {
-            // Currently only `windows-1252` and `cp437` are planned but init
-            // all pages with `None` will not expand the memory footprint but save from
-            // new allocations
+            // Initialize all 256 pages with `None`. This does not expand the memory footprint
+            // but saves from new allocations.
             pages: vec![None; 256],
             reverse_map: HashMap::new(),
         };

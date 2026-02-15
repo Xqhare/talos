@@ -91,9 +91,11 @@ impl<'a> SignalBox<'a> {
         Self {
             state: None,
             style: Style::default(),
-            // UTF Geometric Shapes is the 3rd page
-            signal_on_symbol: 0x0328,  // 3 - 40
-            signal_off_symbol: 0x0327, // 3 - 39
+            // The default symbols are from the "UTF Geometric Shapes" page (page 3).
+            // The glyph is constructed by combining the page ID and the character ID.
+            // For example, `0x0328` is `(3 << 8) | 40`.
+            signal_on_symbol: 0x0328,
+            signal_off_symbol: 0x0327,
         }
     }
 
