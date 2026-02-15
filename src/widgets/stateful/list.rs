@@ -1,48 +1,3 @@
-//! A stateful widget that displays a scrollable list of items.
-//!
-//! The `List` widget can be used to display a scrollable list of items. The list can be either
-//! horizontal or vertical. The state of the list is managed by a `ListState` struct, which must be
-//! passed to the `with_state` method.
-//!
-//! # Example
-//!
-//! ```rust,no_run
-//! use talos::{
-//!     Talos,
-//!     input::{Event, KeyCode, KeyEvent},
-//!     layout::Rect,
-//!     widgets::{
-//!         stateful::{List, ListState},
-//!         Text,
-//!         traits::Widget,
-//!     },
-//! };
-//!
-//! fn main() -> Result<(), talos::TalosError> {
-//!     let mut talos = Talos::builder().build()?;
-//!     let (canvas, codex) = talos.render_ctx();
-//!
-//!     let mut list_state = ListState::default();
-//!     list_state.selected = Some(0);
-//!
-//!     let mut items = vec![
-//!         Text::new("Item 1", codex),
-//!         Text::new("Item 2", codex),
-//!         Text::new("Item 3", codex),
-//!     ];
-//!
-//!     let mut list = List::new()
-//!         .with_state(&mut list_state)
-//!         .with_items(items.iter_mut());
-//!
-//!     let rect = Rect::new(0, 0, 20, 10);
-//!     list.render(canvas, rect, codex);
-//!
-//!     talos.present()?;
-//!
-//!     Ok(())
-//! }
-//! ```
 
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
@@ -55,20 +10,52 @@ use crate::{
 //    rendered. This is an artifact of the current implementation moving the offset around and can
 //    probably not be fixed.
 
-/// A list of widgets
+/// A stateful widget that displays a scrollable list of items.
+///
+/// The `List` widget can be used to display a scrollable list of items. The list can be either
+/// horizontal or vertical. The state of the list is managed by a `ListState` struct, which must be
+/// passed to the `with_state` method.
 ///
 /// # Example
-/// ```rust,no_run
-/// use talos::{Talos, widgets::{stateful::{List, ListState}, Text}};
 ///
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
-/// let mut list_state = ListState::default();
-/// let list = List::new()
-///     .with_state(&mut list_state)
-///     .horizontal();
-/// # assert!(true);
+/// ```rust,no_run
+/// use talos::{
+///     Talos,
+///     input::{Event, KeyCode, KeyEvent},
+///     layout::Rect,
+///     widgets::{
+///         stateful::{List, ListState},
+///         Text,
+///         traits::Widget,
+///     },
+/// };
+///
+/// fn main() -> Result<(), talos::TalosError> {
+///     let mut talos = Talos::builder().build()?;
+///     let (canvas, codex) = talos.render_ctx();
+///
+///     let mut list_state = ListState::default();
+///     list_state.selected = Some(0);
+///
+///     let mut items = vec![
+///         Text::new("Item 1", codex),
+///         Text::new("Item 2", codex),
+///         Text::new("Item 3", codex),
+///     ];
+///
+///     let mut list = List::new()
+///         .with_state(&mut list_state)
+///         .with_items(items.iter_mut());
+///
+///     let rect = Rect::new(0, 0, 20, 10);
+///     list.render(canvas, rect, codex);
+///
+///     talos.present()?;
+///
+///     Ok(())
+/// }
 /// ```
+
 #[must_use]
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
