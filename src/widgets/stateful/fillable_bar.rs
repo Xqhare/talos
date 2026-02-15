@@ -1,3 +1,41 @@
+//! A stateful widget that displays a progress bar.
+//!
+//! The `FillableBar` widget can be used to display a progress bar. The state of the fillable bar is
+//! managed by a `FillableBarState` struct, which must be passed to the `with_state` method.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use talos::{
+//!     Talos,
+//!     input::{Event, KeyCode, KeyEvent},
+//!     layout::Rect,
+//!     widgets::{
+//!         stateful::{FillableBar, FillableBarState},
+//!         traits::Widget,
+//!     },
+//! };
+//!
+//! fn main() -> Result<(), talos::TalosError> {
+//!     let mut talos = Talos::builder().build()?;
+//!     let (canvas, codex) = talos.render_ctx();
+//!
+//!     let mut fillable_bar_state = FillableBarState { fill: 0.5 };
+//!
+//!     let mut fillable_bar = FillableBar::new()
+//!         .with_state(&mut fillable_bar_state)
+//!         .show_percentage()
+//!         .glow();
+//!
+//!     let rect = Rect::new(0, 0, 20, 1);
+//!     fillable_bar.render(canvas, rect, codex);
+//!
+//!     talos.present()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
@@ -13,7 +51,7 @@ use crate::{
 /// to set the width to at least 4.
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
@@ -50,7 +88,7 @@ impl<'a> FillableBar<'a> {
     /// Creates a new, empty fillable bar
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
