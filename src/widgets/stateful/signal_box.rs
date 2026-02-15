@@ -1,3 +1,39 @@
+//! A stateful widget that displays a boolean state.
+//!
+//! The `SignalBox` widget can be used to display a boolean state. The state of the signal box is
+//! managed by a `SignalBoxState` struct, which must be passed to the `with_state` method.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use talos::{
+//!     Talos,
+//!     input::{Event, KeyCode, KeyEvent},
+//!     layout::Rect,
+//!     widgets::{
+//!         stateful::{SignalBox, SignalBoxState},
+//!         traits::Widget,
+//!     },
+//! };
+//!
+//! fn main() -> Result<(), talos::TalosError> {
+//!     let mut talos = Talos::builder().build()?;
+//!     let (canvas, codex) = talos.render_ctx();
+//!
+//!     let mut signal_box_state = SignalBoxState { signal: true };
+//!
+//!     let mut signal_box = SignalBox::new()
+//!         .with_state(&mut signal_box_state);
+//!
+//!     let rect = Rect::new(0, 0, 1, 1);
+//!     signal_box.render(canvas, rect, codex);
+//!
+//!     talos.present()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
@@ -10,7 +46,7 @@ use crate::{
 /// Takes up one cell, changes symbol based on state
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
@@ -66,7 +102,7 @@ impl<'a> SignalBox<'a> {
     /// The state must be externally managed.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
