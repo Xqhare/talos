@@ -1,3 +1,31 @@
+//! The layout system is responsible for dividing the screen into different areas, and then placing
+//! widgets in them.
+//!
+//! The layout system is based on the `Layout` struct, which is created using the `LayoutBuilder`. A
+//! layout is defined by a direction, a set of constraints, and a margin.
+//!
+//! # Example
+//!
+//! ```rust
+//! use talos::{
+//!     LayoutBuilder,
+//!     layout::{Constraint, Direction, Rect},
+//! };
+//!
+//! let layout = LayoutBuilder::new()
+//!     .direction(Direction::Horizontal)
+//!     .add_constraint(Constraint::Percentage(50))
+//!     .add_constraint(Constraint::Percentage(50))
+//!     .build();
+//!
+//! let rect = Rect::new(0, 0, 100, 100);
+//! let chunks = layout.split(rect);
+//!
+//! assert_eq!(chunks.len(), 2);
+//! assert_eq!(chunks[0], Rect::new(0, 0, 50, 100));
+//! assert_eq!(chunks[1], Rect::new(50, 0, 50, 100));
+//! ```
+
 mod rect;
 pub use rect::Rect;
 
