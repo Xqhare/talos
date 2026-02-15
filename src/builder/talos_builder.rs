@@ -12,7 +12,7 @@ use super::ParserBuilder;
 /// A builder for the [Talos](struct.Talos.html) struct
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::Talos;
 ///
 /// let talos = Talos::builder()
@@ -47,18 +47,40 @@ impl Default for TalosBuilder {
 
 impl TalosBuilder {
     /// Sets the input parser to a custom one
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::{ParserBuilder, Talos};
+    ///
+    /// let input_parser = ParserBuilder::default().build();
+    /// let talos = Talos::builder().with_input_parser(input_parser).build();
+    /// ```
     pub fn with_input_parser(mut self, input_parser: Parser) -> Self {
         self.input_parser = input_parser;
         self
     }
 
     /// Enables the Terminal cursor
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder().with_cursor().build();
+    /// ```
     pub fn with_cursor(mut self) -> Self {
         self.hide_cursor = false;
         self
     }
 
     /// Uses the alternate screen
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder().with_alternate_screen().build();
+    /// ```
     pub fn with_alternate_screen(mut self) -> Self {
         self.alternate_screen = true;
         self
@@ -71,6 +93,13 @@ impl TalosBuilder {
     ///
     /// If disableing the panic handler, `Talos` expects you to set up a custom panic handler, called
     /// before building `Talos`.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder().without_panic_handler().build();
+    /// ```
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
         self
@@ -80,6 +109,14 @@ impl TalosBuilder {
     ///
     /// # Errors
     /// Returns an error if the terminal could not be initialized
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder().build();
+    /// assert!(talos.is_ok());
+    /// ```
     pub fn build(self) -> TalosResult<Talos> {
         // Set up panic handler as the very first thing
         if self.set_up_panic_handler {

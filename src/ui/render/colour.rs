@@ -5,6 +5,13 @@ pub const BG_PRE_DIGIT_NORMAL: u8 = 4;
 pub const BG_PRE_DIGIT_BRIGHT: u8 = 10;
 
 /// Colour is a representation of a terminal colour
+///
+/// # Example
+/// ```rust
+/// use talos::render::{Colour, Normal};
+///
+/// let color = Colour::Normal(Normal::Red);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Colour {
     /// Normal 8 colours
@@ -16,6 +23,13 @@ pub enum Colour {
 }
 
 /// Normal 8 colours
+///
+/// # Example
+/// ```rust
+/// use talos::render::Normal;
+///
+/// let color = Normal::Red;
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub enum Normal {
@@ -31,6 +45,14 @@ pub enum Normal {
 
 impl Normal {
     /// Returns the index of the colour for the terminal
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::Normal;
+    ///
+    /// let color = Normal::Red;
+    /// assert_eq!(color.decode(), 1);
+    /// ```
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -47,6 +69,13 @@ impl Normal {
 }
 
 /// Bright 8 colours
+///
+/// # Example
+/// ```rust
+/// use talos::render::Bright;
+///
+/// let color = Bright::Red;
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub enum Bright {
@@ -62,6 +91,14 @@ pub enum Bright {
 
 impl Bright {
     /// Returns the index of the colour for the terminal
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::Bright;
+    ///
+    /// let color = Bright::Red;
+    /// assert_eq!(color.decode(), 1);
+    /// ```
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -78,6 +115,14 @@ impl Bright {
 }
 
 /// More colours - All RGB colours
+///
+/// # Example
+/// ```rust
+/// use talos::render::{Extended, ColourMode, TrueColour};
+///
+/// let color = Extended::ColourMode(ColourMode::RgbBit(123));
+/// let true_color = Extended::TrueColour(TrueColour::RGB(10, 20, 30));
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Extended {
     /// Simple one byte RGB
@@ -91,6 +136,13 @@ pub const EXTENDED_FG_BIT: u8 = 38;
 pub const EXTENDED_BG_BIT: u8 = 48;
 
 /// One byte RGB
+///
+/// # Example
+/// ```rust
+/// use talos::render::ColourMode;
+///
+/// let color = ColourMode::RgbBit(123);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColourMode {
     /// One byte RGB
@@ -99,6 +151,14 @@ pub enum ColourMode {
 
 impl ColourMode {
     /// Returns the index of the colour for the terminal
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::ColourMode;
+    ///
+    /// let color = ColourMode::RgbBit(123);
+    /// assert_eq!(color.decode(), 123);
+    /// ```
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -110,6 +170,13 @@ impl ColourMode {
 pub const TRUE_COLOURMODE_SIGNAL_BIT: u8 = 2;
 
 /// Three byte RGB
+///
+/// # Example
+/// ```rust
+/// use talos::render::TrueColour;
+///
+/// let color = TrueColour::RGB(10, 20, 30);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TrueColour {
     /// Three byte RGB
@@ -118,6 +185,14 @@ pub enum TrueColour {
 
 impl TrueColour {
     /// Returns the index of the colour for the terminal
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::TrueColour;
+    ///
+    /// let color = TrueColour::RGB(10, 20, 30);
+    /// assert_eq!(color.decode(), (10, 20, 30));
+    /// ```
     #[must_use]
     pub fn decode(self) -> (u8, u8, u8) {
         match self {

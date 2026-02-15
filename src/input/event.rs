@@ -1,4 +1,11 @@
 /// An input event
+///
+/// # Example
+/// ```rust
+/// use talos::input::{Event, KeyEvent, KeyCode, KeyModifiers};
+///
+/// let event = Event::KeyEvent(KeyEvent::new(KeyCode::Char('a'), KeyModifiers::default()));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Event {
     /// A key event
@@ -10,6 +17,18 @@ pub enum Event {
 }
 
 /// A mouse event
+///
+/// # Example
+/// ```rust
+/// use talos::input::{MouseEvent, MouseEventKind, MouseButton, KeyModifiers};
+///
+/// let event = MouseEvent {
+///    kind: MouseEventKind::Down(MouseButton::Left),
+///    column: 10,
+///    row: 20,
+///    modifiers: KeyModifiers::default(),
+/// };
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MouseEvent {
     /// The kind of mouse event
@@ -23,6 +42,13 @@ pub struct MouseEvent {
 }
 
 /// The kind of mouse event
+///
+/// # Example
+/// ```rust
+/// use talos::input::{MouseEventKind, MouseButton};
+///
+/// let kind = MouseEventKind::Down(MouseButton::Left);
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MouseEventKind {
     /// A mouse button was pressed
@@ -40,6 +66,13 @@ pub enum MouseEventKind {
 }
 
 /// A mouse button
+///
+/// # Example
+/// ```rust
+/// use talos::input::MouseButton;
+///
+/// let button = MouseButton::Left;
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MouseButton {
     /// The left mouse button
@@ -51,6 +84,13 @@ pub enum MouseButton {
 }
 
 /// A key event
+///
+/// # Example
+/// ```rust
+/// use talos::input::{KeyEvent, KeyCode, KeyModifiers};
+///
+/// let event = KeyEvent::new(KeyCode::Char('a'), KeyModifiers::default());
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyEvent {
     /// The key code
@@ -65,6 +105,13 @@ impl KeyEvent {
     /// # Arguments
     /// * `code` - The key code
     /// * `modifiers` - The modifiers that were active when the key event occurred
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::input::{KeyEvent, KeyCode, KeyModifiers};
+    ///
+    /// let event = KeyEvent::new(KeyCode::Char('a'), KeyModifiers::default());
+    /// ```
     #[must_use]
     pub fn new(code: KeyCode, modifiers: KeyModifiers) -> Self {
         Self { code, modifiers }
@@ -72,6 +119,13 @@ impl KeyEvent {
 }
 
 /// A key on the keyboard
+///
+/// # Example
+/// ```rust
+/// use talos::input::KeyCode;
+///
+/// let key_code = KeyCode::Char('a');
+/// ```
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KeyCode {
@@ -94,6 +148,18 @@ pub enum KeyCode {
 }
 
 /// The modifiers that were active when the key event occurred
+///
+/// # Example
+/// ```rust
+/// use talos::input::KeyModifiers;
+///
+/// let modifiers = KeyModifiers {
+///    none: true,
+///    shift: false,
+///    ctrl: false,
+///    alt: false,
+/// };
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct KeyModifiers {

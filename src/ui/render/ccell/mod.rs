@@ -5,6 +5,16 @@ use super::{Glyph, Style};
 /// A single cell in a [Canvas](struct.Canvas.html)
 ///
 /// Contains a [Glyph](type.Glyph.html) and a [Style](struct.Style.html)
+///
+/// # Example
+/// ```rust
+/// use talos::render::{CCell, Style};
+///
+/// let cell = CCell {
+///    char: 'a' as u16,
+///    style: Style::default(),
+/// };
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CCell {
     /// The glyph

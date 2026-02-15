@@ -9,6 +9,31 @@ pub use xterm::XtermParser;
 ///
 /// If you want to create a custom input parser, you need to implement this trait - take a look at
 /// the [`Event`](struct.Event.html) struct for more information.
+///
+/// # Example
+/// ```rust
+/// use talos::{
+///     error::TalosResult,
+///     input::{Event, InputParser},
+/// };
+///
+/// struct MyParser;
+///
+/// impl InputParser for MyParser {
+///     fn new() -> Self {
+///         MyParser
+///     }
+///
+///     fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()> {
+///         // Parse bytes and push events to output
+///         Ok(())
+///     }
+///
+///     fn flush(&mut self, output: &mut Vec<Event>) {
+///         // Flush any remaining bytes and push events to output
+///     }
+/// }
+/// ```
 pub trait InputParser {
     /// Creates a new parser
     fn new() -> Self
