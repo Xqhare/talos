@@ -4,6 +4,15 @@
 //! The layout system is based on the `Layout` struct, which is created using the `LayoutBuilder`. A
 //! layout is defined by a direction, a set of constraints, and a margin.
 //!
+//! # Technical Details
+//!
+//! Most coordinate calculations are limited to `u16::MAX`.
+//! This is because of cast truncation in the calculations to `u16`.
+//! This means, for example, that a `Table` may only ever have up to around 65,000 rows and
+//! columns.
+//!
+//! However, it is very unlikely that this will cause any issues in practice.
+//!
 //! # Example
 //!
 //! ```rust
