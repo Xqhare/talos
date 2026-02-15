@@ -1,3 +1,22 @@
+//! The codex is responsible for mapping characters to glyphs.
+//!
+//! A glyph is a `u16` value that represents a character. The first 8 bits of the glyph are the
+//! page ID, and the last 8 bits are the character ID.
+//!
+//! The codex is pre-loaded with a few default pages, such as `CP437` and `windows-1252`. You can
+//! also register your own pages.
+//!
+//! # Example
+//!
+//! ```rust
+//! use talos::codex::Codex;
+//!
+//! let codex = Codex::new();
+//! let glyph = codex.lookup('a');
+//! let char = codex.resolve(glyph);
+//! assert_eq!(char, "a");
+//! ```
+
 use std::collections::HashMap;
 
 use crate::{
@@ -24,7 +43,7 @@ pub struct Codex {
 
 impl Codex {
     /// Creates a new codex
-    /// 
+    ///
     /// # Example
     /// ```rust
     /// use talos::codex::Codex;
@@ -112,7 +131,7 @@ impl Codex {
     }
 
     /// Resolve a glyph to a character
-    /// 
+    ///
     /// # Arguments
     /// * `glyph` - The glyph
     ///
@@ -145,7 +164,7 @@ impl Codex {
     }
 
     /// Resolve a character to a glyph
-    /// 
+    ///
     /// # Arguments
     /// * `ch` - The character
     ///
