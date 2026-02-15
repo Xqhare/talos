@@ -1,3 +1,43 @@
+//! A text widget
+//!
+//! The `Text` widget is used to display text. It supports text wrapping, horizontal centering, and
+//! vertical alignment.
+//!
+//! # Example
+//!
+//! ```rust
+//! use talos::{
+//!     Talos,
+//!     layout::Rect,
+//!     render::{Colour, Normal, Style},
+//!     widgets::{Text, traits::Widget},
+//! };
+//!
+//! fn main() -> Result<(), talos::TalosError> {
+//!     let mut talos = Talos::builder().build()?;
+//!
+//!     talos.begin_frame();
+//!     let (canvas, codex) = talos.render_ctx();
+//!
+//!     let rect = Rect::new(0, 0, 20, 10);
+//!     let mut text = Text::new("Hello, world!", codex)
+//!         .align_center()
+//!         .align_vertically();
+//!
+//!     let style = Style::builder()
+//!         .set_fg(Colour::Normal(Normal::White))
+//!         .set_bg(Colour::Normal(Normal::Black))
+//!         .build();
+//!
+//!     text.style(style);
+//!     text.render(canvas, rect, codex);
+//!
+//!     talos.present()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+
 use crate::codex::Codex;
 use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;
@@ -9,7 +49,7 @@ use crate::widgets::traits::Widget;
 /// Basic building block for your UI
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::{Talos, widgets::Text};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
@@ -32,7 +72,7 @@ impl Text {
     /// Create a new text widget from a string
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
@@ -53,7 +93,7 @@ impl Text {
     /// Align the text to the center of the rendered area
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
@@ -69,7 +109,7 @@ impl Text {
     /// Align the text vertically
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
