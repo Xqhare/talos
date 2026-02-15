@@ -1,35 +1,3 @@
-//! The codex is responsible for mapping characters to glyphs.
-//!
-//! A glyph is a `u16` value that represents a character. The first 8 bits of the glyph are the
-//! page ID, and the last 8 bits are the character ID.
-//!
-//! The codex is pre-loaded with a few default pages, such as `CP437` and `windows-1252`. You can
-//! also register your own pages.
-//!
-//! # Custom Code Pages
-//!
-//! There are a total of 256 possible code pages. The first two (Index 0 and 1) are reserved for
-//! windows-1252 and cp437 respectively.
-//!
-//! Each code page has 256 entries and each entry represents a character.
-//! Every entry must have a displayed width of 1 and must be stored in valid utf-8.
-//!
-//! Talos builds a cache of the code pages and checks if a char is in a code page before
-//! displaying it. Should a char not be in a code page, it will be displayed as a question mark.
-//!
-//! It is recommended that any custom code pages use an ID of `16` or higher.
-//! The range of `0` to `15` is softly reserved for the default code pages.
-//!
-//! # Example
-//!
-//! ```rust
-//! use talos::codex::Codex;
-//!
-//! let codex = Codex::new();
-//! let glyph = codex.lookup('a');
-//! let char = codex.resolve(glyph);
-//! assert_eq!(char, "a");
-//! ```
 
 use std::collections::HashMap;
 
@@ -45,9 +13,38 @@ use crate::{
 /// Codex pages
 pub mod pages;
 
-/// The codex
+/// The codex is responsible for mapping characters to glyphs.
 ///
-/// A codex is a collection of pages
+/// A glyph is a `u16` value that represents a character. The first 8 bits of the glyph are the
+/// page ID, and the last 8 bits are the character ID.
+///
+/// The codex is pre-loaded with a few default pages, such as `CP437` and `windows-1252`. You can
+/// also register your own pages.
+///
+/// # Custom Code Pages
+///
+/// There are a total of 256 possible code pages. The first four (Index 0, 1, 2, 3) are srrictly reserved for
+/// windows-1252, cp437, 'utf-8 geometric shapes', and 'utf-8 misc. technical' respectively.
+///
+/// Each code page has 256 entries and each entry represents a character.
+/// Every entry must have a displayed width of 1 and must be stored in valid utf-8.
+///
+/// Talos builds a cache of the code pages and checks if a char is in a code page before
+/// displaying it. Should a char not be in a code page, it will be displayed as a question mark.
+///
+/// It is recommended that any custom code pages use an ID of `16` or higher.
+/// The range of `0` to `15` is softly reserved for the default code pages.
+///
+/// # Example
+///
+/// ```rust
+/// use talos::codex::Codex;
+///
+/// let codex = Codex::new();
+/// let glyph = codex.lookup('a');
+/// let char = codex.resolve(glyph);
+/// assert_eq!(char, "a");
+/// ```
 #[derive(Debug, Clone, Default)]
 #[must_use]
 pub struct Codex {
