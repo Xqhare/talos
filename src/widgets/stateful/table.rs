@@ -168,8 +168,8 @@ impl<'a> Table<'a> {
     /// let table = Table::new().with_header_row(Some(0));
     /// # assert!(true);
     /// ```
-    pub fn with_header_row(mut self, row: Option<usize>) -> Self {
-        self.header_row = row;
+    pub fn with_header_row(mut self, row: usize) -> Self {
+        self.header_row = Some(row);
         self
     }
 
