@@ -379,7 +379,8 @@ impl Widget for Table<'_> {
         let row_amount = if let Some(max_rows) = self.state.as_ref().and_then(|s| s.max_rows) {
             max_rows
         } else {
-            self.rows.len()
+            // Only add at most table_area.height constraints as we can't show more anyway
+            std::cmp::min(self.rows.len(), table_area.height as usize)
         };
 
         if row_amount == 0 {
@@ -399,7 +400,12 @@ impl Widget for Table<'_> {
             .skip(self.state.as_ref().map_or(0, |s| s.y_offset))
             .enumerate()
         {
-            if rendered_rows >= row_amount {
+            if rendered_rows >= row_amount || rendered_rows >= row_areas.len() {
+                break;
+            }
+
+            let row_area = row_areas[rendered_rows];
+            if row_area.top() >= table_area.bottom() {
                 break;
             }
 

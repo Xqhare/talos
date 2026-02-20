@@ -131,18 +131,24 @@ impl Layout {
 
         for size in sizes {
             let rect = match self.direction {
-                Direction::Horizontal => Rect {
-                    x: current_pos,
-                    y: inner_area.y,
-                    width: size,
-                    height: inner_area.height,
-                },
-                Direction::Vertical => Rect {
-                    x: inner_area.x,
-                    y: current_pos,
-                    width: inner_area.width,
-                    height: size,
-                },
+                Direction::Horizontal => {
+                    let width = std::cmp::min(size, inner_area.right().saturating_sub(current_pos));
+                    Rect {
+                        x: current_pos,
+                        y: inner_area.y,
+                        width,
+                        height: inner_area.height,
+                    }
+                }
+                Direction::Vertical => {
+                    let height = std::cmp::min(size, inner_area.bottom().saturating_sub(current_pos));
+                    Rect {
+                        x: inner_area.x,
+                        y: current_pos,
+                        width: inner_area.width,
+                        height,
+                    }
+                }
             };
             rects.push(rect);
             current_pos = current_pos.saturating_add(size);
@@ -185,9 +191,7 @@ impl Layout {
                     flex_count += 1;
                 }
                 Constraint::Max(max) => {
-                    // Let's treat Max as a fixed claim for now.
-                    // Simple approach: Treat Max as Length for initial allocation.
-                    let size = *max;
+                    let size = std::cmp::min(*max, total_space.saturating_sub(used_space));
                     results[i] = size;
                     used_space = used_space.saturating_add(size);
                 }
@@ -210,7 +214,14 @@ impl Layout {
                         remainder -= 1;
                     }
 
-                    size = std::cmp::max(size, *min_req);
+                    // We should still respect min_req if possible, but NEVER exceed remaining
+                    // Actually, per_flex is already based on remaining.
+                    // If min_req is larger than what's available, we have to clip to remaining.
+                    let available_for_this_flex = remaining.saturating_sub( (flex_count - 1) * per_flex ); // rough estimate
+                    // Better: just use what we calculated but ensure it doesn't exceed total remaining after previous flexes
+                    // But we are distributing equally.
+                    
+                    size = std::cmp::max(size, std::cmp::min(*min_req, remaining / flex_count));
 
                     results[i] = size;
                 }
