@@ -177,6 +177,12 @@
 //!
 //! The rendering process is handled by the `Canvas`. It provides a simple API for drawing text and
 //! styling it with colors and attributes.
+//!
+//! ### Colours and Backgrounds
+//!
+//! When using [`Normal::Black`](render/enum.Normal.html), be aware that many terminals render this
+//! as a dark gray rather than a true black. To use the terminal's true default background, set the
+//! background of your [`Style`](render/struct.Style.html) to `None`.
 
 // Uncomment below when appropriate
 #![warn(clippy::pedantic)]

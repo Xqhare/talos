@@ -33,6 +33,8 @@ pub enum Colour {
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub enum Normal {
+    /// Black - Note: This may be rendered as a dark gray in some terminals.
+    /// To use the terminal's default background, use `None` in the `Style` struct.
     Black,
     Red,
     Green,
