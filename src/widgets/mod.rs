@@ -31,6 +31,9 @@
 mod block;
 pub use block::Block;
 
+mod area;
+pub use area::Area;
+
 mod text;
 pub use text::Text;
 
