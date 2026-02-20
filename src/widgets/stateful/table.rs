@@ -583,7 +583,7 @@ impl Widget for Table<'_> {
                     }
                 }
 
-                let col_style = if self.alternate_colour_horizontally && j % 2 == 1 {
+                let mut col_style = if self.alternate_colour_horizontally && j % 2 == 1 {
                     if self.alternate_colour_vertically && i % 2 == 1 {
                         self.style
                     } else {
@@ -593,8 +593,8 @@ impl Widget for Table<'_> {
                     row_style
                 };
                 if let Some(header_row) = self.header_row {
-                    if row_amount.saturating_sub(1) == header_row {
-                        col.style(self.header_style);
+                    if rendered_rows == header_row {
+                        col_style = self.header_style;
                     }
                 }
                 col.style(col_style);
