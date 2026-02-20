@@ -65,6 +65,8 @@ pub struct Table<'a> {
     style: Style,
     alternate_style: Style,
     border_style: Style,
+    header_style: Style,
+    header_row: Option<usize>,
     draw_outer_border: bool,
     draw_inner_border: bool,
 }
@@ -128,9 +130,47 @@ impl<'a> Table<'a> {
             style: Style::default(),
             alternate_style: Style::default(),
             border_style: Style::default(),
+            header_style: Style::default(),
+            header_row: None,
             draw_outer_border: false,
             draw_inner_border: false,
         }
+    }
+
+    /// Sets the style of the table header
+    ///
+    /// To use, set `header_row` using [`Table::with_header_row`]
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::Table};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table = Table::new().with_header_style(Style::default().fg(Color::Red));
+    /// # assert!(true);
+    /// ```
+    pub fn with_header_style(mut self, style: Style) -> Self {
+        self.header_style = style;
+        self
+    }
+
+    /// Sets the row to use as the table header
+    ///
+    /// Please provide a valid index of a row in the table
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::{Talos, widgets::stateful::Table};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let table = Table::new().with_header_row(Some(0));
+    /// # assert!(true);
+    /// ```
+    pub fn with_header_row(mut self, row: Option<usize>) -> Self {
+        self.header_row = row;
+        self
     }
 
     /// Sets the state of the table
@@ -552,6 +592,11 @@ impl Widget for Table<'_> {
                 } else {
                     row_style
                 };
+                if let Some(header_row) = self.header_row {
+                    if row_amount.saturating_sub(1) == header_row {
+                        col.style(self.header_style);
+                    }
+                }
                 col.style(col_style);
 
                 col.render(canvas, cell_area, codex);
