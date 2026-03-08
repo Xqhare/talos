@@ -29,7 +29,58 @@ pub struct Rect {
     pub height: u16,
 }
 
+/// A builder for the `Rect` struct
+#[must_use]
+#[derive(Default)]
+pub struct RectBuilder {
+    x: u16,
+    y: u16,
+    width: u16,
+    height: u16,
+}
+
+impl RectBuilder {
+    /// Sets the x-coordinate of the top left corner
+    pub fn x(mut self, x: u16) -> Self {
+        self.x = x;
+        self
+    }
+
+    /// Sets the y-coordinate of the top left corner
+    pub fn y(mut self, y: u16) -> Self {
+        self.y = y;
+        self
+    }
+
+    /// Sets the width of the rectangle
+    pub fn width(mut self, width: u16) -> Self {
+        self.width = width;
+        self
+    }
+
+    /// Sets the height of the rectangle
+    pub fn height(mut self, height: u16) -> Self {
+        self.height = height;
+        self
+    }
+
+    /// Builds the `Rect`
+    pub fn build(self) -> Rect {
+        Rect {
+            x: self.x,
+            y: self.y,
+            width: self.width,
+            height: self.height,
+        }
+    }
+}
+
 impl Rect {
+    /// Returns a new `RectBuilder`
+    pub fn builder() -> RectBuilder {
+        RectBuilder::default()
+    }
+
     /// Creates a new rectangle
     ///
     /// # Arguments
@@ -188,5 +239,25 @@ impl Rect {
         } else {
             Rect::default()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_rect_builder() {
+        let rect = Rect::builder()
+            .x(10)
+            .y(20)
+            .width(30)
+            .height(40)
+            .build();
+
+        assert_eq!(rect.x, 10);
+        assert_eq!(rect.y, 20);
+        assert_eq!(rect.width, 30);
+        assert_eq!(rect.height, 40);
     }
 }
