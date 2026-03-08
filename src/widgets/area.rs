@@ -27,14 +27,13 @@ use crate::widgets::traits::Widget;
 ///     let (canvas, codex) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     let mut area = Area::new();
-///
-///     let style = Style::builder()
-///         .set_fg(Colour::Normal(Normal::White))
-///         .set_bg(Colour::Normal(Normal::Black))
+///     let mut area = Area::builder()
+///         .with_style(Style::builder()
+///             .set_fg(Colour::Normal(Normal::White))
+///             .set_bg(Colour::Normal(Normal::Black))
+///             .build())
 ///         .build();
 ///
-///     area.style(style);
 ///     area.render(canvas, rect, codex);
 ///
 ///     talos.present()?;
@@ -45,6 +44,28 @@ use crate::widgets::traits::Widget;
 #[must_use]
 pub struct Area {
     style: Style,
+}
+
+/// A builder for the `Area` widget
+#[must_use]
+#[derive(Default)]
+pub struct AreaBuilder {
+    style: Style,
+}
+
+impl AreaBuilder {
+    /// Sets the style of the area
+    pub fn with_style(mut self, style: Style) -> Self {
+        self.style = style;
+        self
+    }
+
+    /// Builds the `Area` widget
+    pub fn build(self) -> Area {
+        Area {
+            style: self.style,
+        }
+    }
 }
 
 impl Default for Area {
@@ -59,6 +80,11 @@ impl Area {
         Self {
             style: Style::default(),
         }
+    }
+
+    /// Returns a new `AreaBuilder`
+    pub fn builder() -> AreaBuilder {
+        AreaBuilder::default()
     }
 }
 
@@ -94,6 +120,19 @@ mod tests {
     use crate::TalosResult;
     use crate::codex::Codex;
     use crate::render::Canvas;
+
+    #[test]
+    fn test_area_builder() {
+        use crate::render::{Colour, Normal};
+        let style = Style::builder()
+            .set_fg(Colour::Normal(Normal::Blue))
+            .build();
+        let area = Area::builder()
+            .with_style(style)
+            .build();
+
+        assert_eq!(area.style, style);
+    }
 
     #[test]
     fn test_area_render() -> TalosResult<()> {
