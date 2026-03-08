@@ -363,7 +363,7 @@ impl Talos {
         write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
 
         let mut prev_x_cell: u16 = u16::MAX;
-        let mut current_terminal_style: Option<Style> = None;
+        let mut current_terminal_style = Style::default();
 
         let build_start = std::time::Instant::now();
         for y in 0..self.size.1 {
@@ -378,9 +378,9 @@ impl Talos {
                     }
 
                     // Only generate style if it differs from the current terminal style
-                    if Some(ccell.style) != current_terminal_style {
-                        ccell.style.generate(&mut self.output_buffer);
-                        current_terminal_style = Some(ccell.style);
+                    if ccell.style != current_terminal_style {
+                        ccell.style.generate_diff(current_terminal_style, &mut self.output_buffer);
+                        current_terminal_style = ccell.style;
                     }
 
                     write_all_bytes(

@@ -77,6 +77,66 @@ impl Style {
         self.bg
     }
 
+    /// Generates an ANSI control sequence that transforms the terminal style from `from` to `self`
+    pub fn generate_diff(self, from: Style, output_buffer: &mut Vec<u8>) {
+        if self == from {
+            return;
+        }
+
+        // If something was removed (e.g. bold was on, now it's off), we need a full reset
+        // This is simpler than sending individual "off" codes for now.
+        let bit_flag_removed = (from.bit_flag & !self.bit_flag) != 0;
+        let fg_removed = from.fg.is_some() && self.fg.is_none();
+        let bg_removed = from.bg.is_some() && self.bg.is_none();
+
+        if bit_flag_removed || fg_removed || bg_removed {
+            self.generate(output_buffer);
+            return;
+        }
+
+        // Only add things that changed
+        output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
+        let mut first = true;
+
+        if self.fg != from.fg {
+            if let Some(fg) = self.fg {
+                handle_fg(fg, output_buffer);
+                first = false;
+            }
+        }
+
+        if self.bg != from.bg {
+            if let Some(bg) = self.bg {
+                if !first { output_buffer.push(b';'); }
+                handle_bg(bg, output_buffer);
+                first = false;
+            }
+        }
+
+        let new_bits = self.bit_flag & !from.bit_flag;
+        if new_bits != 0 {
+            let bits = [
+                (0b1000_0000, "1"), (0b0100_0000, "2"), (0b0010_0000, "3"), 
+                (0b0001_0000, "4"), (0b0000_1000, "5"), (0b0000_0100, "7"), 
+                (0b0000_0010, "9"), (0b0000_0001, "6")
+            ];
+            for (mask, code) in bits {
+                if new_bits & mask != 0 {
+                    if !first { output_buffer.push(b';'); }
+                    output_buffer.extend_from_slice(code.as_bytes());
+                    first = false;
+                }
+            }
+        }
+
+        if !first {
+            output_buffer.push(b'm');
+        } else {
+            // If we didn't actually add any sequences, remove the CSI
+            output_buffer.truncate(output_buffer.len() - CONTROL_SEQUENCE_INTRO.len());
+        }
+    }
+
     /// Generates an ANSI control sequence from the style
     ///
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
