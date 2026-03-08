@@ -191,7 +191,6 @@
 // #![warn(missing_docs)]
 
 use std::io::Write;
-use std::time::Duration;
 
 use codex::Codex;
 use input::Parser;
@@ -365,7 +364,6 @@ impl Talos {
         let mut prev_x_cell: u16 = u16::MAX;
         let mut current_terminal_style = Style::default();
 
-        let build_start = std::time::Instant::now();
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
                 let buffer_index = (x + y * self.size.0) as usize;
@@ -391,7 +389,6 @@ impl Talos {
                 }
             }
         }
-        let build_dur = build_start.elapsed();
 
         if self.handle_signals()? {
             // Resized! - Just show one blank frame - should be imperceivable anyways
@@ -399,16 +396,10 @@ impl Talos {
             return Ok(Present::Presented);
         }
 
-        let write_start = std::time::Instant::now();
         self.terminal.stdout().write_all(BEGIN_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().write_all(&self.output_buffer)?;
         self.terminal.stdout().write_all(END_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().flush()?;
-        let write_dur = write_start.elapsed();
-
-        if self.output_buffer.len() > 1000 { // Only log if it's significant
-             eprintln!("  [Present Internal] Build: {:?} | Write: {:?} | Bytes: {}", build_dur, write_dur, self.output_buffer.len());
-        }
 
         // Pointer swapping of the buffers
         std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
