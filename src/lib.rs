@@ -361,7 +361,9 @@ impl Talos {
         write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
 
         let mut prev_x_cell: u16 = u16::MAX;
+        let mut current_terminal_style: Option<Style> = None;
 
+        let build_start = std::time::Instant::now();
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
                 let buffer_index = (x + y * self.size.0) as usize;
@@ -373,8 +375,12 @@ impl Talos {
                         move_render_cursor(&mut self.output_buffer, x, y)?;
                     }
 
-                    // Write styled char
-                    ccell.style.generate(&mut self.output_buffer);
+                    // Only generate style if it differs from the current terminal style
+                    if Some(ccell.style) != current_terminal_style {
+                        ccell.style.generate(&mut self.output_buffer);
+                        current_terminal_style = Some(ccell.style);
+                    }
+
                     write_all_bytes(
                         &mut self.output_buffer,
                         self.codex.resolve(ccell.char).as_bytes(),
@@ -383,6 +389,7 @@ impl Talos {
                 }
             }
         }
+        let build_dur = build_start.elapsed();
 
         if self.handle_signals()? {
             // Resized! - Just show one blank frame - should be imperceivable anyways
@@ -390,8 +397,14 @@ impl Talos {
             return Ok(Present::Presented);
         }
 
+        let write_start = std::time::Instant::now();
         self.terminal.stdout().write_all(&self.output_buffer)?;
         self.terminal.stdout().flush()?;
+        let write_dur = write_start.elapsed();
+
+        if self.output_buffer.len() > 1000 { // Only log if it's significant
+             eprintln!("  [Present Internal] Build: {:?} | Write: {:?} | Bytes: {}", build_dur, write_dur, self.output_buffer.len());
+        }
 
         // Pointer swapping of the buffers
         std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
