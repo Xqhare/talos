@@ -191,11 +191,12 @@
 // #![warn(missing_docs)]
 
 use std::io::Write;
+use std::time::Duration;
 
 use codex::Codex;
 use input::Parser;
 use input::poll_input_bytes;
-use ui::render::CCell;
+use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::write_all_bytes;
