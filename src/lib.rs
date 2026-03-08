@@ -199,6 +199,7 @@ use input::poll_input_bytes;
 use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
+use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
 use utils::write_all_bytes;
 
 mod builder;
@@ -399,7 +400,9 @@ impl Talos {
         }
 
         let write_start = std::time::Instant::now();
+        self.terminal.stdout().write_all(BEGIN_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().write_all(&self.output_buffer)?;
+        self.terminal.stdout().write_all(END_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().flush()?;
         let write_dur = write_start.elapsed();
 

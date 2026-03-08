@@ -17,3 +17,6 @@ pub const MOUSE_REPORTING_CODE: &str = "\x1b[?1000h";
 pub const MOUSE_FORMATTING_CODE: &str = "\x1b[?1006h";
 pub const DISABLE_MOUSE_REPORTING_CODE: &str = "\x1b[?1000l";
 pub const DISABLE_MOUSE_FORMATTING_CODE: &str = "\x1b[?1006l";
+
+pub const BEGIN_SYNC_UPDATE: &str = "\x1b[?2026h";
+pub const END_SYNC_UPDATE: &str = "\x1b[?2026l";
