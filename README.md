@@ -96,6 +96,16 @@ I have limited the scope of the project at some points to make it easier on myse
             - [ ] Support for `usize`, `isize` and `f32` & `f64`
                 - `isize` and `float` will need the x-axis to be in the middle to support negative values
 
+## Performance
+
+Talos is designed for extreme efficiency and low-latency rendering. In a "worst-case scenario" stress test (filling a 236x64 grid with unique random colors and styles on every frame), Talos achieved:
+
+- **Ultra-Fast Logic**: ~0.04ms per frame (Theoretical: 25,000 FPS)
+- **High Throughput**: 800-1000+ FPS on modern terminal engines (Kitty, GNOME 46+, XFCE 1.1+)
+- **Optimized I/O**: Implements Style Diffing and Synchronized Updates to minimize ANSI bandwidth and eliminate flicker.
+
+For detailed benchmarks and terminal comparisons, visit the [Talos Stress Test](https://github.com/xqhare/talos_stress_test) repository.
+
 ## Usage
 
 ### Add to Cargo.toml
