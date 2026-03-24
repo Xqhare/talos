@@ -98,20 +98,18 @@ impl Style {
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
         let mut first = true;
 
-        if self.fg != from.fg {
-            if let Some(fg) = self.fg {
+        if self.fg != from.fg
+            && let Some(fg) = self.fg {
                 handle_fg(fg, output_buffer);
                 first = false;
             }
-        }
 
-        if self.bg != from.bg {
-            if let Some(bg) = self.bg {
+        if self.bg != from.bg
+            && let Some(bg) = self.bg {
                 if !first { output_buffer.push(b';'); }
                 handle_bg(bg, output_buffer);
                 first = false;
             }
-        }
 
         let new_bits = self.bit_flag & !from.bit_flag;
         if new_bits != 0 {
@@ -129,11 +127,11 @@ impl Style {
             }
         }
 
-        if !first {
-            output_buffer.push(b'm');
-        } else {
+        if first {
             // If we didn't actually add any sequences, remove the CSI
             output_buffer.truncate(output_buffer.len() - CONTROL_SEQUENCE_INTRO.len());
+        } else {
+            output_buffer.push(b'm');
         }
     }
 

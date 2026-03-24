@@ -592,11 +592,10 @@ impl Widget for Table<'_> {
                 } else {
                     row_style
                 };
-                if let Some(header_row) = self.header_row {
-                    if rendered_rows == header_row {
+                if let Some(header_row) = self.header_row
+                    && rendered_rows == header_row {
                         col_style = self.header_style;
                     }
-                }
                 col.style(col_style);
 
                 col.render(canvas, cell_area, codex);
