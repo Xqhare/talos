@@ -84,7 +84,7 @@ impl ParserBuilder {
     ///
     /// # Example
     /// ```rust
-    /// use talos::{input::XtermParser, ParserBuilder};
+    /// use talos::{input::{XtermParser, InputParser}, ParserBuilder};
     ///
     /// let parser = ParserBuilder::default()
     ///     .with_input_parser(Box::new(XtermParser::new()))

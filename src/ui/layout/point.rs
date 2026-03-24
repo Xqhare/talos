@@ -23,7 +23,7 @@ impl Point {
     ///
     /// # Example
     /// ```
-    /// use talos::ui::layout::Point;
+    /// use talos::layout::Point;
     ///
     /// let point = Point::new(1, 1);
     /// assert_eq!(point.x, 1);

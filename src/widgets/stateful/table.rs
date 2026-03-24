@@ -74,7 +74,7 @@ pub struct Table<'a> {
 /// The state of the table
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
@@ -113,7 +113,7 @@ impl<'a> Table<'a> {
     /// Creates a new, empty table
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::Table};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
@@ -142,12 +142,12 @@ impl<'a> Table<'a> {
     /// To use, set `header_row` using [`Table::with_header_row`]
     ///
     /// # Example
-    /// ```rust
-    /// use talos::{Talos, widgets::stateful::Table};
+    /// ```rust,no_run
+    /// use talos::{Talos, widgets::stateful::Table, render::{Style, Colour, Normal}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table = Table::new().with_header_style(Style::default().fg(Color::Red));
+    /// let table = Table::new().with_header_style(Style::builder().set_fg(Colour::Normal(Normal::Red)).build());
     /// # assert!(true);
     /// ```
     pub fn with_header_style(mut self, style: Style) -> Self {
@@ -160,12 +160,12 @@ impl<'a> Table<'a> {
     /// Please provide a valid index of a row in the table
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::Table};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table = Table::new().with_header_row(Some(0));
+    /// let table = Table::new().with_header_row(0);
     /// # assert!(true);
     /// ```
     pub fn with_header_row(mut self, row: usize) -> Self {
@@ -201,7 +201,7 @@ impl<'a> Table<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();

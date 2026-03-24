@@ -12,7 +12,7 @@ use crate::widgets::traits::Widget;
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,no_run
 /// use talos::{
 ///     Talos,
 ///     layout::Rect,

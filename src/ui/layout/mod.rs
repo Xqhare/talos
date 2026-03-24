@@ -50,9 +50,12 @@ pub use constraint::Constraint;
 /// A struct to construct a layout from a list of constraints
 #[must_use]
 pub struct Layout {
-    direction: Direction,
-    constraints: Vec<Constraint>,
-    margin: u16,
+    /// The direction of the layout
+    pub direction: Direction,
+    /// The constraints of the layout
+    pub constraints: Vec<Constraint>,
+    /// The margin of the layout
+    pub margin: u16,
 }
 
 impl Default for Layout {
@@ -75,11 +78,11 @@ impl Layout {
     ///
     /// # Example
     /// ```
-    /// use talos::ui::layout::Layout;
+    /// use talos::layout::Layout;
     ///
-    /// let layout = Layout::new(talos::ui::layout::Direction::Horizontal, vec![talos::ui::layout::Constraint::Length(10), talos::ui::layout::Constraint::Length(10)], 10);
-    /// assert_eq!(layout.direction, talos::ui::layout::Direction::Horizontal);
-    /// assert_eq!(layout.constraints, vec![talos::ui::layout::Constraint::Length(10), talos::ui::layout::Constraint::Length(10)]);
+    /// let layout = Layout::new(talos::layout::Direction::Horizontal, vec![talos::layout::Constraint::Length(10), talos::layout::Constraint::Length(10)], 10);
+    /// assert_eq!(layout.direction, talos::layout::Direction::Horizontal);
+    /// assert_eq!(layout.constraints, vec![talos::layout::Constraint::Length(10), talos::layout::Constraint::Length(10)]);
     /// assert_eq!(layout.margin, 10);
     /// ```
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
@@ -217,7 +220,7 @@ impl Layout {
                     // We should still respect min_req if possible, but NEVER exceed remaining
                     // Actually, per_flex is already based on remaining.
                     // If min_req is larger than what's available, we have to clip to remaining.
-                    let available_for_this_flex = remaining.saturating_sub( (flex_count - 1) * per_flex ); // rough estimate
+                    let _available_for_this_flex = remaining.saturating_sub( (flex_count - 1) * per_flex ); // rough estimate
                     // Better: just use what we calculated but ensure it doesn't exceed total remaining after previous flexes
                     // But we are distributing equally.
                     

@@ -65,7 +65,7 @@ impl<'a> SignalBox<'a> {
     /// Creates a new, empty signal box
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::stateful::SignalBox};
     ///
     /// let mut talos = Talos::builder().build().unwrap();

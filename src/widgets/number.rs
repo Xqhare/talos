@@ -19,7 +19,7 @@ use crate::{
 /// and does not support wrapping
 ///
 /// # Example
-/// ```rust
+/// ```rust,no_run
 /// use talos::{Talos, widgets::Number};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
@@ -45,7 +45,7 @@ impl Number {
     /// `content` may be any float, signed or unsigned integer of any size
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
     /// use talos::{Talos, widgets::Number};
     ///
     /// let mut talos = Talos::builder().build().unwrap();

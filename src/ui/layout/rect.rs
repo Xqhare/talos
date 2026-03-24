@@ -91,7 +91,7 @@ impl Rect {
     ///
     /// # Example
     /// ```
-    /// use talos::ui::layout::Rect;
+    /// use talos::layout::Rect;
     ///
     /// let rect = Rect::new(1, 1, 10, 10);
     /// assert_eq!(rect.x, 1);

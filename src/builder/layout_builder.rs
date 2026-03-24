@@ -34,7 +34,7 @@ impl LayoutBuilder {
     ///
     /// # Example
     /// ```
-    /// use talos::builder::LayoutBuilder;
+    /// use talos::LayoutBuilder;
     ///
     /// let layout_builder = LayoutBuilder::new();
     /// ```
