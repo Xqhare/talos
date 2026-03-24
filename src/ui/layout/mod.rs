@@ -144,7 +144,8 @@ impl Layout {
                     }
                 }
                 Direction::Vertical => {
-                    let height = std::cmp::min(size, inner_area.bottom().saturating_sub(current_pos));
+                    let height =
+                        std::cmp::min(size, inner_area.bottom().saturating_sub(current_pos));
                     Rect {
                         x: inner_area.x,
                         y: current_pos,
@@ -220,10 +221,11 @@ impl Layout {
                     // We should still respect min_req if possible, but NEVER exceed remaining
                     // Actually, per_flex is already based on remaining.
                     // If min_req is larger than what's available, we have to clip to remaining.
-                    let _available_for_this_flex = remaining.saturating_sub( (flex_count - 1) * per_flex ); // rough estimate
+                    let _available_for_this_flex =
+                        remaining.saturating_sub((flex_count - 1) * per_flex); // rough estimate
                     // Better: just use what we calculated but ensure it doesn't exceed total remaining after previous flexes
                     // But we are distributing equally.
-                    
+
                     size = std::cmp::max(size, std::cmp::min(*min_req, remaining / flex_count));
 
                     results[i] = size;

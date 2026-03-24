@@ -99,28 +99,39 @@ impl Style {
         let mut first = true;
 
         if self.fg != from.fg
-            && let Some(fg) = self.fg {
-                handle_fg(fg, output_buffer);
-                first = false;
-            }
+            && let Some(fg) = self.fg
+        {
+            handle_fg(fg, output_buffer);
+            first = false;
+        }
 
         if self.bg != from.bg
-            && let Some(bg) = self.bg {
-                if !first { output_buffer.push(b';'); }
-                handle_bg(bg, output_buffer);
-                first = false;
+            && let Some(bg) = self.bg
+        {
+            if !first {
+                output_buffer.push(b';');
             }
+            handle_bg(bg, output_buffer);
+            first = false;
+        }
 
         let new_bits = self.bit_flag & !from.bit_flag;
         if new_bits != 0 {
             let bits = [
-                (0b1000_0000, "1"), (0b0100_0000, "2"), (0b0010_0000, "3"), 
-                (0b0001_0000, "4"), (0b0000_1000, "5"), (0b0000_0100, "7"), 
-                (0b0000_0010, "9"), (0b0000_0001, "6")
+                (0b1000_0000, "1"),
+                (0b0100_0000, "2"),
+                (0b0010_0000, "3"),
+                (0b0001_0000, "4"),
+                (0b0000_1000, "5"),
+                (0b0000_0100, "7"),
+                (0b0000_0010, "9"),
+                (0b0000_0001, "6"),
             ];
             for (mask, code) in bits {
                 if new_bits & mask != 0 {
-                    if !first { output_buffer.push(b';'); }
+                    if !first {
+                        output_buffer.push(b';');
+                    }
                     output_buffer.extend_from_slice(code.as_bytes());
                     first = false;
                 }

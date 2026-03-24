@@ -39,7 +39,7 @@
 use std::{cmp::min, io::Read};
 
 mod event;
-pub use event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind, MouseButton};
+pub use event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 mod parse;
 pub use parse::{InputParser, XtermParser};
 

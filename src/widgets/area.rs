@@ -1,4 +1,3 @@
-
 use crate::codex::Codex;
 use crate::codex::pages::SPACE_GLYPH;
 use crate::layout::Rect;
@@ -62,9 +61,7 @@ impl AreaBuilder {
 
     /// Builds the `Area` widget
     pub fn build(self) -> Area {
-        Area {
-            style: self.style,
-        }
+        Area { style: self.style }
     }
 }
 
@@ -127,9 +124,7 @@ mod tests {
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Blue))
             .build();
-        let area = Area::builder()
-            .with_style(style)
-            .build();
+        let area = Area::builder().with_style(style).build();
 
         assert_eq!(area.style, style);
     }
@@ -143,9 +138,7 @@ mod tests {
         let mut area = Area::new();
 
         use crate::render::{Colour, Normal, Style};
-        let style = Style::builder()
-            .set_fg(Colour::Normal(Normal::Red))
-            .build();
+        let style = Style::builder().set_fg(Colour::Normal(Normal::Red)).build();
         area.style(style);
 
         use crate::widgets::traits::Widget;

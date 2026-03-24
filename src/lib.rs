@@ -377,7 +377,9 @@ impl Talos {
 
                     // Only generate style if it differs from the current terminal style
                     if ccell.style != current_terminal_style {
-                        ccell.style.generate_diff(current_terminal_style, &mut self.output_buffer);
+                        ccell
+                            .style
+                            .generate_diff(current_terminal_style, &mut self.output_buffer);
                         current_terminal_style = ccell.style;
                     }
 
@@ -396,9 +398,13 @@ impl Talos {
             return Ok(Present::Presented);
         }
 
-        self.terminal.stdout().write_all(BEGIN_SYNC_UPDATE.as_bytes())?;
+        self.terminal
+            .stdout()
+            .write_all(BEGIN_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().write_all(&self.output_buffer)?;
-        self.terminal.stdout().write_all(END_SYNC_UPDATE.as_bytes())?;
+        self.terminal
+            .stdout()
+            .write_all(END_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().flush()?;
 
         // Pointer swapping of the buffers

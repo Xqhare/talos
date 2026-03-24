@@ -1,4 +1,3 @@
-
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,

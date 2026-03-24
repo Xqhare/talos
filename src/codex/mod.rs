@@ -1,4 +1,3 @@
-
 use std::collections::HashMap;
 
 use crate::{
@@ -92,9 +91,17 @@ impl Codex {
     /// This is fine as I guarantee that the default pages and their ID's are valid.
     /// I want to panic to check my work during development.
     fn register_startup_page(&mut self, id: u8, page: &'static Page) {
-        assert!(self.pages[id as usize].is_none(), "{1}: {:?}", TalosError::PageIdInUse(id), "Default Page ID is guaranteed to be valid");
+        assert!(
+            self.pages[id as usize].is_none(),
+            "{1}: {:?}",
+            TalosError::PageIdInUse(id),
+            "Default Page ID is guaranteed to be valid"
+        );
         if let Err(err) = validate_page(page) {
-            panic!("{1}: {:?}", err, "Default Page contents are guaranteed to be valid")
+            panic!(
+                "{1}: {:?}",
+                err, "Default Page contents are guaranteed to be valid"
+            )
         }
 
         self.pages[id as usize] = Some(page);

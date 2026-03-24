@@ -248,12 +248,7 @@ mod tests {
 
     #[test]
     fn test_rect_builder() {
-        let rect = Rect::builder()
-            .x(10)
-            .y(20)
-            .width(30)
-            .height(40)
-            .build();
+        let rect = Rect::builder().x(10).y(20).width(30).height(40).build();
 
         assert_eq!(rect.x, 10);
         assert_eq!(rect.y, 20);

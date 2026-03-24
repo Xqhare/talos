@@ -1,5 +1,3 @@
-
-
 use crate::codex::Codex;
 use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;

@@ -1,4 +1,3 @@
-
 use crate::codex::Codex;
 use crate::content::title::{TitleContents, TitlePosition};
 use crate::layout::Rect;

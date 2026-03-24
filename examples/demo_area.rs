@@ -1,12 +1,11 @@
-
 use std::thread;
 use std::time::Duration;
+use talos::Talos;
 use talos::input::{Event, KeyCode, KeyEvent};
 use talos::layout::Rect;
 use talos::render::{Colour, Normal, Style};
 use talos::widgets::traits::Widget;
 use talos::widgets::{Area, Block};
-use talos::Talos;
 
 fn main() -> Result<(), talos::error::TalosError> {
     // 1. Initialize Talos
@@ -25,8 +24,7 @@ fn main() -> Result<(), talos::error::TalosError> {
                         ..
                     })
                     | Event::KeyEvent(KeyEvent {
-                        code: KeyCode::Esc,
-                        ..
+                        code: KeyCode::Esc, ..
                     }) => {
                         running = false;
                     }
@@ -57,11 +55,7 @@ fn main() -> Result<(), talos::error::TalosError> {
             10,
         );
         let mut red_area = Area::new();
-        red_area.style(
-            Style::builder()
-                .set_bg(Colour::Normal(Normal::Red))
-                .build(),
-        );
+        red_area.style(Style::builder().set_bg(Colour::Normal(Normal::Red)).build());
         red_area.render(canvas, center_rect, codex);
 
         // A block on top to show contrast
@@ -71,9 +65,7 @@ fn main() -> Result<(), talos::error::TalosError> {
             20,
             6,
         );
-        let mut block = Block::new()
-            .title("Area Demo", codex, true)
-            .with_bg_fill();
+        let mut block = Block::new().title("Area Demo", codex, true).with_bg_fill();
         block.style(
             Style::builder()
                 .set_fg(Colour::Normal(Normal::White))
