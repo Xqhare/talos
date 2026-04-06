@@ -24,6 +24,40 @@ pub struct StyleBuilder {
 impl StyleBuilder {
     /// Sets the foreground color
     ///
+    /// Supports setting the foreground color to `None`. This will be rendered as the default
+    /// foreground color of the Terminal Session
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_fg_option(None)
+    ///     .build();
+    /// ```
+    pub fn set_fg_option(mut self, fg: Option<Colour>) -> Self {
+        self.fg = fg;
+        self
+    }
+    /// Sets the background color
+    ///
+    /// Supports setting the background color to `None`. This will be rendered as the default
+    /// background color of the Terminal Session
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_bg_option(None)
+    ///     .build();
+    /// ```
+    pub fn set_bg_option(mut self, bg: Option<Colour>) -> Self {
+        self.bg = bg;
+        self
+    }
+    /// Sets the foreground color
+    ///
     /// # Example
     /// ```rust
     /// use talos::render::{Colour, Normal, Style};

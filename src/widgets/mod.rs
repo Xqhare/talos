@@ -28,17 +28,14 @@
 //! }
 //! ```
 
-mod block;
-pub use block::Block;
-
 mod area;
-pub use area::Area;
-
-mod text;
-pub use text::Text;
-
+mod block;
 mod number;
+mod text;
+pub use area::Area;
+pub use block::Block;
 pub use number::Number;
+pub use text::Text;
 
 /// Stateful widgets
 pub mod stateful;
@@ -70,5 +67,17 @@ pub mod traits {
         fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex);
         /// Sets the primary style of the widget
         fn style(&mut self, style: Style);
+
+        /// Returns the widget with the specified style set
+        ///
+        /// This is a convenience method for chaining
+        #[must_use]
+        fn with_style(mut self, style: Style) -> Self
+        where
+            Self: Sized,
+        {
+            self.style(style);
+            self
+        }
     }
 }

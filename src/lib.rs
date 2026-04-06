@@ -206,6 +206,9 @@ pub use builder::{LayoutBuilder, ParserBuilder, TalosBuilder};
 pub mod error;
 pub use error::{TalosError, TalosResult};
 
+/// Style and Layout Atlases
+pub mod atlases;
+
 use crate::backend::TerminalIO;
 use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
