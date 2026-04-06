@@ -143,11 +143,13 @@ impl Widget for Button<'_> {
         if let Some(state) = &mut self.state {
             if state.clicked {
                 if let Some(text) = &mut self.clicked_text {
+                    text.style(bg_style);
                     text.render(canvas, inner_rect, codex);
                     return;
                 }
             }
         }
+        self.text.style(bg_style);
         self.text.render(canvas, inner_rect, codex);
     }
 }

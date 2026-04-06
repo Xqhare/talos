@@ -30,6 +30,11 @@ impl TextContent {
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
     }
 
+    pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
+        self.raw = content.into();
+        self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, self.max_width);
+    }
+
     pub fn get_wrap_limit(&self) -> Option<u16> {
         self.max_width
     }

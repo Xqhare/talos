@@ -30,6 +30,7 @@
 
 mod area;
 mod block;
+mod internal_text;
 mod number;
 mod text;
 pub use area::Area;

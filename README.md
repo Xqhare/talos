@@ -16,7 +16,44 @@ This project is educational in nature. I hope it may prove useful to myself and 
 It is part of my larger goal to create my own development ecosystem.\
 I have limited the scope of the project at some points to make it easier on myself, one point would be the emulation of old school code pages.
 
+## Roadmap
+
+- [ ] New example showcasing Button and text entry.
+    - click button to focus text entry box
+    - enter text to display it in the box
+    - click button again to unfocus text entry box
+    - if text is not in focus, same keybindings as other examples for quitting
+- [ ] Windows support - If I ever feel the desire to work with the windows kernel again
+
+### Widgets
+
+- [ ] Text entry box
+    - Stateful; takes in a String and prints it out in the box
+        - stores a cursor position
+            - Cursor can be active and inactive
+            - If active, the cell under the cursor is highlighted by blinking
+        - If inactive, the cursor is not visible
+- [x] Button
+    - Really just a Block without a title but with a border and text inside
+- [x] Layout Atlas
+    - Like layouter from Nyx
+        - `BTreeMap<String, Rect>`
+            - with default keys:
+                - None
+- [x] Style Atlas
+    - Like style atlas from Nyx
+        - `BTreeMap<String, Style>`
+            - with default keys:
+                - "default"
+                - "ok"
+                - "error"
+                - "warning"
+
 ## Features
+
+- Supports all UNIX systems
+    - BSD Derivatives / MacOS
+    - Linux
 
 ### Core
 

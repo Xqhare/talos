@@ -12,3 +12,6 @@ pub use table::{Table, TableState};
 
 mod button;
 pub use button::{Button, ButtonState};
+
+mod text_box;
+pub use text_box::{TextBox, TextBoxState};

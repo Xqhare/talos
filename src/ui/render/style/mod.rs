@@ -45,6 +45,33 @@ impl Style {
         StyleBuilder::default()
     }
 
+    /// Returns a new `StyleBuilder` with the current style as the default values
+    ///
+    /// Does not modify the current style
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::render::{Colour, Normal, Style};
+    ///
+    /// let style = Style::builder()
+    ///     .set_fg(Colour::Normal(Normal::Red))
+    ///     .set_bg(Colour::Normal(Normal::Black))
+    ///     .build();
+    ///
+    /// let style2 = style.new_from_self()
+    ///     .set_fg(Colour::Normal(Normal::Blue))
+    ///     .build();
+    ///
+    /// assert_eq!(style.get_fg(), Some(Colour::Normal(Normal::Red)));
+    /// assert_eq!(style.get_bg(), Some(Colour::Normal(Normal::Black)));
+    ///
+    /// assert_eq!(style2.get_fg(), Some(Colour::Normal(Normal::Blue)));
+    /// assert_eq!(style2.get_bg(), Some(Colour::Normal(Normal::Black)));
+    /// ```
+    #[must_use]
+    pub fn new_from_self(self) -> StyleBuilder {
+        StyleBuilder::new(self.fg, self.bg, self.bit_flag)
+    }
     /// Sets the foreground colour
     ///
     /// The foreground colour can be set to `None`. This will be rendered as the default
@@ -114,7 +141,7 @@ impl Style {
     }
 
     /// Generates an ANSI control sequence that transforms the terminal style from `from` to `self`
-    pub fn generate_diff(self, from: Style, output_buffer: &mut Vec<u8>) {
+    pub(crate) fn generate_diff(self, from: Style, output_buffer: &mut Vec<u8>) {
         if self == from {
             return;
         }
@@ -185,19 +212,7 @@ impl Style {
     /// Generates an ANSI control sequence from the style
     ///
     /// If a default Style is used, it will generate `\x1b[m` - Which will reset any previous style used
-    ///
-    /// # Example
-    /// ```rust
-    /// use talos::render::{Colour, Normal, Style};
-    ///
-    /// let style = Style::builder()
-    ///     .set_fg(Colour::Normal(Normal::Red))
-    ///     .build();
-    /// let mut buffer = Vec::new();
-    /// style.generate(&mut buffer);
-    /// assert_eq!(buffer, b"\x1b[0;31m");
-    /// ```
-    pub fn generate(self, output_buffer: &mut Vec<u8>) {
+    pub(crate) fn generate(self, output_buffer: &mut Vec<u8>) {
         output_buffer.extend_from_slice(CONTROL_SEQUENCE_INTRO.as_bytes());
 
         // TODO: Optimise: We don't need to push a 0 if the style is the exact same as the previous

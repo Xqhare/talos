@@ -22,6 +22,16 @@ pub struct StyleBuilder {
 }
 
 impl StyleBuilder {
+    /// Creates a new StyleBuilder
+    ///
+    /// Consider using the [`Style::builder()`](struct.Style.html#method.builder)
+    /// method instead to construct new styles.
+    ///
+    /// Consider using the [`Style::edit()`](struct.Style.html#method.edit) method
+    /// to edit existing styles.
+    pub fn new(fg: Option<Colour>, bg: Option<Colour>, bit_flag: u8) -> Self {
+        Self { fg, bg, bit_flag }
+    }
     /// Sets the foreground color
     ///
     /// Supports setting the foreground color to `None`. This will be rendered as the default
