@@ -27,7 +27,7 @@ I have limited the scope of the project at some points to make it easier on myse
 
 ### Widgets
 
-- [ ] Text entry box
+- [x] Text entry box
     - Stateful; takes in a String and prints it out in the box
         - stores a cursor position
             - Cursor can be active and inactive
