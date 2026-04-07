@@ -2,7 +2,7 @@ use crate::{
     codex::Codex,
     layout::Rect,
     render::{Canvas, Style},
-    widgets::{Area, Block, Text, traits::Widget},
+    widgets::{Block, Text, traits::Widget},
 };
 
 /// A button widget
@@ -132,7 +132,7 @@ impl Widget for Button<'_> {
             self.style
         };
 
-        let mut outer_block = Block::new();
+        let mut outer_block = Block::new().with_bg_fill();
         outer_block.style(bg_style);
         outer_block.render(canvas, area, codex);
 

@@ -18,48 +18,30 @@ I have limited the scope of the project at some points to make it easier on myse
 
 ## Roadmap
 
-- [ ] New example showcasing Button and text entry.
-    - click button to focus text entry box
-    - enter text to display it in the box
-    - click button again to unfocus text entry box
-    - if text is not in focus, same keybindings as other examples for quitting
 - [ ] Windows support - If I ever feel the desire to work with the windows kernel again
-
-### Widgets
-
-- [x] Text entry box
-    - Stateful; takes in a String and prints it out in the box
-        - stores a cursor position
-            - Cursor can be active and inactive
-            - If active, the cell under the cursor is highlighted by blinking
-        - If inactive, the cursor is not visible
-- [x] Button
-    - Really just a Block without a title but with a border and text inside
-- [x] Layout Atlas
-    - Like layouter from Nyx
-        - `BTreeMap<String, Rect>`
-            - with default keys:
-                - None
-- [x] Style Atlas
-    - Like style atlas from Nyx
-        - `BTreeMap<String, Style>`
-            - with default keys:
-                - "default"
-                - "ok"
-                - "error"
-                - "warning"
+- [ ] Widgets
+    - [ ] Stateful Widgets
+        - [ ] Chart widget
+            - [ ] Column / Bar
+            - [ ] Stacked Column / Bar
+            - [ ] Min - Max Chart (Two points per x coordinate, connected with vertical lines)
+            - [ ] Line (Only points. No interconnecting lines)
+            - [ ] Support for `usize`, `isize` and `f32` & `f64`
+                - `isize` and `float` will need the x-axis to be in the middle to support negative values
 
 ## Features
 
 - Supports all UNIX systems
     - BSD Derivatives / MacOS
     - Linux
-
-### Core
-
 - Zero-Dependency: Built directly on top of `libc`
 - Signal handling
     - Automatically handles `SIGWINCH` and `SIGINT`/`SIGTERM`
+- Style & Layout Atlas: Easy management of styles and layouts
+- Many Examples
+
+### Core
+
 - Input handling
     - Xterm parser
     - Keyboard support
@@ -92,6 +74,8 @@ I have limited the scope of the project at some points to make it easier on myse
     - Table: Supports grid-based data with optional inner/outer borders and alternating row/column colors.
     - Fillable Bar (Progress Bar): Supports horizontal and vertical bars with optional percentage displays and "glow" (shading) effects.
     - Signal Box: A simple toggleable boolean indicator using geometric symbols.
+    - Button: A simple clickable button with text inside.
+    - TextBox: A simple text entry box for inputting text.
 
 ## Images
 
@@ -113,25 +97,6 @@ I have limited the scope of the project at some points to make it easier on myse
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_much_text.png" alt="A lot of text" width="750" height="400"/> 
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_signal_box.png" alt="Talos can handle state" width="750" height="400"/>   
 </p>
-
-## Roadmap
-
-- [ ] Addons
-    - [ ] Theme to manage many different styles
-        - [ ] Probably just a hashmap of styles with names
-    - [ ] `AreaManager` to manage many areas
-        - [ ] Probably just a hashmap of areas with names
-        - Simplifiy mouse support: `AreaManager.get_area(x, y)`
-- [ ] Widgets
-    - [ ] Stateful Widgets
-        - [ ] Text Input Widget
-        - [ ] Chart widget
-            - [ ] Column / Bar
-            - [ ] Stacked Column / Bar
-            - [ ] Min - Max Chart (Two points per x coordinate, connected with vertical lines)
-            - [ ] Line (Only points. No interconnecting lines)
-            - [ ] Support for `usize`, `isize` and `f32` & `f64`
-                - `isize` and `float` will need the x-axis to be in the middle to support negative values
 
 ## Performance
 
@@ -325,6 +290,4 @@ The range of `0` to `15` is softly reserved for the default code pages.
         - [ ] Read the damn win docs again and determine needed foreign functions needed
         - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
         - [ ] FFI for `shell32.dll` (Shellhook?) and `ole32.dll` (memory management & clipboard) probably needed
-    - [ ] Mac support
-        - [ ] Define what needs to be done - FFI wise
 

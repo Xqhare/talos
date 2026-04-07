@@ -435,6 +435,20 @@ impl Talos {
         &mut self.codex
     }
 
+    /// Returns the codex
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let codex = talos.codex();
+    /// # assert!(true);
+    /// ```
+    pub fn codex(&self) -> &Codex {
+        &self.codex
+    }
+
     /// Returns all input events since the last call.
     /// If there is no input, returns None.
     ///

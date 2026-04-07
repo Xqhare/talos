@@ -79,6 +79,10 @@ impl Text {
         }
     }
 
+    pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
+        self.content.set_content(content, codex);
+    }
+
     pub(super) fn get_mut_content(&mut self) -> &mut InternalText {
         &mut self.content
     }
