@@ -131,9 +131,6 @@ impl Widget for Button<'_> {
         } else {
             self.style
         };
-        let mut background = Area::new();
-        background.style(bg_style);
-        background.render(canvas, area, codex);
 
         let mut outer_block = Block::new();
         outer_block.style(bg_style);
