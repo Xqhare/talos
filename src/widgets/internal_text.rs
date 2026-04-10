@@ -1,4 +1,4 @@
-use crate::codex::Codex;
+use crate::codex::{Codex, pages::SPACE_GLYPH};
 use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
@@ -84,6 +84,9 @@ impl Widget for InternalText {
         };
 
         let mut glyphs_rendered = 0;
+        let mut last_x = area.left();
+        let mut last_y = top;
+
         for (i, seq) in sequences.iter().enumerate() {
             let left_margin = if self.align_center {
                 let rest_width = area.width - seq.width();
@@ -126,6 +129,29 @@ impl Widget for InternalText {
 
                 glyphs_rendered += 1;
                 x += 1;
+            }
+            last_x = x;
+            last_y = y;
+        }
+
+        // Handle cursor at the end of the text
+        if let Some(highlight_glyph_num) = self.highlight_glyph_num
+            && glyphs_rendered == highlight_glyph_num
+        {
+            if last_x < area.right() && last_y < area.bottom() && last_y >= area.top() {
+                let style = if let Some(highlight_style) = self.highlight_style {
+                    highlight_style
+                } else {
+                    self.style.new_from_self().set_blink(true).build()
+                };
+                canvas.set_ccell(
+                    last_x,
+                    last_y,
+                    CCell {
+                        char: SPACE_GLYPH,
+                        style,
+                    },
+                );
             }
         }
     }

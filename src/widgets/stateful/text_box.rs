@@ -43,10 +43,16 @@ impl Widget for TextBox<'_> {
         if let Some(state) = &mut self.state {
             let cursor = if state.active { state.cursor } else { None };
 
+            // Apply blink to the highlight style
+            let highlight_style = self
+                .highlight_style
+                .map(|s| s.new_from_self().set_blink(true).build());
+
             state
                 .text
                 .get_mut_content()
-                .with_highlight(cursor, self.highlight_style);
+                .with_highlight(cursor, highlight_style);
+            state.text.style(self.style);
             state.text.render(canvas, area, codex);
         }
     }

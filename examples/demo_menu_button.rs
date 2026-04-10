@@ -24,7 +24,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut sub_menu_open = ButtonState { clicked: false };
 
     // TextBox state
-    let mut path_text = String::new();
+    let mut path_text = String::from("some/path");
     let mut path_text_state = TextBoxState {
         active: false,
         cursor: Some(0),
@@ -201,7 +201,7 @@ fn main() -> Result<(), talos::TalosError> {
             load_items.iter_mut(),
         )
         .with_horizontal_layout()
-        .with_child_width(300);
+        .with_child_width(30);
 
         // Define menu buttons for the main File menu
         let mut save_btn = Button::new("Save", codex).with_style(menu_style);
