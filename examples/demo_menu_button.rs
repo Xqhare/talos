@@ -90,7 +90,7 @@ fn main() -> Result<(), talos::TalosError> {
         menu_rect = button_row[1];
 
         // Define menu buttons
-        let items = vec![
+        let mut items = vec![
             Button::new("Save", codex),
             Button::new("Load", codex),
             Button::new("Exit", codex),
@@ -126,7 +126,7 @@ fn main() -> Result<(), talos::TalosError> {
             Button::new("File", codex)
                 .with_state(&mut menu_open)
                 .with_style(main_style),
-            items,
+            items.iter_mut(),
         )
         .with_style(menu_style);
 

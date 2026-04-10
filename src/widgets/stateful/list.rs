@@ -2,7 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::traits::Widget,
+    widgets::traits::{Widget, make_dyn_iter},
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -25,7 +25,7 @@ use crate::{
 ///     widgets::{
 ///         stateful::{List, ListState},
 ///         Text,
-///         traits::Widget,
+///         traits::{Widget, make_dyn_iter},
 ///     },
 /// };
 ///
@@ -42,9 +42,7 @@ use crate::{
 ///         Text::new("Item 3", codex),
 ///     ];
 ///
-///     let mut list = List::new()
-///         .with_state(&mut list_state)
-///         .with_items(items.iter_mut());
+///     let mut list = List::new(list_state, make_dyn_iter(items.iter_mut()));
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     list.render(canvas, rect, codex);
@@ -58,14 +56,14 @@ use crate::{
 #[must_use]
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
-    state: Option<&'a mut ListState>,
+    state: &'a mut ListState,
     selected_style: Style,
     selected_symbol: Option<Glyph>,
     horizontal: bool,
 }
 
 /// The state of a list
-#[derive(Default)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct ListState {
     /// The index of the currently selected item
     pub selected: Option<usize>,
@@ -73,9 +71,15 @@ pub struct ListState {
     pub scroll_offset: usize,
 }
 
-impl Default for List<'_> {
-    fn default() -> Self {
-        Self::new()
+impl AsRef<ListState> for ListState {
+    fn as_ref(&self) -> &ListState {
+        self
+    }
+}
+
+impl AsMut<ListState> for ListState {
+    fn as_mut(&mut self) -> &mut ListState {
+        self
     }
 }
 
@@ -84,17 +88,23 @@ impl<'a> List<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::List};
+    /// use talos::{Talos, widgets::{stateful::List, traits::make_dyn_iter}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let list = List::new();
+    /// let mut list_state = ListState::default();
+    /// let mut items = Vec::new();
+    /// let list = List::new(list_state, make_dyn_iter(items.iter_mut()));
     /// # assert!(true);
     /// ```
-    pub fn new() -> Self {
+    pub fn new<I, W>(state: &'a mut ListState, items: I) -> Self
+    where
+        I: Iterator<Item = &'a mut W>,
+        W: Widget + 'a,
+    {
         Self {
-            items: Vec::new(),
-            state: None,
+            items: make_dyn_iter(items),
+            state,
             selected_style: Style::default(),
             selected_symbol: None,
             horizontal: false,
@@ -104,43 +114,6 @@ impl<'a> List<'a> {
     /// Sets the list to be horizontal
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
-        self
-    }
-
-    /// Adds an item to the list
-    pub fn add_item(mut self, item: &'a mut dyn Widget) -> Self {
-        self.items.push(item);
-        self
-    }
-
-    /// Sets the items of the list
-    pub fn with_items<I, W>(mut self, items: I) -> Self
-    where
-        I: IntoIterator<Item = &'a mut W>,
-        W: Widget + 'a,
-    {
-        self.items = items.into_iter().map(|i| i as &'a mut dyn Widget).collect();
-        self
-    }
-
-    /// Sets the state of the list
-    ///
-    /// The state must be externally managed.
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::{stateful::{List, ListState}, Text}};
-    ///
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let mut list_state = ListState::default();
-    /// let list = List::new()
-    ///     .with_state(&mut list_state)
-    ///     .horizontal();
-    /// # assert!(true);
-    /// ```
-    pub fn with_state(mut self, state: &'a mut ListState) -> Self {
-        self.state = Some(state);
         self
     }
 
@@ -175,10 +148,10 @@ impl Widget for List<'_> {
 
         let x_offset = if self.selected_symbol.is_some() { 3 } else { 0 };
 
-        let selected_idx = self.state.as_ref().and_then(|s| s.selected);
+        let selected_idx = self.state.as_ref().selected;
 
         if self.horizontal {
-            let offset = self.state.as_ref().map_or(0, |s| s.scroll_offset);
+            let offset = self.state.as_ref().scroll_offset;
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let relative_idx = i - offset;
 
@@ -199,7 +172,7 @@ impl Widget for List<'_> {
 
                     if let Some(symbol) = self.selected_symbol {
                         canvas.set_ccell(
-                            current_x + 1,
+                            current_x.saturating_add(1),
                             area.y,
                             CCell {
                                 char: symbol,
@@ -207,7 +180,7 @@ impl Widget for List<'_> {
                             },
                         );
                         canvas.set_ccell(
-                            current_x + 2,
+                            current_x.saturating_add(2),
                             area.y,
                             CCell {
                                 char: SPACE_GLYPH,
@@ -223,14 +196,15 @@ impl Widget for List<'_> {
                     0
                 };
 
-                if current_x + x_symbol_padding >= area.right() - 2 {
+                let x_sum = current_x.saturating_add(x_symbol_padding);
+                if x_sum >= area.right().saturating_sub(2) {
                     break;
                 }
 
                 let item_area = Rect::new(
-                    current_x + x_symbol_padding,
+                    x_sum,
                     area.y,
-                    area.right().saturating_sub(current_x + x_symbol_padding),
+                    area.right().saturating_sub(x_sum),
                     area.height,
                 );
 
@@ -239,16 +213,13 @@ impl Widget for List<'_> {
                 // Scrolling the list if needed
                 if is_selected {
                     let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
-                    if pos >= area.right() - 5
-                        && let Some(s) = self.state.as_mut()
-                    {
-                        s.scroll_offset += 3;
+                    if pos >= area.right().saturating_sub(5) {
+                        self.state.as_mut().scroll_offset += 3;
                     }
-                    if i == self.state.as_ref().map_or(0, |s| s.scroll_offset)
-                        && self.state.as_ref().map(|s| s.scroll_offset) != Some(0)
-                        && let Some(s) = self.state.as_mut()
+                    if i == self.state.as_ref().scroll_offset
+                        && self.state.as_ref().scroll_offset != 0
                     {
-                        s.scroll_offset -= 1;
+                        self.state.as_mut().scroll_offset -= 1;
                     }
                 }
                 // Add a space between horizontal items
@@ -266,17 +237,17 @@ impl Widget for List<'_> {
             }
         } else {
             // Ensure the selected item is visible before we start rendering.
-            if let (Some(state), Some(selected)) = (self.state.as_mut(), selected_idx) {
+            if let (state, Some(selected)) = (self.state.as_mut(), selected_idx) {
                 let height = area.height as usize;
 
                 if selected < state.scroll_offset {
                     state.scroll_offset = selected;
                 } else if selected >= state.scroll_offset + height {
-                    state.scroll_offset = selected - height + 1;
+                    state.scroll_offset = selected.saturating_sub(height).saturating_add(1);
                 }
             }
 
-            let offset = self.state.as_ref().map_or(0, |s| s.scroll_offset);
+            let offset = self.state.as_ref().scroll_offset;
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
@@ -294,7 +265,7 @@ impl Widget for List<'_> {
 
                     if let Some(symbol) = self.selected_symbol {
                         canvas.set_ccell(
-                            area.x + 1,
+                            area.x.saturating_add(1),
                             y,
                             CCell {
                                 char: symbol,
@@ -302,7 +273,7 @@ impl Widget for List<'_> {
                             },
                         );
                         canvas.set_ccell(
-                            area.x + 2,
+                            area.x.saturating_add(2),
                             y,
                             CCell {
                                 char: SPACE_GLYPH,
@@ -312,8 +283,12 @@ impl Widget for List<'_> {
                     }
                 }
 
-                let item_area =
-                    Rect::new(area.x + x_offset, y, area.width.saturating_sub(x_offset), 1);
+                let item_area = Rect::new(
+                    area.x.saturating_add(x_offset),
+                    y,
+                    area.width.saturating_sub(x_offset),
+                    1,
+                );
 
                 item.render(canvas, item_area, codex);
             }

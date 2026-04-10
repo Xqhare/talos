@@ -276,19 +276,15 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let _list = List::new()
-            .with_items(large_list.iter_mut())
+        let _list = List::new(&mut horizontal_list_state, large_list.iter_mut())
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
-            .with_state(&mut horizontal_list_state)
             .horizontal()
             .render(canvas, inner_chunks[0], codex);
 
-        let _list2 = List::new()
-            .with_items(large_list2.iter_mut())
+        let _list2 = List::new(&mut vertical_list_state, large_list2.iter_mut())
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
-            .with_state(&mut vertical_list_state)
             .render(canvas, inner_chunks[1], codex);
         // 4. Present to Terminal
         talos.present()?;

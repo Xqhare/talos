@@ -81,4 +81,15 @@ pub mod traits {
             self
         }
     }
+    /// Convenience method for converting an iterator of widgets to a vector of dynamic widgets
+    ///
+    /// Useful for passing a vector of widgets to a widget that expects a vector of dynamic
+    /// widgets like `List` or `MenuButton`.
+    pub fn make_dyn_iter<'a, I, W>(iter: I) -> Vec<&'a mut dyn Widget>
+    where
+        I: Iterator<Item = &'a mut W>,
+        W: Widget + 'a,
+    {
+        iter.map(|w| w as &mut dyn Widget).collect()
+    }
 }
