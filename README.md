@@ -18,10 +18,6 @@ I have limited the scope of the project at some points to make it easier on myse
 
 ## Roadmap
 
-- [ ] Fix list render issue
-    - I think my optimisation has broken the selected style, it's not working correctly
-    - All elements that have been selected, keep their selected style when increasing the offset. Decreasing it works as expected.
-    - I think I am not setting a reset properly / maybe also a diff issue?
 - [ ] Windows support - If I ever feel the desire to work with the windows kernel again
 - [ ] Widgets
     - [ ] Simple Widgets

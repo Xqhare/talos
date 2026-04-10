@@ -364,6 +364,11 @@ impl Talos {
 
         write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
 
+        // Removing the next line will cause some weird side effects (Bleeding the `selected` style of
+        // `List` to previous elements for example);
+        // Doing this is not ideal (performance-wise) but it works
+        Style::default().generate(&mut self.output_buffer);
+
         let mut prev_x_cell: u16 = u16::MAX;
         let mut current_terminal_style = Style::default();
 

@@ -22,8 +22,8 @@ pub struct MenuButtonState<'a> {
 ///
 /// If the `main_button` in the `MenuButtonState` is active, the children will be displayed.
 /// If the style is set, it will be used for all the elements of the menu.
-/// To use different styles for each button, do not set the style on the `MenuButton` and set it on
-/// the children instead.
+/// To use different styles for each button, do not set the style on the `MenuButton`, set it
+/// directly on the children instead.
 ///
 /// The layout may be vertical or horizontal. To set use `with_vertical_layout` or `with_horizontal_layout`.
 /// Setting the layout on the `MenuButton` will affect only the direct children of the `MenuButton`.
@@ -33,7 +33,8 @@ pub struct MenuButtonState<'a> {
 /// The size of the direct children of the `MenuButton` can be set using `with_child_width` and `with_child_height`.
 /// If they are not set, the size of the main button will be used.
 ///
-/// This Widget should be expected to overlap with widgets placed directly below or to the right of it. Take special care with the ordering of the render calls of your widgets.
+/// This Widget should be expected to overlap with widgets placed directly below or to the right of it.
+/// Take special care with the ordering of the render calls of your widgets.
 ///
 /// # Example
 ///
