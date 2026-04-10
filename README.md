@@ -24,8 +24,6 @@ I have limited the scope of the project at some points to make it easier on myse
     - [ ] Stateful Widgets
         - [ ] Colour picker
             - A widget that allows the user to pick a colour
-        - [ ] Menu Button
-            - A button with a dropdown of more buttons
         - [ ] Chart widget
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar
@@ -39,7 +37,7 @@ I have limited the scope of the project at some points to make it easier on myse
 - Supports all UNIX systems
     - BSD Derivatives / MacOS
     - Linux
-- Zero-Dependency: Built directly on top of `libc`
+- Zero-Dependency: Built directly on top of `libc` and rust's standard library
 - Signal handling
     - Automatically handles `SIGWINCH` and `SIGINT`/`SIGTERM`
 - Style & Layout Atlas: Easy management of styles and layouts
