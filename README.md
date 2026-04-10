@@ -20,7 +20,12 @@ I have limited the scope of the project at some points to make it easier on myse
 
 - [ ] Windows support - If I ever feel the desire to work with the windows kernel again
 - [ ] Widgets
+    - [ ] Simple Widgets
     - [ ] Stateful Widgets
+        - [ ] Colour picker
+            - A widget that allows the user to pick a colour
+        - [ ] Menu Button
+            - A button with a dropdown of more buttons
         - [ ] Chart widget
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar

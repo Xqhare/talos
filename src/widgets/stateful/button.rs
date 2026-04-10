@@ -100,6 +100,26 @@ impl<'a> Button<'a> {
         self.state = Some(state);
         self
     }
+    /// Get the state of the button
+    ///
+    /// Returns a reference to the state of the button.
+    /// To mutate the state, use the `with_state` method.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::{Talos, widgets::stateful::{Button, ButtonState}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut button_state = ButtonState { clicked: true };
+    /// let button = Button::new("Hello, world!", &codex).with_state(&mut button_state);
+    /// let state = button.get_state().unwrap();
+    /// assert!(state.clicked);
+    /// # assert!(true);
+    /// ```
+    pub fn get_state(&self) -> Option<&ButtonState> {
+        self.state.as_deref()
+    }
     /// This style is used when the button is clicked.
     /// Not used for the `Text` widget itself.
     pub fn with_clicked_style(mut self, style: Style) -> Self {
