@@ -252,9 +252,7 @@ pub struct Talos {
     /// Width, Height
     size: (Width, Height),
     previous_buffer: Vec<CCell>,
-
     output_buffer: Vec<u8>,
-
     // Input-Parser
     parser: Parser,
 }

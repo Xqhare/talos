@@ -10,6 +10,7 @@ use super::CCell;
 ///
 /// let canvas = Canvas::new(10, 20);
 /// ```
+#[derive(Clone, Debug)]
 pub struct Canvas {
     /// A 2D array of [`CCell`](struct.CCell.html)s
     pub buffer: Vec<CCell>,

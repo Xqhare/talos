@@ -16,7 +16,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut talos = Talos::builder().build()?;
     let mut running = true;
 
-    let (_, codex) = talos.render_ctx();
+    let codex = talos.codex();
 
     // The main button state
     let mut menu_open = ButtonState { clicked: false };
@@ -28,7 +28,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut path_text_state = TextBoxState {
         active: false,
         cursor: Some(0),
-        text: Text::new("some/path", codex),
+        text: Text::new(&path_text, codex),
     };
 
     // Track which menu item was last clicked
@@ -119,7 +119,6 @@ fn main() -> Result<(), talos::TalosError> {
         }
 
         talos.begin_frame();
-        // Get canvas and codex again, mainly for the borrow checker
         let (canvas, codex) = talos.render_ctx();
 
         // Update TextBox text
