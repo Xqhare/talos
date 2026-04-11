@@ -24,7 +24,6 @@ pub struct LayoutBuilder {
 }
 
 impl Default for LayoutBuilder {
-    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -39,8 +38,6 @@ impl LayoutBuilder {
     ///
     /// let layout_builder = LayoutBuilder::new();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn new() -> LayoutBuilder {
         LayoutBuilder {
             direction: Direction::Horizontal,
@@ -57,7 +54,6 @@ impl LayoutBuilder {
     /// let mut builder = LayoutBuilder::new();
     /// builder.direction(Direction::Vertical);
     /// ```
-    #[inline]
     pub fn direction(&mut self, direction: Direction) -> &mut Self {
         self.direction = direction;
         self
@@ -71,7 +67,6 @@ impl LayoutBuilder {
     /// let mut builder = LayoutBuilder::new();
     /// builder.margin(1);
     /// ```
-    #[inline]
     pub fn margin(&mut self, margin: u16) -> &mut Self {
         self.margin = margin;
         self
@@ -86,7 +81,6 @@ impl LayoutBuilder {
     /// let mut builder = LayoutBuilder::new();
     /// builder.add_constraint(Constraint::Percentage(50));
     /// ```
-    #[inline]
     pub fn add_constraint(&mut self, constraint: Constraint) -> &mut Self {
         self.constraints.push(constraint);
         self
@@ -100,8 +94,6 @@ impl LayoutBuilder {
     ///
     /// let layout = LayoutBuilder::new().build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn build(&self) -> Layout {
         Layout::new(self.direction, self.constraints.clone(), self.margin)
     }
