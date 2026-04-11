@@ -26,9 +26,9 @@
 )]
 use std::io::Write;
 
-use crate::codex::Codex;
-use crate::input::Parser;
-use crate::input::poll_input_bytes;
+use codex::Codex;
+use input::Parser;
+use input::poll_input_bytes;
 use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
@@ -47,7 +47,7 @@ pub mod atlases;
 use crate::backend::terminal::term_io::TerminalIO;
 use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
-use crate::input::event::Event;
+use crate::input::Event;
 use crate::ui::render::Canvas;
 use crate::utils::move_render_cursor;
 
