@@ -1,96 +1,101 @@
-use std::io::{Stdin, Stdout, stdout, stdin};
-use crate::error::Result as TalosResult;
-use crate::backend::sys::{disable_raw_mode, enable_raw_mode, terminal_size};
+use crate::backend::sys::terminal_size;
+use crate::error::TalosResult;
+use crate::utils::constants::ansi::{
+    CLEAR_ALL, DISABLE_MOUSE_FORMATTING_CODE, DISABLE_MOUSE_REPORTING_CODE, ENTER_ALT_SCREEN,
+    EXIT_ALT_SCREEN, HIDE_CURSOR, MOUSE_FORMATTING_CODE, MOUSE_REPORTING_CODE, SHOW_CURSOR,
+    TO_TOP_LEFT,
+};
+use std::io::{self, Write};
+use std::os::fd::AsRawFd;
 
-/// A struct to handle terminal IO
+use super::raw_mode::RawMode;
+
 pub struct TerminalIO {
-    stdin: Stdin,
-    stdout: Stdout,
-    original_termios: libc::termios,
-    fd_stdin: i32,
-    alternate_screen: bool,
+    stdin: io::Stdin,
+    stdout: io::Stdout,
+    raw_mode: Option<RawMode>,
 }
 
 impl TerminalIO {
-    /// Creates a new TerminalIO
-    ///
-    /// # Arguments
-    /// * `hide_cursor` - Whether to hide the cursor
-    /// * `alternate_screen` - Whether to use the alternate screen
-    ///
-    /// # Errors
-    /// Returns an error if the terminal could not be initialized
     pub fn new(hide_cursor: bool, alternate_screen: bool) -> TalosResult<TerminalIO> {
-        let stdin = stdin();
-        let stdout = stdout();
+        let stdin = io::stdin();
+        let mut stdout = io::stdout();
 
-        let (original_termios, fd_stdin) = enable_raw_mode(0)?;
+        let raw_mode = RawMode::enable(stdin.as_raw_fd())?;
 
-        let mut term = TerminalIO {
+        // Enter Alternate Screen
+        // Clear Screen & Home Cursor
+        // Hide Cursor
+        if alternate_screen {
+            write!(stdout, "{ENTER_ALT_SCREEN}")?;
+        }
+        if hide_cursor {
+            write!(stdout, "{HIDE_CURSOR}")?;
+        }
+        write!(stdout, "{CLEAR_ALL}")?;
+        write!(stdout, "{TO_TOP_LEFT}")?;
+        write!(stdout, "{MOUSE_FORMATTING_CODE}")?;
+        write!(stdout, "{MOUSE_REPORTING_CODE}")?;
+        stdout.flush()?;
+
+        Ok(TerminalIO {
             stdin,
             stdout,
-            original_termios,
-            fd_stdin,
-            alternate_screen,
-        };
-
-        if hide_cursor {
-            term.hide_cursor()?;
-        }
-
-        if alternate_screen {
-            term.enter_alternate_screen()?;
-        }
-
-        Ok(term)
+            raw_mode: Some(raw_mode),
+        })
     }
 
-    /// Restores the terminal to its original state
-    ///
-    /// # Errors
-    /// Returns an error if the terminal could not be restored
     pub fn restore(&mut self) -> TalosResult<()> {
-        if self.alternate_screen {
-            self.exit_alternate_screen()?;
+        write!(self.stdout, "{CLEAR_ALL}")?;
+        write!(self.stdout, "{EXIT_ALT_SCREEN}")?;
+        write!(self.stdout, "{SHOW_CURSOR}")?;
+        write!(self.stdout, "{DISABLE_MOUSE_REPORTING_CODE}")?;
+        write!(self.stdout, "{DISABLE_MOUSE_FORMATTING_CODE}")?;
+        self.stdout.flush()?;
+
+        if let Some(raw_mode) = self.raw_mode.take() {
+            drop(raw_mode);
         }
-        self.show_cursor()?;
-        disable_raw_mode(self.fd_stdin, &self.original_termios);
         Ok(())
     }
 
-    fn hide_cursor(&mut self) -> TalosResult<()> {
-        crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::HIDE_CURSOR.as_bytes())
-    }
-
-    fn show_cursor(&mut self) -> TalosResult<()> {
-        crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::SHOW_CURSOR.as_bytes())
-    }
-
-    fn enter_alternate_screen(&mut self) -> TalosResult<()> {
-        crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::ENTER_ALT_SCREEN.as_bytes())
-    }
-
-    fn exit_alternate_screen(&mut self) -> TalosResult<()> {
-        crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::EXIT_ALT_SCREEN.as_bytes())
-    }
-
-    /// Returns the size of the terminal
-    ///
-    /// # Errors
-    /// Returns an error if the size could not be retrieved
-    pub fn size(&self) -> TalosResult<(u16, u16)> {
-        terminal_size(1)
-    }
-
-    /// Returns a reference to the stdin
-    #[must_use]
-    pub fn stdin(&mut self) -> &mut Stdin {
+    pub fn stdin(&mut self) -> &mut io::Stdin {
         &mut self.stdin
     }
 
-    /// Returns a reference to the stdout
-    #[must_use]
-    pub fn stdout(&mut self) -> &mut Stdout {
+    pub fn stdout(&mut self) -> &mut io::Stdout {
         &mut self.stdout
+    }
+
+    pub fn size(&self) -> TalosResult<(u16, u16)> {
+        terminal_size(self.stdout.as_raw_fd())
+    }
+}
+
+impl Drop for TerminalIO {
+    fn drop(&mut self) {
+        // Also wtf am I supposed to do with errors in here
+        let _ = write!(self.stdout, "{CLEAR_ALL}");
+        let _ = write!(self.stdout, "{EXIT_ALT_SCREEN}");
+        let _ = write!(self.stdout, "{SHOW_CURSOR}");
+        let _ = write!(self.stdout, "{DISABLE_MOUSE_REPORTING_CODE}");
+        let _ = write!(self.stdout, "{DISABLE_MOUSE_FORMATTING_CODE}");
+        let _ = self.stdout.flush();
+
+        // Lets be explicit with dropping the raw mode - better safe than sorry
+        if let Some(raw_mode) = self.raw_mode.take() {
+            drop(raw_mode);
+        }
+    }
+}
+
+// This allows: write!(term, "Hello") instead of write!(term.stdout(), "Hello")
+impl Write for TerminalIO {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.stdout.write(buf)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        self.stdout.flush()
     }
 }
