@@ -208,7 +208,7 @@ impl Widget for Block {
     #[inline]
     #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        if area.width == 0 || area.height == 0 {
+        if area.width < 2 || area.height < 2 {
             return;
         }
 

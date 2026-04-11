@@ -8,7 +8,7 @@ use crate::{codex::Codex, render::Glyph};
 ///
 /// ```rust,no_run
 /// use talos::codex::Codex;
-/// use talos::title::{TitleContents, TitlePosition};
+/// use talos::content::title::{TitleContents, TitlePosition};
 ///
 /// let codex = Codex::new();
 /// let mut titles = TitleContents::default();

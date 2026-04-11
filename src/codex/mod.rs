@@ -44,20 +44,13 @@ pub mod pages;
 /// let char = codex.resolve(glyph);
 /// assert_eq!(char, "a");
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 #[must_use]
 pub struct Codex {
     /// Registered code pages.
     pages: Vec<Option<&'static Page>>,
     /// Reverse mapping from character to glyph ID.
     reverse_map: HashMap<char, Glyph>,
-}
-
-impl Default for Codex {
-    #[inline]
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Codex {
