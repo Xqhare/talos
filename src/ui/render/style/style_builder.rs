@@ -16,8 +16,11 @@ use super::Style;
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct StyleBuilder {
+    /// The foreground color.
     fg: Option<Colour>,
+    /// The background color.
     bg: Option<Colour>,
+    /// Bit flags for style attributes.
     bit_flag: u8,
 }
 

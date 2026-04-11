@@ -33,9 +33,13 @@ pub struct Rect {
 #[must_use]
 #[derive(Default)]
 pub struct RectBuilder {
+    /// The x coordinate.
     x: u16,
+    /// The y coordinate.
     y: u16,
+    /// The width.
     width: u16,
+    /// The height.
     height: u16,
 }
 

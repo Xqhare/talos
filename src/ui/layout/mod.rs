@@ -35,16 +35,20 @@
 //! assert_eq!(chunks[1], Rect::new(50, 0, 50, 100));
 //! ```
 
-mod rect;
+/// Rect module.
+pub mod rect;
 pub use rect::Rect;
 
-mod direction;
+/// Direction module.
+pub mod direction;
 pub use direction::Direction;
 
-mod point;
+/// Point module.
+pub mod point;
 pub use point::Point;
 
-mod constraint;
+/// Constraint module.
+pub mod constraint;
 pub use constraint::Constraint;
 
 /// A struct to construct a layout from a list of constraints
@@ -59,6 +63,7 @@ pub struct Layout {
 }
 
 impl Default for Layout {
+    #[inline]
     fn default() -> Self {
         Self {
             direction: Direction::Vertical,
@@ -85,6 +90,8 @@ impl Layout {
     /// assert_eq!(layout.constraints, vec![talos::layout::Constraint::Length(10), talos::layout::Constraint::Length(10)]);
     /// assert_eq!(layout.margin, 10);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new(direction: Direction, constraints: Vec<Constraint>, margin: u16) -> Layout {
         Layout {
             direction,
@@ -98,6 +105,7 @@ impl Layout {
     ///
     /// # Arguments
     /// * `area` - The area to split
+    #[inline]
     #[must_use]
     pub fn split(&self, area: Rect) -> Vec<Rect> {
         // 1. Apply Margin
@@ -109,10 +117,10 @@ impl Layout {
                 return vec![Rect::default(); self.constraints.len()];
             }
             Rect {
-                x: area.x + self.margin,
-                y: area.y + self.margin,
-                width: area.width - double_margin,
-                height: area.height - double_margin,
+                x: area.x.saturating_add(self.margin),
+                y: area.y.saturating_add(self.margin),
+                width: area.width.saturating_sub(double_margin),
+                height: area.height.saturating_sub(double_margin),
             }
         };
 
@@ -161,6 +169,7 @@ impl Layout {
         rects
     }
 
+    #[inline]
     fn solve_constraints(&self, total_space: u16) -> Vec<u16> {
         let mut results = vec![0; self.constraints.len()];
         let mut used_space: u16 = 0;
@@ -176,8 +185,8 @@ impl Layout {
                 }
                 Constraint::Percentage(p) => {
                     // Simple integer math: total * p / 100
-                    #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
-                    let size = (u32::from(total_space) * u32::from(*p) / 100) as u16;
+                    #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+                    let size = (u32::from(total_space).saturating_mul(u32::from(*p)) / 100) as u16;
                     results[i] = size;
                     used_space = used_space.saturating_add(size);
                 }
@@ -185,8 +194,8 @@ impl Layout {
                     if *den == 0 {
                         results[i] = 0;
                     } else {
-                        #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
-                        let size = (u32::from(total_space) * *num / *den) as u16;
+                        #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+                        let size = (u32::from(total_space).saturating_mul(*num) / *den) as u16;
                         results[i] = size;
                         used_space = used_space.saturating_add(size);
                     }
