@@ -25,7 +25,7 @@ use crate::{
 ///     widgets::{
 ///         stateful::{List, ListState},
 ///         Text,
-///         traits::{Widget, make_dyn_iter},
+///         traits::Widget,
 ///     },
 /// };
 ///
@@ -42,7 +42,7 @@ use crate::{
 ///         Text::new("Item 3", codex),
 ///     ];
 ///
-///     let mut list = List::new(list_state, make_dyn_iter(items.iter_mut()));
+///     let mut list = List::new(&mut list_state, items.iter_mut());
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     list.render(canvas, rect, codex);
@@ -88,13 +88,13 @@ impl<'a> List<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::{stateful::List, traits::make_dyn_iter}};
+    /// use talos::{Talos, widgets::{traits::Widget, stateful::{List, ListState}}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
     /// let mut list_state = ListState::default();
-    /// let mut items = Vec::new();
-    /// let list = List::new(list_state, make_dyn_iter(items.iter_mut()));
+    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
+    /// let list = List::new(&mut list_state, items.iter_mut());
     /// # assert!(true);
     /// ```
     pub fn new<I, W>(state: &'a mut ListState, items: I) -> Self

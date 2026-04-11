@@ -40,10 +40,10 @@ pub struct MenuButtonState<'a> {
 ///
 /// ```rust,no_run
 /// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton}}};
-/// let mut menus = vec![];
+/// let mut menus: Vec<&mut dyn Widget> = vec![];
 /// let mut talos = Talos::builder().build().unwrap();
 /// let (mut canvas, codex) = talos.render_ctx();
-/// let main_button = MenuButton::new(Button::new("Main", &codex), menus);
+/// let main_button = MenuButton::new(Button::new("Main", &codex), menus.iter_mut());
 /// ```
 pub struct MenuButton<'a> {
     state: MenuButtonState<'a>,
@@ -66,10 +66,10 @@ impl<'a> MenuButton<'a> {
     /// # Example
     /// ```rust,no_run
     /// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton}}};
-    /// let mut menus = vec![];
+    /// let mut menus: Vec<&mut dyn Widget> = vec![];
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (mut canvas, codex) = talos.render_ctx();
-    /// let main_button = MenuButton::new(Button::new("Main", &codex), menus);
+    /// let main_button = MenuButton::new(Button::new("Main", &codex), menus.iter_mut());
     ///
     /// ```
     ///

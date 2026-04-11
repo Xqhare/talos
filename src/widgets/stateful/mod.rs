@@ -18,3 +18,6 @@ pub use text_box::{TextBox, TextBoxState};
 
 mod menu_button;
 pub use menu_button::{MenuButton, MenuButtonState};
+
+mod block_box;
+pub use block_box::{BlockBox, BlockBoxState};
