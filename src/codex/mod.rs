@@ -216,6 +216,7 @@ impl Codex {
             .unwrap_or(UNKNOWN_CHAR_GLYPH)
     }
 
+    /// Updates the internal reverse mapping cache for a given page.
     fn update_cache(&mut self, id: u8, page: &'static Page) {
         for (index, &symbol) in page.iter().enumerate() {
             if let Some(ch) = symbol.chars().next() {

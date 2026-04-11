@@ -2,6 +2,7 @@ use std::io::Write;
 
 use crate::error::Result as TalosResult;
 
+/// ANSI constants.
 pub mod constants;
 
 /// Writes all bytes to the writer
