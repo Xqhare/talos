@@ -1,7 +1,6 @@
 use crate::{error::Result as TalosResult, input::event::Event};
 
-/// Xterm input parser module.
-pub mod xterm;
+mod xterm;
 pub use xterm::XtermParser;
 
 /// Input parser trait
