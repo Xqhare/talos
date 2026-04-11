@@ -31,9 +31,11 @@ pub struct TalosBuilder {
 }
 
 impl Default for TalosBuilder {
-    #[inline]
     fn default() -> Self {
-        let input_parser = ParserBuilder::default().build();
+        let input_parser = {
+            let tmp = ParserBuilder::default();
+            tmp.build()
+        };
         Self {
             hide_cursor: true,
             alternate_screen: true,
@@ -53,8 +55,6 @@ impl TalosBuilder {
     /// let input_parser = ParserBuilder::default().build();
     /// let talos = Talos::builder().with_input_parser(input_parser).build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_input_parser(mut self, input_parser: Parser) -> Self {
         self.input_parser = input_parser;
         self
@@ -68,8 +68,6 @@ impl TalosBuilder {
     ///
     /// let talos = Talos::builder().with_cursor().build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_cursor(mut self) -> Self {
         self.hide_cursor = false;
         self
@@ -83,8 +81,6 @@ impl TalosBuilder {
     ///
     /// let talos = Talos::builder().with_alternate_screen().build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_alternate_screen(mut self) -> Self {
         self.alternate_screen = true;
         self
@@ -104,8 +100,6 @@ impl TalosBuilder {
     ///
     /// let talos = Talos::builder().without_panic_handler().build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn without_panic_handler(mut self) -> Self {
         self.set_up_panic_handler = false;
         self
@@ -123,7 +117,6 @@ impl TalosBuilder {
     /// let talos = Talos::builder().build();
     /// assert!(talos.is_ok());
     /// ```
-    #[inline]
     pub fn build(self) -> TalosResult<Talos> {
         // Set up panic handler as the very first thing
         if self.set_up_panic_handler {
