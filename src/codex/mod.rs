@@ -5,7 +5,7 @@ use crate::{
         Page, REG_CP437, REG_UTF_GEOMETRIC_SHAPES, REG_UTF_MISC_TECHNICAL, REG_WIN_1252,
         UNKNOWN_CHAR, UNKNOWN_CHAR_GLYPH, pre_computed_char, validate_page,
     },
-    error::{Error, Result as TalosResult},
+    error::{TalosError, TalosResult},
     render::Glyph,
 };
 
@@ -96,7 +96,7 @@ impl Codex {
         assert!(
             self.pages[id as usize].is_none(),
             "{1}: {:?}",
-            Error::PageIdInUse(id),
+            TalosError::PageIdInUse(id),
             "Default Page ID is guaranteed to be valid"
         );
         if let Err(err) = validate_page(page) {
@@ -135,11 +135,11 @@ impl Codex {
     #[inline]
     pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
         if id < 16 {
-            return Err(Error::DefaultPageId(id));
+            return Err(TalosError::DefaultPageId(id));
         }
 
         if self.pages[id as usize].is_some() {
-            return Err(Error::PageIdInUse(id));
+            return Err(TalosError::PageIdInUse(id));
         }
         validate_page(page)?;
 
