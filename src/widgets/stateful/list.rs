@@ -1,7 +1,7 @@
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
-    render::{Canvas, CCell, Glyph, Style},
+    render::{CCell, Glyph, Style},
     widgets::traits::{Widget, make_dyn_iter},
 };
 
@@ -52,6 +52,7 @@ use crate::{
 ///     Ok(())
 /// }
 /// ```
+
 #[must_use]
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
@@ -63,12 +64,23 @@ pub struct List<'a> {
 
 /// The state of a list
 #[derive(Default, Debug, Clone, Copy)]
-#[non_exhaustive]
 pub struct ListState {
     /// The index of the currently selected item
     pub selected: Option<usize>,
     /// The offset of the list - used for scrolling
     pub scroll_offset: usize,
+}
+
+impl AsRef<ListState> for ListState {
+    fn as_ref(&self) -> &ListState {
+        self
+    }
+}
+
+impl AsMut<ListState> for ListState {
+    fn as_mut(&mut self) -> &mut ListState {
+        self
+    }
 }
 
 impl<'a> List<'a> {
@@ -85,8 +97,6 @@ impl<'a> List<'a> {
     /// let list = List::new(&mut list_state, items.iter_mut());
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn new<I, W>(state: &'a mut ListState, items: I) -> Self
     where
         I: Iterator<Item = &'a mut W>,
@@ -102,16 +112,12 @@ impl<'a> List<'a> {
     }
 
     /// Sets the list to be horizontal
-    #[inline]
-    #[must_use]
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
         self
     }
 
     /// Sets the style of the selected item
-    #[inline]
-    #[must_use]
     pub fn with_selected_style(mut self, style: Style) -> Self {
         self.selected_style = style;
         self
@@ -119,8 +125,6 @@ impl<'a> List<'a> {
 
     /// Sets the symbol of the selected item - this is rendered in front (to the left) of the
     /// selected item
-    #[inline]
-    #[must_use]
     pub fn with_selected_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.selected_symbol = Some(codex.lookup(char));
         self
@@ -128,16 +132,15 @@ impl<'a> List<'a> {
 }
 
 impl Widget for List<'_> {
-    #[inline]
     fn style(&mut self, style: Style) {
         self.selected_style = style;
     }
-    #[inline]
+    #[allow(clippy::too_many_lines)]
     fn render(
         &mut self,
-        canvas: &mut Canvas,
-        area: Rect,
-        codex: &Codex,
+        canvas: &mut crate::render::Canvas,
+        area: crate::layout::Rect,
+        codex: &crate::codex::Codex,
     ) {
         if self.items.is_empty() {
             return;
@@ -145,10 +148,10 @@ impl Widget for List<'_> {
 
         let x_offset = if self.selected_symbol.is_some() { 3 } else { 0 };
 
-        let selected_idx = self.state.selected;
+        let selected_idx = self.state.as_ref().selected;
 
         if self.horizontal {
-            let offset = self.state.scroll_offset;
+            let offset = self.state.as_ref().scroll_offset;
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let relative_idx = i - offset;
 
@@ -211,12 +214,12 @@ impl Widget for List<'_> {
                 if is_selected {
                     let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
                     if pos >= area.right().saturating_sub(5) {
-                        self.state.scroll_offset += 3;
+                        self.state.as_mut().scroll_offset += 3;
                     }
-                    if i == self.state.scroll_offset
-                        && self.state.scroll_offset != 0
+                    if i == self.state.as_ref().scroll_offset
+                        && self.state.as_ref().scroll_offset != 0
                     {
-                        self.state.scroll_offset -= 1;
+                        self.state.as_mut().scroll_offset -= 1;
                     }
                 }
                 // Add a space between horizontal items
@@ -234,21 +237,22 @@ impl Widget for List<'_> {
             }
         } else {
             // Ensure the selected item is visible before we start rendering.
-            if let Some(selected) = selected_idx {
-                let height = usize::from(area.height);
+            if let (state, Some(selected)) = (self.state.as_mut(), selected_idx) {
+                let height = area.height as usize;
 
-                if selected < self.state.scroll_offset {
-                    self.state.scroll_offset = selected;
-                } else if selected >= self.state.scroll_offset + height {
-                    self.state.scroll_offset = selected.saturating_sub(height).saturating_add(1);
+                if selected < state.scroll_offset {
+                    state.scroll_offset = selected;
+                } else if selected >= state.scroll_offset + height {
+                    state.scroll_offset = selected.saturating_sub(height).saturating_add(1);
                 }
             }
 
-            let offset = self.state.scroll_offset;
+            let offset = self.state.as_ref().scroll_offset;
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
-                let y = area.y.saturating_add(u16::try_from(line_index).unwrap_or(u16::MAX));
+                #[allow(clippy::cast_possible_truncation)]
+                let y = area.y.saturating_add(line_index as u16);
 
                 if y >= area.bottom() {
                     break;
