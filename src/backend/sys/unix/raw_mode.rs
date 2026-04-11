@@ -1,7 +1,6 @@
 use crate::error::Result as TalosResult;
 use std::{mem, os::fd};
 
-/// Enables raw mode for the given file descriptor.
 pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> {
     unsafe {
         let mut termios = mem::zeroed();
@@ -36,7 +35,6 @@ pub fn enable_rawmode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> 
     }
 }
 
-/// Disables raw mode for the given file descriptor.
 pub fn disable_rawmode(fd_stdin: fd::RawFd, original_termios: &libc::termios) {
     unsafe {
         let _ = libc::tcsetattr(fd_stdin, libc::TCSAFLUSH, &raw const *original_termios);

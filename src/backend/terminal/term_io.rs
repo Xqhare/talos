@@ -4,15 +4,10 @@ use crate::backend::sys::{disable_raw_mode, enable_raw_mode, terminal_size};
 
 /// A struct to handle terminal IO
 pub struct TerminalIO {
-    /// Standard input stream.
     stdin: Stdin,
-    /// Standard output stream.
     stdout: Stdout,
-    /// Original terminal settings to restore.
     original_termios: libc::termios,
-    /// File descriptor for stdin.
     fd_stdin: i32,
-    /// Whether the alternate screen is active.
     alternate_screen: bool,
 }
 
@@ -83,7 +78,7 @@ impl TerminalIO {
     ///
     /// # Errors
     /// Returns an error if the size could not be retrieved
-    pub fn size() -> TalosResult<(u16, u16)> {
+    pub fn size(&self) -> TalosResult<(u16, u16)> {
         terminal_size(1)
     }
 
