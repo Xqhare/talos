@@ -2,27 +2,22 @@ use crate::{
     Talos,
     backend::{TerminalIO, sys::register_signal_handlers},
     codex::Codex,
-    error::TalosResult,
+    error::Result as TalosResult,
     input::Parser,
     render::{CCell, Canvas},
 };
 
 use super::ParserBuilder;
 
-/// A builder for the [Talos](struct.Talos.html) struct
+/// A builder for the `Talos` struct
 ///
 /// # Example
 /// ```rust,no_run
 /// use talos::Talos;
 ///
-/// let talos = Talos::builder()
-/// .with_cursor() // Show the Terminal cursor
-/// .with_alternate_screen() // Use the alternate screen
-/// .without_panic_handler() // Disable the panic handler
-/// .build();
+/// let talos = Talos::builder().build();
 /// assert!(talos.is_ok());
 /// ```
-#[must_use]
 pub struct TalosBuilder {
     hide_cursor: bool,
     alternate_screen: bool,
@@ -129,16 +124,16 @@ impl TalosBuilder {
         if self.set_up_panic_handler {
             register_signal_handlers()?;
         }
-        // Initialize TerminalIO based on these settings
-        let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
+
+        let mut terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
         let (rows, cols) = terminal.size()?;
+
         let codex = Codex::new();
 
-        let buffer_size = (cols as usize) * (rows as usize);
-        let previous_buffer = vec![CCell::default(); buffer_size];
-        // 10 bytes per cell may seem overkill, with a lot of styling bytes this may not
-        //    even be enough!
-        let output_buffer = Vec::with_capacity(buffer_size * 10);
+        let len = usize::from(cols).saturating_mul(usize::from(rows));
+        let previous_buffer = vec![CCell::default(); len];
+        let mut output_buffer = Vec::with_capacity(len.saturating_mul(10));
+        output_buffer.clear();
 
         Ok(Talos {
             terminal,
