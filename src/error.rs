@@ -1,15 +1,13 @@
 //! This module contains the error types for the Talos library.
 
-use std::{fmt, io, result};
-
 /// The result type for `Talos`
-pub type Result<T> = result::Result<T, Error>;
+pub type TalosResult<T> = std::result::Result<T, TalosError>;
 
 /// The error type for `Talos`
 #[derive(Debug)]
-pub enum Error {
+pub enum TalosError {
     /// Standard IO error
-    IO(io::Error),
+    IOError(std::io::Error),
     /// Simple invalid argument
     InvalidArgument(String),
     /// Invalid State of State Machine
@@ -22,39 +20,35 @@ pub enum Error {
     GenericError(String),
 }
 
-impl From<io::Error> for Error {
-    #[inline]
-    fn from(e: io::Error) -> Self {
-        Error::IO(e)
+impl From<std::io::Error> for TalosError {
+    fn from(e: std::io::Error) -> Self {
+        TalosError::IOError(e)
     }
 }
 
-impl From<String> for Error {
-    #[inline]
+impl From<String> for TalosError {
     fn from(s: String) -> Self {
-        Error::GenericError(s)
+        TalosError::GenericError(s)
     }
 }
 
-impl From<&str> for Error {
-    #[inline]
+impl From<&str> for TalosError {
     fn from(s: &str) -> Self {
-        Error::GenericError(s.to_string())
+        TalosError::GenericError(s.to_string())
     }
 }
 
-impl fmt::Display for Error {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl std::fmt::Display for TalosError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Error::IO(e) => write!(f, "IO: {e}"),
-            Error::InvalidArgument(s) => write!(f, "InvalidArgument: {s}"),
-            Error::InvalidState => write!(f, "InvalidState"),
-            Error::DefaultPageId(id) => {
+            TalosError::IOError(e) => write!(f, "IOError: {e}"),
+            TalosError::InvalidArgument(s) => write!(f, "InvalidArgument: {s}"),
+            TalosError::InvalidState => write!(f, "InvalidState"),
+            TalosError::DefaultPageId(id) => {
                 write!(f, "Page ID '{id}' is a default page - Page ID unavailable.")
             }
-            Error::PageIdInUse(id) => write!(f, "Page ID '{id}' already in use"),
-            Error::GenericError(s) => write!(f, "GenericError: {s}"),
+            TalosError::PageIdInUse(id) => write!(f, "Page ID '{id}' already in use"),
+            TalosError::GenericError(s) => write!(f, "GenericError: {s}"),
         }
     }
 }
