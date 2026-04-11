@@ -1,13 +1,14 @@
-mod raw_mode;
-pub use raw_mode::{disable_rawmode, enable_rawmode};
-
-mod flags;
-pub use flags::{check_resize, check_terminate, register_signal_handlers};
+/// Raw mode handling for Unix systems
+pub mod raw_mode;
+/// Signal flags handling for Unix systems
+pub mod flags;
 
 use std::{io, mem, os::fd};
 
 use crate::error::TalosResult;
 
+/// Get terminal size for Unix systems
+#[inline]
 pub fn terminal_size(fd_stdout: fd::RawFd) -> TalosResult<(u16, u16)> {
     unsafe {
         let mut winsize: libc::winsize = mem::zeroed();
