@@ -87,6 +87,7 @@ pub struct Table<'a> {
 /// # assert!(true);
 /// ```
 #[derive(Default)]
+#[non_exhaustive]
 pub struct TableState {
     /// The x offset of the table - used for scrolling
     pub x_offset: usize,
@@ -103,6 +104,7 @@ pub struct TableState {
 }
 
 impl Default for Table<'_> {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -120,6 +122,8 @@ impl<'a> Table<'a> {
     /// let table = Table::new();
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             state: None,
@@ -149,6 +153,8 @@ impl<'a> Table<'a> {
     /// let table = Table::new().with_header_style(Style::builder().set_fg(Colour::Normal(Normal::Red)).build());
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn with_header_style(mut self, style: Style) -> Self {
         self.header_style = style;
         self
@@ -167,6 +173,8 @@ impl<'a> Table<'a> {
     /// let table = Table::new().with_header_row(0);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn with_header_row(mut self, row: usize) -> Self {
         self.header_row = Some(row);
         self
@@ -191,6 +199,8 @@ impl<'a> Table<'a> {
     /// let table = Table::new().with_state(&mut table_state);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn with_state(mut self, state: &'a mut TableState) -> Self {
         self.state = Some(state);
         self
@@ -216,6 +226,8 @@ impl<'a> Table<'a> {
     ///     .add_row(rows.iter_mut().map(|w| w as &mut dyn Widget).collect());
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
         self.rows.push(row);
         self
@@ -241,6 +253,8 @@ impl<'a> Table<'a> {
     ///     .with_rows(rows.iter_mut().map(|r| r.iter_mut()));
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn with_rows<I, R, W>(mut self, rows: I) -> Self
     where
         I: IntoIterator<Item = R>,
@@ -258,12 +272,16 @@ impl<'a> Table<'a> {
     /// `alternate_colour_vertically` or `alternate_colour_horizontally` is set to true.
     ///
     /// If both are `true`, the table will be drawn in a checkered pattern.
+    #[inline]
+    #[must_use]
     pub fn with_alternate_style(mut self, style: Style) -> Self {
         self.alternate_style = style;
         self
     }
 
     /// Sets the style of the table border
+    #[inline]
+    #[must_use]
     pub fn with_border_style(mut self, style: Style) -> Self {
         self.border_style = style;
         self
@@ -272,6 +290,8 @@ impl<'a> Table<'a> {
     /// Makes the Table use alternating colouring vertically
     ///
     /// If this and `alternate_colour_horizontally` are both `true`, the table will be drawn in a checkered pattern
+    #[inline]
+    #[must_use]
     pub fn alternate_colour_vertically(mut self) -> Self {
         self.alternate_colour_vertically = true;
         self
@@ -280,18 +300,24 @@ impl<'a> Table<'a> {
     /// Makes the Table use alternating colouring horizontally
     ///
     /// If this and `alternate_colour_vertically` are both `true`, the table will be drawn in a checkered pattern
+    #[inline]
+    #[must_use]
     pub fn alternate_colour_horizontally(mut self) -> Self {
         self.alternate_colour_horizontally = true;
         self
     }
 
     /// Draws a border around the table
+    #[inline]
+    #[must_use]
     pub fn draw_outer_border(mut self) -> Self {
         self.draw_outer_border = true;
         self
     }
 
     /// Draws a border inside the table, between columns and rows
+    #[inline]
+    #[must_use]
     pub fn draw_inner_border(mut self) -> Self {
         self.draw_inner_border = true;
         self
@@ -299,27 +325,27 @@ impl<'a> Table<'a> {
 }
 
 impl Widget for Table<'_> {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    // TODO: This is a mess - if anything breaks its gonna need a refactor
-    #[allow(clippy::too_many_lines)]
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        let tl = codex.lookup('╔');
-        let tr = codex.lookup('╗');
-        let bl = codex.lookup('╚');
-        let br = codex.lookup('╝');
-        let h_out = codex.lookup('═');
-        let v_out = codex.lookup('║');
+        let tl = codex.lookup('\u{2554}'); // ╔
+        let tr = codex.lookup('\u{2557}'); // ╗
+        let bl = codex.lookup('\u{255a}'); // ╚
+        let br = codex.lookup('\u{255d}'); // ╝
+        let h_out = codex.lookup('\u{2550}'); // ═
+        let v_out = codex.lookup('\u{2551}'); // ║
 
-        let h_in = codex.lookup('─');
-        let v_in = codex.lookup('│');
-        let cross = codex.lookup('┼');
+        let h_in = codex.lookup('\u{2500}'); // ─
+        let v_in = codex.lookup('\u{2502}'); // │
+        let cross = codex.lookup('\u{253c}'); // ┼
 
-        let left_tee = codex.lookup('╟');
-        let right_tee = codex.lookup('╢');
-        let top_tee = codex.lookup('╤');
-        let bottom_tee = codex.lookup('╧');
+        let left_tee = codex.lookup('\u{255f}'); // ╟
+        let right_tee = codex.lookup('\u{2562}'); // ╢
+        let top_tee = codex.lookup('\u{2564}'); // ╤
+        let bottom_tee = codex.lookup('\u{2567}'); // ╧
 
         if self.draw_outer_border {
             let left = area.left();
@@ -360,7 +386,7 @@ impl Widget for Table<'_> {
                 },
             );
 
-            for x in (left + 1)..right {
+            for x in (left.saturating_add(1))..right {
                 canvas.set_ccell(
                     x,
                     top,
@@ -378,7 +404,7 @@ impl Widget for Table<'_> {
                     },
                 );
             }
-            for y in (top + 1)..bottom {
+            for y in (top.saturating_add(1))..bottom {
                 canvas.set_ccell(
                     left,
                     y,
@@ -400,8 +426,8 @@ impl Widget for Table<'_> {
 
         let table_area = if self.draw_outer_border {
             Rect {
-                x: area.x + 1,
-                y: area.y + 1,
+                x: area.x.saturating_add(1),
+                y: area.y.saturating_add(1),
                 width: area.width.saturating_sub(2),
                 height: area.height.saturating_sub(2),
             }
@@ -413,13 +439,13 @@ impl Widget for Table<'_> {
             return;
         }
 
-        let mut tmp = LayoutBuilder::new();
-        let mut row_layout = tmp.direction(Direction::Vertical);
+        let mut row_builder = LayoutBuilder::new();
+        let mut row_layout = row_builder.direction(Direction::Vertical);
         let row_amount = if let Some(max_rows) = self.state.as_ref().and_then(|s| s.max_rows) {
             max_rows
         } else {
             // Only add at most table_area.height constraints as we can't show more anyway
-            std::cmp::min(self.rows.len(), table_area.height as usize)
+            core::cmp::min(self.rows.len(), usize::from(table_area.height))
         };
 
         if row_amount == 0 {
@@ -488,8 +514,8 @@ impl Widget for Table<'_> {
                 self.style
             };
 
-            let mut tmp = LayoutBuilder::new();
-            let mut col_layout = tmp.direction(Direction::Horizontal);
+            let mut col_builder = LayoutBuilder::new();
+            let mut col_layout = col_builder.direction(Direction::Horizontal);
             let col_amount =
                 if let Some(max_columns) = self.state.as_ref().and_then(|s| s.max_columns) {
                     max_columns
@@ -497,7 +523,7 @@ impl Widget for Table<'_> {
                     row.len()
                 };
             let col_percentage = 100usize.saturating_div(col_amount);
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Percentage is always u16")]
             for _ in 0..col_amount {
                 col_layout =
                     col_layout.add_constraint(Constraint::Percentage(col_percentage as u16));
@@ -569,7 +595,7 @@ impl Widget for Table<'_> {
                                 },
                             );
                         }
-                        if rendered_rows == row_amount - 1 {
+                        if rendered_rows == row_amount.saturating_sub(1) {
                             canvas.set_ccell(
                                 x,
                                 area.bottom().saturating_sub(1),
