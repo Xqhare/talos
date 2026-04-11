@@ -69,6 +69,8 @@ impl RectBuilder {
     }
 
     /// Builds the `Rect`
+    #[inline]
+    #[must_use]
     pub fn build(self) -> Rect {
         Rect {
             x: self.x,
@@ -251,7 +253,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_rect_builder() {
+    fn rect_builder() {
         let rect = Rect::builder().x(10).y(20).width(30).height(40).build();
 
         assert_eq!(rect.x, 10);
