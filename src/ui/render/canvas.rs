@@ -15,11 +15,8 @@ use super::CCell;
 pub struct Canvas {
     /// A 2D array of [`CCell`](struct.CCell.html)s
     pub(crate) buffer: Vec<CCell>,
-    /// The width of the canvas.
     width: u16,
-    /// The height of the canvas.
     height: u16,
-    /// The coordinates of the last cell that was set.
     last_set_cell: Option<(u16, u16)>,
 }
 

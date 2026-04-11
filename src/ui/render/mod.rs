@@ -35,20 +35,16 @@
 //! }
 //! ```
 
-/// Colour module.
-pub mod colour;
+mod colour;
 pub use colour::{Bright, Colour, ColourMode, Extended, Normal, TrueColour};
 
-/// Canvas module.
-pub mod canvas;
+mod canvas;
 pub use canvas::Canvas;
 
-/// CCell module.
-pub mod ccell;
+mod ccell;
 pub use ccell::CCell;
 
-/// Style module.
-pub mod style;
+mod style;
 pub use style::Style;
 
 /// A glyph is a internal representation of a character.
