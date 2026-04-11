@@ -1,5 +1,5 @@
 use crate::{
-    error::Result as TalosResult,
+    error::TalosResult,
     input::{
         Event,
         event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind},
@@ -27,44 +27,8 @@ pub struct XtermParser {
     is_sgr_mouse: bool,
 }
 
-impl Default for XtermParser {
-    #[inline]
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl InputParser for XtermParser {
-    #[inline]
-    fn parse(&mut self, buffer: &[u8], event_buffer: &mut Vec<Event>) -> TalosResult<()> {
-        for &byte in buffer {
-            match self.state {
-                ParserState::Normal => self.handle_normal(byte, event_buffer),
-                ParserState::Esc => self.handle_esc(byte, event_buffer),
-                ParserState::Csi => self.handle_csi(byte, event_buffer),
-                ParserState::Ss3 => self.handle_ss3(byte, event_buffer),
-            }
-        }
-        Ok(())
-    }
-
-    #[inline]
-    fn flush(&mut self, event_buffer: &mut Vec<Event>) {
-        if self.state == ParserState::Esc {
-            event_buffer.push(Event::KeyEvent(KeyEvent::new(
-                KeyCode::Esc,
-                KeyModifiers::default(),
-            )));
-            self.reset_state();
-        }
-    }
-}
-
-impl XtermParser {
-    /// Creates a new XtermParser
-    #[inline]
-    #[must_use]
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self {
             state: ParserState::Normal,
             params: Vec::with_capacity(4),
@@ -74,6 +38,31 @@ impl XtermParser {
             is_sgr_mouse: false,
         }
     }
+
+    fn parse(&mut self, new_bytes: &[u8], output: &mut Vec<Event>) -> TalosResult<()> {
+        for &byte in new_bytes {
+            match self.state {
+                ParserState::Normal => self.handle_normal(byte, output),
+                ParserState::Esc => self.handle_esc(byte, output),
+                ParserState::Csi => self.handle_csi(byte, output),
+                ParserState::Ss3 => self.handle_ss3(byte, output),
+            }
+        }
+        Ok(())
+    }
+
+    fn flush(&mut self, output: &mut Vec<Event>) {
+        if self.state == ParserState::Esc {
+            output.push(Event::KeyEvent(KeyEvent::new(
+                KeyCode::Esc,
+                KeyModifiers::default(),
+            )));
+            self.reset_state();
+        }
+    }
+}
+
+impl XtermParser {
     /// Resets the parser state
     fn reset_state(&mut self) {
         self.state = ParserState::Normal;
@@ -248,7 +237,7 @@ impl XtermParser {
             shift: (b_code & 4) != 0,
             alt: (b_code & 8) != 0,
             ctrl: (b_code & 16) != 0,
-            none: (b_code & 0b1_1100) == 0,
+            none: (b_code & 28) == 0,
         };
 
         // b_code bits 0-1 and 6-7 determine the button/event type
@@ -333,8 +322,9 @@ fn try_parse_utf8(buffer: &[u8]) -> Option<(char, usize)> {
     };
 
     if buffer.len() >= len {
-        let s = std::str::from_utf8(&buffer[..len]).ok()?;
-        s.chars().next().map(|ch| (ch, len))
+        std::str::from_utf8(&buffer[..len])
+            .ok()
+            .and_then(|s| s.chars().next().map(|ch| (ch, len)))
     } else {
         None
     }
