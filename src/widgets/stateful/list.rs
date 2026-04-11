@@ -1,7 +1,7 @@
 use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
-    render::{CCell, Canvas, Glyph, Style},
+    render::{Canvas, CCell, Glyph, Style},
     widgets::traits::{Widget, make_dyn_iter},
 };
 
@@ -68,6 +68,7 @@ pub struct List<'a> {
 
 /// The state of a list
 #[derive(Default, Debug, Clone, Copy)]
+#[non_exhaustive]
 pub struct ListState {
     /// The index of the currently selected item
     pub selected: Option<usize>,
@@ -138,7 +139,12 @@ impl Widget for List<'_> {
     }
     #[inline]
     #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(
+        &mut self,
+        canvas: &mut Canvas,
+        area: Rect,
+        codex: &Codex,
+    ) {
         if self.items.is_empty() {
             return;
         }
@@ -213,7 +219,9 @@ impl Widget for List<'_> {
                     if pos >= area.right().saturating_sub(5) {
                         self.state.scroll_offset += 3;
                     }
-                    if i == self.state.scroll_offset && self.state.scroll_offset != 0 {
+                    if i == self.state.scroll_offset
+                        && self.state.scroll_offset != 0
+                    {
                         self.state.scroll_offset -= 1;
                     }
                 }
@@ -246,9 +254,7 @@ impl Widget for List<'_> {
 
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
-                let y = area
-                    .y
-                    .saturating_add(u16::try_from(line_index).unwrap_or(u16::MAX));
+                let y = area.y.saturating_add(u16::try_from(line_index).unwrap_or(u16::MAX));
 
                 if y >= area.bottom() {
                     break;

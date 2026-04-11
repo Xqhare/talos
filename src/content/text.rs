@@ -59,7 +59,7 @@ impl TextContent {
         &self.buffer
     }
 
-    /// Parses the raw string into glyph sequences according to wrapping rules.
+    // TODO: Cleanup of nested ifs
     fn parse_content_to_glyphs(
         content: &str,
         codex: &Codex,
@@ -162,12 +162,9 @@ impl TextContent {
     }
 }
 
-/// A sequence of glyphs forming a line or part of a line.
 #[derive(Debug, Clone)]
 pub struct Sequence {
-    /// The glyphs in the sequence.
     buffer: Vec<Glyph>,
-    /// The total width of the sequence.
     width: u16,
 }
 

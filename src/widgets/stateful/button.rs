@@ -53,6 +53,7 @@ pub struct Button<'a> {
 }
 
 /// The state of the button
+#[non_exhaustive]
 pub struct ButtonState {
     /// Whether the button is currently in a clicked/active state.
     pub clicked: bool,

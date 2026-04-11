@@ -60,6 +60,7 @@ pub struct FillableBar<'a> {
 ///
 /// The fill value is between 0.0 and 1.0
 #[derive(Default)]
+#[non_exhaustive]
 pub struct FillableBarState {
     /// The fill value
     pub fill: f32,
@@ -140,21 +141,14 @@ impl Widget for FillableBar<'_> {
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let fill = self.state.as_ref().map_or(0.0, |s| s.fill);
         // BODGE: flip bg and fg
-        let fg = self
-            .style
-            .get_fg()
-            .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
-        let bg = self
-            .style
-            .get_bg()
-            .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
-        self.style = Style::builder().set_fg(bg).set_bg(fg).build();
+        let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+        let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
+        self.style = Style::builder()
+            .set_fg(bg)
+            .set_bg(fg)
+            .build();
         if self.vertical {
-            #[expect(
-                clippy::cast_sign_loss,
-                clippy::cast_possible_truncation,
-                reason = "Coords are also truncated"
-            )]
+            #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             let fill_height = (f32::from(area.height) * fill) as u16;
             let empty_height = area.height.saturating_sub(fill_height);
 
@@ -192,25 +186,15 @@ impl Widget for FillableBar<'_> {
             }
 
             if self.show_percentage {
-                #[expect(
-                    clippy::cast_sign_loss,
-                    clippy::cast_possible_truncation,
-                    reason = "Coords are also truncated"
-                )]
+                #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(&percentage, codex);
 
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
                 if fill_height > area.height.saturating_div(2) {
-                    let fg = self
-                        .style
-                        .get_fg()
-                        .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
-                    let bg = self
-                        .style
-                        .get_bg()
-                        .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
+                    let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+                    let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
                     number_style = Style::builder().set_fg(bg).set_bg(fg).build();
                 }
                 number.style(number_style);
@@ -240,11 +224,7 @@ impl Widget for FillableBar<'_> {
                 }
             }
         } else {
-            #[expect(
-                clippy::cast_sign_loss,
-                clippy::cast_possible_truncation,
-                reason = "Coords are also truncated"
-            )]
+            #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             let fill_width = (f32::from(area.width) * fill) as u16;
 
             for x_off in 0..area.width {
@@ -279,35 +259,21 @@ impl Widget for FillableBar<'_> {
             }
 
             if self.show_percentage {
-                #[expect(
-                    clippy::cast_sign_loss,
-                    clippy::cast_possible_truncation,
-                    reason = "Coords are also truncated"
-                )]
+                #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 let percentage = (fill * 100.0).round() as u16;
                 let mut number = Number::new(&percentage, codex);
 
                 let mut number_style = self.style;
                 if fill_width > area.width.saturating_div(2) {
-                    let fg = self
-                        .style
-                        .get_fg()
-                        .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
-                    let bg = self
-                        .style
-                        .get_bg()
-                        .unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
+                    let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+                    let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
                     number_style = Style::builder().set_fg(bg).set_bg(fg).build();
                 }
                 number.style(number_style);
 
                 let number_area = Rect {
-                    x: area
-                        .x
-                        .saturating_add(area.width.div_ceil(2).saturating_sub(1)), // Rough horizontal center
-                    y: area
-                        .y
-                        .saturating_add(area.height.div_ceil(2).saturating_sub(1)), // Vertical center
+                    x: area.x.saturating_add(area.width.div_ceil(2).saturating_sub(1)), // Rough horizontal center
+                    y: area.y.saturating_add(area.height.div_ceil(2).saturating_sub(1)), // Vertical center
                     width: area.width,
                     height: 1,
                 };

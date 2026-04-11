@@ -98,6 +98,7 @@ pub struct Table<'a> {
 /// # assert!(true);
 /// ```
 #[derive(Default)]
+#[non_exhaustive]
 pub struct TableState {
     /// The x offset of the table - used for scrolling
     pub x_offset: usize,
