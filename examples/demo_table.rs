@@ -5,7 +5,7 @@ use talos::{
     render::{Colour, Normal, Style},
     widgets::{
         Block, Text,
-        stateful::{Table, TableState},
+        stateful::{InnerBorder, Table, TableState},
         traits::Widget,
     },
 };
@@ -233,13 +233,12 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::Blue))
             .build();
 
-        let mut table = Table::new()
-            .with_state(&mut table_state)
+        let mut table = Table::new(&mut table_state)
             .with_rows(table_vec.iter_mut())
             .with_alternate_style(table_alternate_style)
             .alternate_colour_vertically()
             .alternate_colour_horizontally()
-            .draw_inner_border()
+            .draw_inner_border(InnerBorder::All)
             .draw_outer_border();
 
         table.style(table_style);

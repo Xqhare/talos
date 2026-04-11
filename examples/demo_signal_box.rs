@@ -114,7 +114,7 @@ fn main() -> Result<(), talos::TalosError> {
             .build()
             .split(inner_left);
 
-        let mut signal_box = SignalBox::new().with_state(&mut signal_box_state);
+        let mut signal_box = SignalBox::new(&mut signal_box_state);
         signal_box.style(left_style);
         signal_box.render(canvas, left_chunks[1], codex);
 
@@ -144,8 +144,7 @@ fn main() -> Result<(), talos::TalosError> {
             .set_fg(Colour::Normal(Normal::Black))
             .build();
 
-        let mut fillable_bar = FillableBar::new()
-            .with_state(&mut fillable_bar_state)
+        let mut fillable_bar = FillableBar::new(&mut fillable_bar_state)
             .show_percentage()
             .glow();
         fillable_bar.style(fill_style);
@@ -158,8 +157,7 @@ fn main() -> Result<(), talos::TalosError> {
         text.style(right_style);
         text.render(canvas, right_chunks[1], codex);
 
-        let mut fillable_vertical_bar = FillableBar::new()
-            .with_state(&mut fillable_vertical_bar_state)
+        let mut fillable_vertical_bar = FillableBar::new(&mut fillable_vertical_bar_state)
             .vertical()
             .glow()
             .show_percentage();

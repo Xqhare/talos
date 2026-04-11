@@ -45,7 +45,7 @@ use crate::{
 #[must_use]
 pub struct FillableBar<'a> {
     style: Style,
-    state: Option<&'a mut FillableBarState>,
+    state: &'a mut FillableBarState,
     show_percentage: bool,
     glow: bool,
     vertical: bool,
@@ -58,12 +58,6 @@ pub struct FillableBar<'a> {
 pub struct FillableBarState {
     /// The fill value
     pub fill: f32,
-}
-
-impl Default for FillableBar<'_> {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl<'a> FillableBar<'a> {
@@ -79,20 +73,14 @@ impl<'a> FillableBar<'a> {
     /// let fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state);
     /// # assert!(true);
     /// ```
-    pub fn new() -> Self {
+    pub fn new(state: &'a mut FillableBarState) -> Self {
         Self {
             style: Style::default(),
-            state: None,
+            state,
             show_percentage: false,
             glow: false,
             vertical: false,
         }
-    }
-
-    /// Sets the state of the fillable bar
-    pub fn with_state(mut self, state: &'a mut FillableBarState) -> Self {
-        self.state = Some(state);
-        self
     }
 
     /// Show the percentage in text in the middle of the bar
@@ -120,7 +108,7 @@ impl Widget for FillableBar<'_> {
     }
     #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        let fill = self.state.as_ref().map_or(0.0, |s| s.fill);
+        let fill = self.state.fill;
         // BODGE: flip bg and fg
         self.style = Style::builder()
             .set_fg(self.style.get_bg().unwrap())

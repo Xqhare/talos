@@ -1,5 +1,5 @@
 use crate::{
-    codex::{Codex, pages::SPACE_GLYPH},
+    codex::Codex,
     layout::Rect,
     render::{CCell, Canvas, Glyph, Style},
     widgets::traits::Widget,
@@ -42,7 +42,7 @@ use crate::{
 /// ```
 #[must_use]
 pub struct SignalBox<'a> {
-    state: Option<&'a mut SignalBoxState>,
+    state: &'a mut SignalBoxState,
     style: Style,
     signal_on_symbol: Glyph,
     signal_off_symbol: Glyph,
@@ -54,39 +54,8 @@ pub struct SignalBoxState {
     pub signal: bool,
 }
 
-impl Default for SignalBox<'_> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl<'a> SignalBox<'a> {
     /// Creates a new, empty signal box
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::SignalBox};
-    ///
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let signal_box = SignalBox::new();
-    /// # assert!(true);
-    /// ```
-    pub fn new() -> Self {
-        Self {
-            state: None,
-            style: Style::default(),
-            // The default symbols are from the "UTF Geometric Shapes" page (page 3).
-            // The glyph is constructed by combining the page ID and the character ID.
-            // For example, `0x0328` is `(3 << 8) | 40`.
-            signal_on_symbol: 0x0328,
-            signal_off_symbol: 0x0327,
-        }
-    }
-
-    /// Sets the state of the signal box
-    ///
-    /// The state must be externally managed.
     ///
     /// # Example
     /// ```rust,no_run
@@ -94,13 +63,19 @@ impl<'a> SignalBox<'a> {
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let mut signal_box_state = SignalBoxState { signal: true };
-    /// let signal_box = SignalBox::new().with_state(&mut signal_box_state);
+    /// let signal_box = SignalBox::new();
     /// # assert!(true);
     /// ```
-    pub fn with_state(mut self, state: &'a mut SignalBoxState) -> Self {
-        self.state = Some(state);
-        self
+    pub fn new(state: &'a mut SignalBoxState) -> Self {
+        Self {
+            state,
+            style: Style::default(),
+            // The default symbols are from the "UTF Geometric Shapes" page (page 3).
+            // The glyph is constructed by combining the page ID and the character ID.
+            // For example, `0x0328` is `(3 << 8) | 40`.
+            signal_on_symbol: 0x0328,
+            signal_off_symbol: 0x0327,
+        }
     }
 
     /// Sets the on symbol of the signal box
@@ -121,29 +96,19 @@ impl Widget for SignalBox<'_> {
         self.style = style;
     }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
-        if let Some(state) = &self.state {
-            let symbol = if state.signal {
-                self.signal_on_symbol
-            } else {
-                self.signal_off_symbol
-            };
-            canvas.set_ccell(
-                area.x,
-                area.y,
-                CCell {
-                    char: symbol,
-                    style: self.style,
-                },
-            );
+        let state = &self.state;
+        let symbol = if state.signal {
+            self.signal_on_symbol
         } else {
-            canvas.set_ccell(
-                area.x,
-                area.y,
-                CCell {
-                    char: SPACE_GLYPH,
-                    style: self.style,
-                },
-            );
-        }
+            self.signal_off_symbol
+        };
+        canvas.set_ccell(
+            area.x,
+            area.y,
+            CCell {
+                char: symbol,
+                style: self.style,
+            },
+        );
     }
 }

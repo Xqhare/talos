@@ -57,7 +57,7 @@ use crate::{
 #[must_use]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
-    state: Option<&'a mut TableState>,
+    state: &'a mut TableState,
     rows: Vec<Vec<&'a mut dyn Widget>>,
     alternate_colour_vertically: bool,
     alternate_colour_horizontally: bool,
@@ -67,7 +67,7 @@ pub struct Table<'a> {
     header_style: Style,
     header_row: Option<usize>,
     draw_outer_border: bool,
-    draw_inner_border: bool,
+    draw_inner_border: InnerBorder,
 }
 
 /// The state of the table
@@ -102,9 +102,21 @@ pub struct TableState {
     pub max_columns: Option<usize>,
 }
 
-impl Default for Table<'_> {
+/// The inner border of the table
+pub enum InnerBorder {
+    /// All borders, between rows and columns
+    All,
+    /// Only borders between rows
+    Rows,
+    /// Only borders between columns
+    Columns,
+    /// No borders, Default
+    None,
+}
+
+impl Default for InnerBorder {
     fn default() -> Self {
-        Self::new()
+        Self::None
     }
 }
 
@@ -120,9 +132,9 @@ impl<'a> Table<'a> {
     /// let table = Table::new();
     /// # assert!(true);
     /// ```
-    pub fn new() -> Self {
+    pub fn new(state: &'a mut TableState) -> Self {
         Self {
-            state: None,
+            state,
             rows: Vec::new(),
             alternate_colour_vertically: false,
             alternate_colour_horizontally: false,
@@ -132,7 +144,7 @@ impl<'a> Table<'a> {
             header_style: Style::default(),
             header_row: None,
             draw_outer_border: false,
-            draw_inner_border: false,
+            draw_inner_border: InnerBorder::default(),
         }
     }
 
@@ -169,30 +181,6 @@ impl<'a> Table<'a> {
     /// ```
     pub fn with_header_row(mut self, row: usize) -> Self {
         self.header_row = Some(row);
-        self
-    }
-
-    /// Sets the state of the table
-    ///
-    /// The state must be externally managed.
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
-    ///
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let mut table_state = TableState {
-    ///     x_offset: 0,
-    ///     y_offset: 0,
-    ///     max_rows: None,
-    ///     max_columns: None,
-    /// };
-    /// let table = Table::new().with_state(&mut table_state);
-    /// # assert!(true);
-    /// ```
-    pub fn with_state(mut self, state: &'a mut TableState) -> Self {
-        self.state = Some(state);
         self
     }
 
@@ -291,9 +279,16 @@ impl<'a> Table<'a> {
         self
     }
 
-    /// Draws a border inside the table, between columns and rows
-    pub fn draw_inner_border(mut self) -> Self {
-        self.draw_inner_border = true;
+    /// Draws a border inside the table.
+    ///
+    /// Choose between `InnerBorder::All`, `InnerBorder::Rows` or `InnerBorder::Columns`
+    ///
+    /// - `InnerBorder::All`: All borders, between rows and columns
+    /// - `InnerBorder::Rows`: Only borders between rows
+    /// - `InnerBorder::Columns`: Only borders between columns
+    /// - `InnerBorder::None`: No borders; Default
+    pub fn draw_inner_border(mut self, border: InnerBorder) -> Self {
+        self.draw_inner_border = border;
         self
     }
 }
@@ -302,7 +297,6 @@ impl Widget for Table<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    // TODO: This is a mess - if anything breaks its gonna need a refactor
     #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let tl = codex.lookup('╔');
@@ -415,7 +409,7 @@ impl Widget for Table<'_> {
 
         let mut tmp = LayoutBuilder::new();
         let mut row_layout = tmp.direction(Direction::Vertical);
-        let row_amount = if let Some(max_rows) = self.state.as_ref().and_then(|s| s.max_rows) {
+        let row_amount = if let Some(max_rows) = self.state.max_rows {
             max_rows
         } else {
             // Only add at most table_area.height constraints as we can't show more anyway
@@ -436,7 +430,7 @@ impl Widget for Table<'_> {
             .rows
             .iter_mut()
             .enumerate()
-            .skip(self.state.as_ref().map_or(0, |s| s.y_offset))
+            .skip(self.state.y_offset)
             .enumerate()
         {
             if rendered_rows >= row_amount || rendered_rows >= row_areas.len() {
@@ -448,7 +442,9 @@ impl Widget for Table<'_> {
                 break;
             }
 
-            if self.draw_inner_border && rendered_rows > 0 {
+            if matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows)
+                && rendered_rows > 0
+            {
                 let y = row_areas[rendered_rows].y;
 
                 for x in table_area.left()..table_area.right() {
@@ -490,12 +486,11 @@ impl Widget for Table<'_> {
 
             let mut tmp = LayoutBuilder::new();
             let mut col_layout = tmp.direction(Direction::Horizontal);
-            let col_amount =
-                if let Some(max_columns) = self.state.as_ref().and_then(|s| s.max_columns) {
-                    max_columns
-                } else {
-                    row.len()
-                };
+            let col_amount = if let Some(max_columns) = self.state.max_columns {
+                max_columns
+            } else {
+                row.len()
+            };
             let col_percentage = 100usize.saturating_div(col_amount);
             #[allow(clippy::cast_possible_truncation)]
             for _ in 0..col_amount {
@@ -509,7 +504,7 @@ impl Widget for Table<'_> {
             for (rendered_cols, (j, col)) in row
                 .iter_mut()
                 .enumerate()
-                .skip(self.state.as_ref().map_or(0, |s| s.x_offset))
+                .skip(self.state.x_offset)
                 .enumerate()
             {
                 if rendered_cols >= col_amount {
@@ -518,19 +513,27 @@ impl Widget for Table<'_> {
 
                 let mut cell_area = col_areas[rendered_cols];
 
-                if self.draw_inner_border {
-                    if rendered_rows > 0 {
-                        cell_area.y = cell_area.y.saturating_add(1);
-                        cell_area.height = cell_area.height.saturating_sub(1);
-                    }
-
-                    if rendered_cols > 0 {
-                        cell_area.x = cell_area.x.saturating_add(1);
-                        cell_area.width = cell_area.width.saturating_sub(1);
-                    }
+                if matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows)
+                    && rendered_rows > 0
+                {
+                    cell_area.y = cell_area.y.saturating_add(1);
+                    cell_area.height = cell_area.height.saturating_sub(1);
                 }
 
-                if self.draw_inner_border && rendered_cols > 0 {
+                if matches!(
+                    self.draw_inner_border,
+                    InnerBorder::All | InnerBorder::Columns
+                ) && rendered_cols > 0
+                {
+                    cell_area.x = cell_area.x.saturating_add(1);
+                    cell_area.width = cell_area.width.saturating_sub(1);
+                }
+
+                if matches!(
+                    self.draw_inner_border,
+                    InnerBorder::All | InnerBorder::Columns
+                ) && rendered_cols > 0
+                {
                     let x = col_areas[rendered_cols].x;
 
                     let y_start = row_areas[rendered_rows].y;
@@ -547,7 +550,7 @@ impl Widget for Table<'_> {
                         );
                     }
 
-                    if self.draw_inner_border && rendered_rows > 0 {
+                    if matches!(self.draw_inner_border, InnerBorder::All) && rendered_rows > 0 {
                         canvas.set_ccell(
                             x,
                             y_start,
@@ -601,5 +604,83 @@ impl Widget for Table<'_> {
                 col.render(canvas, cell_area, codex);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::widgets::Text;
+
+    #[test]
+    fn test_table_inner_border_rows() {
+        let mut table_state = TableState::default();
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 10);
+        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
+        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
+        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+
+        let mut table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_inner_border(InnerBorder::Rows);
+
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+
+        // Horizontal border should be at y=5 (because 2 rows in 10 lines -> split(10) -> [0..5, 5..10])
+        let h_in = codex.lookup('─');
+        assert_eq!(canvas.get_ccell(0, 5).char, h_in);
+        assert_eq!(canvas.get_ccell(19, 5).char, h_in);
+
+        // Vertical border should NOT be present
+        let v_in = codex.lookup('│');
+        assert_ne!(canvas.get_ccell(10, 0).char, v_in);
+    }
+
+    #[test]
+    fn test_table_inner_border_columns() {
+        let mut table_state = TableState::default();
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 10);
+        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
+        let rows = vec![r1.iter_mut()];
+
+        let mut table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_inner_border(InnerBorder::Columns);
+
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+
+        // Vertical border should be at x=10
+        let v_in = codex.lookup('│');
+        assert_eq!(canvas.get_ccell(10, 0).char, v_in);
+
+        // Horizontal border should NOT be present
+        let h_in = codex.lookup('─');
+        assert_ne!(canvas.get_ccell(0, 5).char, h_in);
+    }
+
+    #[test]
+    fn test_table_inner_border_all() {
+        let mut table_state = TableState::default();
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 10);
+        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
+        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
+        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+
+        let mut table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_inner_border(InnerBorder::All);
+
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+
+        let h_in = codex.lookup('─');
+        let v_in = codex.lookup('│');
+        let cross = codex.lookup('┼');
+
+        assert_eq!(canvas.get_ccell(0, 5).char, h_in);
+        assert_eq!(canvas.get_ccell(10, 0).char, v_in);
+        assert_eq!(canvas.get_ccell(10, 5).char, cross);
     }
 }

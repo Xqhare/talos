@@ -1,6 +1,8 @@
+use std::thread;
+use std::time::Duration;
 use talos::{
     LayoutBuilder, Talos,
-    input::{Event, KeyCode, KeyEvent, MouseEvent, MouseEventKind, MouseButton},
+    input::{Event, KeyCode, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     layout::{Constraint, Direction, Rect},
     render::{Colour, Normal, Style},
     widgets::{
@@ -9,8 +11,6 @@ use talos::{
         traits::Widget,
     },
 };
-use std::thread;
-use std::time::Duration;
 
 fn main() -> Result<(), talos::TalosError> {
     let mut talos = Talos::builder().build()?;
@@ -53,23 +53,21 @@ fn main() -> Result<(), talos::TalosError> {
                             button_state.clicked = text_box_state.active;
                         }
                     }
-                    Event::KeyEvent(KeyEvent { code, .. }) if text_box_state.active => {
-                        match code {
-                            KeyCode::Char(c) => {
-                                input_text.push(*c);
-                                text_changed = true;
-                            }
-                            KeyCode::Backspace => {
-                                input_text.pop();
-                                text_changed = true;
-                            }
-                            KeyCode::Enter => {
-                                text_box_state.active = false;
-                                button_state.clicked = false;
-                            }
-                            _ => {}
+                    Event::KeyEvent(KeyEvent { code, .. }) if text_box_state.active => match code {
+                        KeyCode::Char(c) => {
+                            input_text.push(*c);
+                            text_changed = true;
                         }
-                    }
+                        KeyCode::Backspace => {
+                            input_text.pop();
+                            text_changed = true;
+                        }
+                        KeyCode::Enter => {
+                            text_box_state.active = false;
+                            button_state.clicked = false;
+                        }
+                        _ => {}
+                    },
                     _ => {}
                 }
             }
@@ -84,13 +82,13 @@ fn main() -> Result<(), talos::TalosError> {
         let (canvas, codex) = talos.render_ctx();
 
         let root_rect = canvas.size_rect();
-        
+
         let chunks = LayoutBuilder::new()
             .direction(Direction::Vertical)
             .add_constraint(Constraint::Length(3)) // Button
             .add_constraint(Constraint::Length(1)) // Spacer
             .add_constraint(Constraint::Length(3)) // Text box
-            .add_constraint(Constraint::Min(0))    // Rest
+            .add_constraint(Constraint::Min(0)) // Rest
             .build()
             .split(root_rect);
 
@@ -109,19 +107,23 @@ fn main() -> Result<(), talos::TalosError> {
         };
 
         let mut button = Button::new(
-            if text_box_state.active { "UNFOCUS" } else { "FOCUS TEXT BOX" },
-            codex
+            if text_box_state.active {
+                "UNFOCUS"
+            } else {
+                "FOCUS TEXT BOX"
+            },
+            &mut button_state,
+            codex,
         )
-        .with_state(&mut button_state)
         .with_style(button_style);
-        
+
         button.render(canvas, button_rect, codex);
 
         let mut text_box_block = Block::new()
             .title("Input", codex, false)
             .with_beautify_border_breaks()
             .with_bg_fill();
-        
+
         let text_box_style = if text_box_state.active {
             Style::builder()
                 .set_fg(Colour::Normal(Normal::Yellow))
@@ -142,7 +144,7 @@ fn main() -> Result<(), talos::TalosError> {
             } else {
                 "Click the button to focus. Press 'q' or Esc to quit."
             },
-            codex
+            codex,
         );
         help_text.render(canvas, chunks[3], codex);
 

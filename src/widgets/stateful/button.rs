@@ -42,7 +42,7 @@ use crate::{
 pub struct Button<'a> {
     text: Text,
     style: Style,
-    state: Option<&'a mut ButtonState>,
+    state: &'a mut ButtonState,
     clicked_style: Style,
     clicked_text: Option<Text>,
 }
@@ -69,7 +69,7 @@ impl<'a> Button<'a> {
     /// let button = Button::new("Hello, world!", &codex);
     /// # assert!(true);
     /// ```
-    pub fn new(text: impl Into<String>, codex: &Codex) -> Self {
+    pub fn new(text: impl Into<String>, state: &'a mut ButtonState, codex: &Codex) -> Self {
         let mut text = Text::new(text, codex);
         text = text.align_vertically().align_center();
         Self {
@@ -77,29 +77,8 @@ impl<'a> Button<'a> {
             style: Style::default(),
             clicked_style: Style::default(),
             clicked_text: None,
-            state: None,
+            state,
         }
-    }
-    /// Sets the state of the button
-    ///
-    /// The state must be externally managed.
-    ///
-    /// # Arguments
-    /// * `state` - The state of the button
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::{Button, ButtonState}};
-    ///
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let mut button_state = ButtonState { clicked: true };
-    /// let button = Button::new("Hello, world!", &codex).with_state(&mut button_state);
-    /// # assert!(true);
-    /// ```
-    pub fn with_state(mut self, state: &'a mut ButtonState) -> Self {
-        self.state = Some(state);
-        self
     }
     /// Get the state of the button
     ///
@@ -118,8 +97,8 @@ impl<'a> Button<'a> {
     /// assert!(state.clicked);
     /// # assert!(true);
     /// ```
-    pub fn get_state(&self) -> Option<&ButtonState> {
-        self.state.as_deref()
+    pub fn get_state(&self) -> &ButtonState {
+        &self.state
     }
     /// This style is used when the button is clicked.
     /// Not used for the `Text` widget itself.
@@ -143,14 +122,13 @@ impl Widget for Button<'_> {
         self.style = style;
     }
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        let bg_style = if let Some(state) = &self.state {
+        let state = &self.state;
+        let bg_style = {
             if state.clicked {
                 self.clicked_style
             } else {
                 self.style
             }
-        } else {
-            self.style
         };
 
         let mut outer_block = Block::new().with_bg_fill();
@@ -158,13 +136,11 @@ impl Widget for Button<'_> {
         outer_block.render(canvas, area, codex);
 
         let inner_rect = outer_block.inner(area);
-        if let Some(state) = &mut self.state {
-            if state.clicked {
-                if let Some(text) = &mut self.clicked_text {
-                    text.style(bg_style);
-                    text.render(canvas, inner_rect, codex);
-                    return;
-                }
+        if state.clicked {
+            if let Some(text) = &mut self.clicked_text {
+                text.style(bg_style);
+                text.render(canvas, inner_rect, codex);
+                return;
             }
         }
         self.text.style(bg_style);

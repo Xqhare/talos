@@ -16,7 +16,7 @@ pub struct TextBoxState {
 
 /// A widget for text input.
 pub struct TextBox<'a> {
-    state: Option<&'a mut TextBoxState>,
+    state: &'a mut TextBoxState,
     style: Style,
     highlight_style: Option<Style>,
 }
@@ -25,7 +25,7 @@ impl<'a> TextBox<'a> {
     /// Create a new `TextBox` with the given state.
     pub fn new(state: &'a mut TextBoxState) -> Self {
         Self {
-            state: Some(state),
+            state: state,
             style: Style::default(),
             highlight_style: None,
         }
@@ -48,20 +48,19 @@ impl Widget for TextBox<'_> {
         area: crate::layout::Rect,
         codex: &Codex,
     ) {
-        if let Some(state) = &mut self.state {
-            let cursor = if state.active { state.cursor } else { None };
+        let state = &mut self.state;
+        let cursor = if state.active { state.cursor } else { None };
 
-            // Apply blink to the highlight style
-            let highlight_style = self
-                .highlight_style
-                .map(|s| s.new_from_self().set_blink(true).build());
+        // Apply blink to the highlight style
+        let highlight_style = self
+            .highlight_style
+            .map(|s| s.new_from_self().set_blink(true).build());
 
-            state
-                .text
-                .get_mut_content()
-                .with_highlight(cursor, highlight_style);
-            state.text.style(self.style);
-            state.text.render(canvas, area, codex);
-        }
+        state
+            .text
+            .get_mut_content()
+            .with_highlight(cursor, highlight_style);
+        state.text.style(self.style);
+        state.text.render(canvas, area, codex);
     }
 }

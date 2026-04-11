@@ -133,9 +133,8 @@ impl Widget for MenuButton<'_> {
         }
         main_button.render(canvas, area, codex);
 
-        if let Some(main_state) = main_button.get_state()
-            && main_state.clicked
-        {
+        let main_state = main_button.get_state();
+        if main_state.clicked {
             let child_width = self.child_width.unwrap_or(area.width);
             let child_height = self.child_height.unwrap_or(area.height);
 
@@ -174,8 +173,9 @@ mod tests {
         let codex = Codex::default();
         let mut canvas = Canvas::new(20, 20);
         let mut main_state = ButtonState { clicked: true };
-        let main_button = Button::new("Main", &codex).with_state(&mut main_state);
-        let menu_item = Button::new("Item 1", &codex);
+        let mut menu_state = ButtonState { clicked: true };
+        let main_button = Button::new("Main", &mut main_state, &codex);
+        let menu_item = Button::new("Item 1", &mut menu_state, &codex);
 
         let mut inner = vec![menu_item];
         let mut menu_button = MenuButton::new(main_button, inner.iter_mut());

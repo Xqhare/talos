@@ -8,7 +8,7 @@ mod fillable_bar;
 pub use fillable_bar::{FillableBar, FillableBarState};
 
 mod table;
-pub use table::{Table, TableState};
+pub use table::{InnerBorder, Table, TableState};
 
 mod button;
 pub use button::{Button, ButtonState};

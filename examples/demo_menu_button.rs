@@ -199,9 +199,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut load_items: Vec<&mut dyn Widget> = vec![&mut block_box];
         let mut load_menu = MenuButton::new(
-            Button::new("Load", codex)
-                .with_state(&mut sub_menu_open)
-                .with_style(menu_style),
+            Button::new("Load", &mut sub_menu_open, codex).with_style(menu_style),
             load_items.iter_mut(),
         )
         .with_horizontal_layout()
@@ -209,16 +207,17 @@ fn main() -> Result<(), talos::TalosError> {
         .with_child_height(3);
 
         // Define menu buttons for the main File menu
-        let mut save_btn = Button::new("Save", codex).with_style(menu_style);
-        let mut exit_btn = Button::new("Exit", codex).with_style(menu_style);
+        // These also need a state even though they're not interactive in this demo
+        let mut sub_menu_save = ButtonState { clicked: false };
+        let mut sub_menu_exit = ButtonState { clicked: false };
+        let mut save_btn = Button::new("Save", &mut sub_menu_save, codex).with_style(menu_style);
+        let mut exit_btn = Button::new("Exit", &mut sub_menu_exit, codex).with_style(menu_style);
 
         let mut file_items: Vec<&mut dyn Widget> =
             vec![&mut save_btn, &mut load_menu, &mut exit_btn];
 
         let mut menu = MenuButton::new(
-            Button::new("File", codex)
-                .with_state(&mut menu_open)
-                .with_style(main_style),
+            Button::new("File", &mut menu_open, codex).with_style(main_style),
             file_items.iter_mut(),
         );
 
