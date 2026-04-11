@@ -5,6 +5,7 @@
 #![warn(clippy::restriction)]
 #![expect(
     clippy::missing_docs_in_private_items,
+    clippy::print_stdout,
     clippy::implicit_return,
     clippy::single_call_fn,
     clippy::str_to_string,
@@ -36,10 +37,9 @@ use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
 use utils::write_all_bytes;
 
 mod builder;
-pub use builder::{layout_builder::LayoutBuilder, parser_builder::ParserBuilder, talos_builder::TalosBuilder};
+pub use builder::{LayoutBuilder, ParserBuilder, TalosBuilder};
 pub mod error;
-pub use error::TalosError;
-pub use error::TalosResult;
+pub use error::{TalosError, TalosResult};
 
 /// Style and Layout Atlases
 pub mod atlases;
