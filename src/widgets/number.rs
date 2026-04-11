@@ -30,6 +30,7 @@ use crate::{
 /// # assert!(true);
 /// ```
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct Number {
     content: TextContent,
     style: Style,
@@ -55,6 +56,8 @@ impl Number {
     /// let f_number = Number::new(&3.14, &codex);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new<N>(content: &N, codex: &Codex) -> Self
     where
         N: Add<Output = N> + Mul<Output = N> + Display,
@@ -68,21 +71,23 @@ impl Number {
 }
 
 impl Widget for Number {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         self.content.set_wrap_limit(area.width, codex);
         for (i, seq) in self.content.get_sequences().iter().enumerate() {
-            #[allow(clippy::cast_possible_truncation)]
-            let x = area.x + i as u16;
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+            let x = area.x.saturating_add(i as u16);
             if x >= area.right() {
                 break;
             }
-            for (i, glyph) in seq.glyphs().iter().enumerate() {
-                #[allow(clippy::cast_possible_truncation)]
+            for (j, glyph) in seq.glyphs().iter().enumerate() {
+                #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 canvas.set_ccell(
-                    x + i as u16,
+                    x.saturating_add(j as u16),
                     area.y,
                     CCell {
                         char: *glyph,
