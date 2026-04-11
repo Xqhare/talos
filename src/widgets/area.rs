@@ -41,6 +41,7 @@ use crate::widgets::traits::Widget;
 /// ```
 #[must_use]
 pub struct Area {
+    /// The style of the area.
     style: Style,
 }
 

@@ -47,13 +47,15 @@ pub struct MenuButtonState<'a> {
 /// let main_button = MenuButton::new(Button::new("Main", &codex), menus.iter_mut());
 /// ```
 pub struct MenuButton<'a> {
+    /// The state of the menu button.
     state: MenuButtonState<'a>,
+    /// The style of the menu button.
     style: Option<Style>,
+    /// The height of the child widgets.
     child_height: Option<u16>,
+    /// The width of the child widgets.
     child_width: Option<u16>,
-    // Determines in which direction the children are placed
-    // If `true`, the children are placed below the main button
-    // If `false`, the children are placed to the right of the main button
+    /// Whether the menu is laid out vertically.
     vertical: bool,
 }
 

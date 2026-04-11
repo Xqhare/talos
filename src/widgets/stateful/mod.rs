@@ -1,23 +1,31 @@
-mod list;
+/// List widget.
+pub mod list;
 pub use list::{List, ListState};
 
-mod signal_box;
+/// Signal box widget.
+pub mod signal_box;
 pub use signal_box::{SignalBox, SignalBoxState};
 
-mod fillable_bar;
+/// Fillable bar widget.
+pub mod fillable_bar;
 pub use fillable_bar::{FillableBar, FillableBarState};
 
-mod table;
+/// Table widget.
+pub mod table;
 pub use table::{Table, TableState};
 
-mod button;
+/// Button widget.
+pub mod button;
 pub use button::{Button, ButtonState};
 
-mod text_box;
+/// Text box widget.
+pub mod text_box;
 pub use text_box::{TextBox, TextBoxState};
 
-mod menu_button;
+/// Menu button widget.
+pub mod menu_button;
 pub use menu_button::{MenuButton, MenuButtonState};
 
-mod block_box;
+/// Block box widget.
+pub mod block_box;
 pub use block_box::{BlockBox, BlockBoxState};

@@ -46,10 +46,15 @@ use crate::widgets::traits::Widget;
 /// ```
 #[must_use]
 pub struct Block {
+    /// The contents of the block title.
     title: TitleContents,
+    /// The style of the block.
     style: Style,
+    /// Whether to fill the background.
     fill_bg: bool,
+    /// Whether to beautify border breaks.
     beautfy_border_breaks: bool,
+    /// Whether to use a fat border.
     fat_border: bool,
 }
 
@@ -201,6 +206,7 @@ impl Widget for Block {
         self.style = style;
     }
     #[inline]
+    #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 {
             return;

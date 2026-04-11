@@ -44,10 +44,15 @@ use crate::{
 /// ```
 #[must_use]
 pub struct FillableBar<'a> {
+    /// The style of the bar.
     style: Style,
+    /// The state of the bar.
     state: Option<&'a mut FillableBarState>,
+    /// Whether to show the percentage.
     show_percentage: bool,
+    /// Whether to make the bar glow.
     glow: bool,
+    /// Whether the bar is vertical.
     vertical: bool,
 }
 
@@ -73,7 +78,7 @@ impl<'a> FillableBar<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
+    /// use talos::{Talos, widgets::stateful::FillableBar};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
@@ -132,11 +137,12 @@ impl Widget for FillableBar<'_> {
         self.style = style;
     }
     #[inline]
+    #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let fill = self.state.as_ref().map_or(0.0, |s| s.fill);
         // BODGE: flip bg and fg
-        let fg = self.style.get_fg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::White));
-        let bg = self.style.get_bg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::Black));
+        let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+        let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
         self.style = Style::builder()
             .set_fg(bg)
             .set_bg(fg)
@@ -187,8 +193,8 @@ impl Widget for FillableBar<'_> {
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
                 if fill_height > area.height.saturating_div(2) {
-                    let fg = self.style.get_fg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::White));
-                    let bg = self.style.get_bg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::Black));
+                    let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+                    let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
                     number_style = Style::builder().set_fg(bg).set_bg(fg).build();
                 }
                 number.style(number_style);
@@ -259,8 +265,8 @@ impl Widget for FillableBar<'_> {
 
                 let mut number_style = self.style;
                 if fill_width > area.width.saturating_div(2) {
-                    let fg = self.style.get_fg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::White));
-                    let bg = self.style.get_bg().unwrap_or_else(|| crate::render::Colour::Normal(crate::render::Normal::Black));
+                    let fg = self.style.get_fg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::White));
+                    let bg = self.style.get_bg().unwrap_or(crate::render::Colour::Normal(crate::render::Normal::Black));
                     number_style = Style::builder().set_fg(bg).set_bg(fg).build();
                 }
                 number.style(number_style);

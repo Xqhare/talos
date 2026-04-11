@@ -28,20 +28,25 @@
 //! }
 //! ```
 
-mod area;
-mod block;
-mod internal_text;
-mod number;
-mod text;
+/// Area widget.
+pub mod area;
 pub use area::Area;
+/// Block widget.
+pub mod block;
 pub use block::Block;
+/// Internal text module.
+pub mod internal_text;
+/// Number widget.
+pub mod number;
 pub use number::Number;
+/// Text widget.
+pub mod text;
 pub use text::Text;
 
-/// Stateful widgets
+/// Stateful widgets.
 pub mod stateful;
 
-/// Widget traits for creating custom widgets
+/// Widget traits for creating custom widgets.
 pub mod traits {
     use crate::{
         codex::Codex,
