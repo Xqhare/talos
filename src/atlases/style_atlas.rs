@@ -26,7 +26,6 @@ use crate::render::{Colour, Normal, Style};
 /// ```
 #[derive(Debug)]
 pub struct StyleAtlas {
-    /// The internal store for the styles, mapped by their names.
     store: BTreeMap<String, Style>,
 }
 
