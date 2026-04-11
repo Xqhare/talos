@@ -49,14 +49,12 @@ pub struct SignalBox<'a> {
 }
 
 /// The state of a signal box
-#[non_exhaustive]
 pub struct SignalBoxState {
     /// Whether the signal is on or off
     pub signal: bool,
 }
 
 impl Default for SignalBox<'_> {
-    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -74,8 +72,6 @@ impl<'a> SignalBox<'a> {
     /// let signal_box = SignalBox::new();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn new() -> Self {
         Self {
             state: None,
@@ -102,24 +98,18 @@ impl<'a> SignalBox<'a> {
     /// let signal_box = SignalBox::new().with_state(&mut signal_box_state);
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_state(mut self, state: &'a mut SignalBoxState) -> Self {
         self.state = Some(state);
         self
     }
 
     /// Sets the on symbol of the signal box
-    #[inline]
-    #[must_use]
     pub fn with_signal_on_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_on_symbol = codex.lookup(char);
         self
     }
 
     /// Sets the off symbol of the signal box
-    #[inline]
-    #[must_use]
     pub fn with_signal_off_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_off_symbol = codex.lookup(char);
         self
@@ -127,11 +117,9 @@ impl<'a> SignalBox<'a> {
 }
 
 impl Widget for SignalBox<'_> {
-    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
         if let Some(state) = &self.state {
             let symbol = if state.signal {
