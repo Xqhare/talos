@@ -9,6 +9,7 @@ use crate::{
 };
 
 /// The state or contents of a `MenuButton`
+#[non_exhaustive]
 pub struct MenuButtonState<'a> {
     /// The main button, always visible
     pub main_button: Button<'a>,
@@ -73,6 +74,8 @@ impl<'a> MenuButton<'a> {
     ///
     /// ```
     ///
+    #[inline]
+    #[must_use]
     pub fn new<I, W>(main_button: Button<'a>, menu: I) -> Self
     where
         I: Iterator<Item = &'a mut W>,
@@ -95,6 +98,8 @@ impl<'a> MenuButton<'a> {
     /// This will place the children below the main button
     ///
     /// Use `with_horizontal_layout` to place the children to the right of the main button
+    #[inline]
+    #[must_use]
     pub fn with_vertical_layout(mut self) -> Self {
         self.vertical = true;
         self
@@ -104,18 +109,24 @@ impl<'a> MenuButton<'a> {
     /// This will place the children to the right of the main button
     ///
     /// Use `with_vertical_layout` to place the children below the main button
+    #[inline]
+    #[must_use]
     pub fn with_horizontal_layout(mut self) -> Self {
         self.vertical = false;
         self
     }
     /// Sets the width of each button in the menu.
     /// If not set, the width of the main button is used.
+    #[inline]
+    #[must_use]
     pub fn with_child_width(mut self, width: u16) -> Self {
         self.child_width = Some(width);
         self
     }
     /// Sets the height of each button in the menu.
     /// If not set, the height of the main button is used.
+    #[inline]
+    #[must_use]
     pub fn with_child_height(mut self, height: u16) -> Self {
         self.child_height = Some(height);
         self
@@ -123,9 +134,11 @@ impl<'a> MenuButton<'a> {
 }
 
 impl Widget for MenuButton<'_> {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = Some(style);
     }
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let main_button = &mut self.state.main_button;
         if let Some(style) = self.style {
@@ -144,10 +157,10 @@ impl Widget for MenuButton<'_> {
                     child.style(style);
                 }
                 let (x, y) = if self.vertical {
-                    let offset = (num as u16).saturating_mul(child_height);
+                    let offset = u16::try_from(num).unwrap_or(u16::MAX).saturating_mul(child_height);
                     (area.x, area.bottom().saturating_add(offset))
                 } else {
-                    let offset = (num as u16).saturating_mul(child_width);
+                    let offset = u16::try_from(num).unwrap_or(u16::MAX).saturating_mul(child_width);
                     (area.right().saturating_add(offset), area.y)
                 };
 
@@ -170,14 +183,14 @@ mod tests {
     use crate::widgets::stateful::ButtonState;
 
     #[test]
-    fn test_menu_button_render_no_overlap() {
+    fn menu_button_render_no_overlap() {
         let codex = Codex::default();
         let mut canvas = Canvas::new(20, 20);
         let mut main_state = ButtonState { clicked: true };
         let main_button = Button::new("Main", &codex).with_state(&mut main_state);
         let menu_item = Button::new("Item 1", &codex);
 
-        let mut inner = vec![menu_item];
+        let mut inner = [menu_item];
         let mut menu_button = MenuButton::new(main_button, inner.iter_mut());
         let area = Rect::new(0, 0, 10, 1);
 
