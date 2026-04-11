@@ -19,9 +19,13 @@ use super::ParserBuilder;
 /// assert!(talos.is_ok());
 /// ```
 pub struct TalosBuilder {
+    /// Whether to hide the terminal cursor.
     hide_cursor: bool,
+    /// Whether to use the alternate screen.
     alternate_screen: bool,
+    /// Whether to set up a panic handler.
     set_up_panic_handler: bool,
+    /// The input parser to use.
     input_parser: Parser,
 }
 
@@ -125,8 +129,8 @@ impl TalosBuilder {
             register_signal_handlers()?;
         }
 
-        let mut terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
-        let (rows, cols) = terminal.size()?;
+        let terminal = TerminalIO::new(self.hide_cursor, self.alternate_screen)?;
+        let (rows, cols) = TerminalIO::size()?;
 
         let codex = Codex::new();
 

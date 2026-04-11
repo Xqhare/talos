@@ -3,11 +3,14 @@
 //! The builders are used to configure and create instances of the main components, such as `Talos`,
 //! `Parser`, and `Layout`.
 
-mod talos_builder;
+/// Builder for the `Talos` struct.
+pub mod talos_builder;
 pub use talos_builder::TalosBuilder;
 
-mod parser_builder;
+/// Builder for the `Parser` struct.
+pub mod parser_builder;
 pub use parser_builder::ParserBuilder;
 
-mod layout_builder;
+/// Builder for the `Layout` struct.
+pub mod layout_builder;
 pub use layout_builder::LayoutBuilder;
