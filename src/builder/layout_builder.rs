@@ -18,11 +18,8 @@ use crate::layout::{Constraint, Direction, Layout};
 /// ```
 #[must_use]
 pub struct LayoutBuilder {
-    /// The direction of the layout.
     direction: Direction,
-    /// The constraints of the layout.
     constraints: Vec<Constraint>,
-    /// The margin of the layout.
     margin: u16,
 }
 

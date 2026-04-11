@@ -10,13 +10,9 @@ use crate::input::{InputParser, Parser, XtermParser};
 /// ```
 #[must_use]
 pub struct ParserBuilder {
-    /// The input parser to use.
     parser: Box<dyn InputParser>,
-    /// The amount to grow the input buffer by when it is full.
     buffer_linear_growth_step: usize,
-    /// The maximum size of the input buffer.
     max_poll_input_buffer: usize,
-    /// The initial size of the input buffer.
     initial_poll_input_buffer_size: usize,
 }
 
