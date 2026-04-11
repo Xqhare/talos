@@ -1,5 +1,4 @@
 use crate::{
-    codex::Codex,
     layout::Rect,
     render::{Canvas, Style},
     widgets::{Block, traits::Widget},
@@ -103,7 +102,6 @@ impl Widget for BlockBox<'_> {
         area: Rect,
         codex: &Codex,
     ) {
-
         self.state.block.style(self.style);
         self.state.block.render(canvas, area, codex);
         self.state.content.style(self.style);

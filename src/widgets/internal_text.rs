@@ -16,9 +16,6 @@ pub struct InternalText {
 }
 
 impl InternalText {
-    /// Create a new InternalText
-    #[inline]
-    #[must_use]
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
         let content = TextContent::new(content, codex, None);
         Self {
@@ -31,30 +28,20 @@ impl InternalText {
         }
     }
 
-    /// Set the highlight
-    #[inline]
     pub fn with_highlight(&mut self, glyph_num: Option<usize>, style: Option<Style>) {
         self.highlight_glyph_num = glyph_num;
         self.highlight_style = style;
     }
 
-    /// Set the content
-    #[inline]
     pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
         self.content.set_content(content, codex);
     }
 
-    /// Align the text to the center
-    #[inline]
-    #[must_use]
     pub fn align_center(mut self) -> Self {
         self.align_center = true;
         self
     }
 
-    /// Align the text vertically
-    #[inline]
-    #[must_use]
     pub fn align_vertically(mut self) -> Self {
         self.align_vertically = true;
         self
@@ -62,11 +49,9 @@ impl InternalText {
 }
 
 impl Widget for InternalText {
-    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         // Update wrap limit
         if let Some(wrap_limit) = self.content.get_wrap_limit() {
@@ -83,7 +68,7 @@ impl Widget for InternalText {
         let sequences: &[Sequence] = self.content.get_sequences();
 
         let top = if self.align_vertically {
-            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+            #[allow(clippy::cast_possible_truncation)]
             if (sequences.len() as u16) < area.height {
                 let rest = area.height - sequences.len() as u16;
                 if rest.is_multiple_of(2) {
@@ -114,7 +99,7 @@ impl Widget for InternalText {
                 0
             };
 
-            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+            #[allow(clippy::cast_possible_truncation)]
             let y = top + i as u16;
             let mut x = area.left() + left_margin;
 
@@ -152,21 +137,22 @@ impl Widget for InternalText {
         // Handle cursor at the end of the text
         if let Some(highlight_glyph_num) = self.highlight_glyph_num
             && glyphs_rendered == highlight_glyph_num
-            && last_x < area.right() && last_y < area.bottom() && last_y >= area.top()
         {
-            let style = if let Some(highlight_style) = self.highlight_style {
-                highlight_style
-            } else {
-                self.style.new_from_self().set_blink(true).build()
-            };
-            canvas.set_ccell(
-                last_x,
-                last_y,
-                CCell {
-                    char: SPACE_GLYPH,
-                    style,
-                },
-            );
+            if last_x < area.right() && last_y < area.bottom() && last_y >= area.top() {
+                let style = if let Some(highlight_style) = self.highlight_style {
+                    highlight_style
+                } else {
+                    self.style.new_from_self().set_blink(true).build()
+                };
+                canvas.set_ccell(
+                    last_x,
+                    last_y,
+                    CCell {
+                        char: SPACE_GLYPH,
+                        style,
+                    },
+                );
+            }
         }
     }
 }
