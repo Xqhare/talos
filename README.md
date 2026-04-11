@@ -21,10 +21,35 @@ I have limited the scope of the project at some points to make it easier on myse
 - [ ] Windows support - If I ever feel the desire to work with the windows kernel again
 - [ ] Widgets
     - [ ] Simple Widgets
+        - [ ] Key hints
+            - E.g "F1 -> Help | ESC -> Exit"
     - [ ] Stateful Widgets
+        - [ ] Tree View
+            - It handles expanding/collapsing nodes (e.g., ▼ Folder, ▶ Subfolder).
+        - [ ] Notification
+            - Really just a Block with a title and a single Text widget inside
+                - Timer needed / also alternate way of dismissing
+            - Persistant vs temporary -> Both would be nice
+        - [ ] Splitter
+            - Takes two areas and draws a separator between them
+        - [ ] Checkbox / Radio Button
+        - [ ] Multi-line text box
+        - [ ] Dropdown selection
+        - [ ] Tabs
+            - A widget that allows the user to switch between tabs / Windows / Panes whatever
+        - [ ] ScrollArea
+            - Both vertical and horizontal scrollable
         - [ ] Colour picker
             - A widget that allows the user to pick a colour
+        - [ ] Date and Time picker
+            - Calendar and Clock
+        - [ ] Gauge (like a speedometer) - hard because round things are hard, but also interesting because of it
+        - [ ] Modal Dialog
+            - A widget that blocks input from the user until it is closed
+            - Would also shadow the rest of the screen / run dim as the styles
+            - Draw itself on top of the rest of the screen
         - [ ] Chart widget
+            - [ ] Sparkline - One line high chart using varying block heights ( , ▂, ▃, ▄, ▅, ▆, ▇, █ )
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar
             - [ ] Min - Max Chart (Two points per x coordinate, connected with vertical lines)
