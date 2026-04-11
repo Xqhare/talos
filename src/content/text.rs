@@ -12,6 +12,9 @@ pub struct TextContent {
 }
 
 impl TextContent {
+    /// Create a new TextContent
+    #[inline]
+    #[must_use]
     pub fn new(content: impl Into<String>, codex: &Codex, max_width: Option<u16>) -> Self {
         let raw = content.into();
         let buffer = Self::parse_content_to_glyphs(&raw, codex, max_width);
@@ -22,6 +25,8 @@ impl TextContent {
         }
     }
 
+    /// Set the wrap limit
+    #[inline]
     pub fn set_wrap_limit(&mut self, max_width: u16, codex: &Codex) {
         if self.max_width == Some(max_width) {
             return;
@@ -30,15 +35,23 @@ impl TextContent {
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
     }
 
+    /// Set the content
+    #[inline]
     pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
         self.raw = content.into();
         self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, self.max_width);
     }
 
+    /// Get the wrap limit
+    #[inline]
+    #[must_use]
     pub fn get_wrap_limit(&self) -> Option<u16> {
         self.max_width
     }
 
+    /// Get the sequences
+    #[inline]
+    #[must_use]
     pub fn get_sequences(&self) -> &[Sequence] {
         &self.buffer
     }
@@ -62,16 +75,16 @@ impl TextContent {
 
             // Split by words but keep whitespace
             for word in content.split_inclusive(char::is_whitespace) {
-                if word.ends_with('\n') && word != "\n" {
-                    // Remove the trailing newline, push the word and start a new line
-                    let word = &word[..word.len() - 1];
-                    current_line.extend(word.chars().map(|ch| codex.lookup(ch)));
-                    out.push(Sequence::new(
-                        std::mem::take(&mut current_line),
-                        current_width,
-                    ));
-                    current_width = 0;
-                    continue;
+                if let Some(stripped) = word.strip_suffix('\n') {
+                    if !stripped.is_empty() {
+                        current_line.extend(stripped.chars().map(|ch| codex.lookup(ch)));
+                        out.push(Sequence::new(
+                            std::mem::take(&mut current_line),
+                            current_width,
+                        ));
+                        current_width = 0;
+                        continue;
+                    }
                 }
                 if word == "\n" {
                     out.push(Sequence::new(
@@ -83,10 +96,9 @@ impl TextContent {
                 }
 
                 let word_glyphs: Vec<Glyph> = word.chars().map(|ch| codex.lookup(ch)).collect();
-                #[allow(clippy::cast_possible_truncation)]
+                #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 let word_len = word_glyphs.len() as u16;
 
-                #[allow(clippy::comparison_chain)]
                 if current_width + word_len < max_width {
                     current_line.extend(word_glyphs);
                     current_width += word_len;
@@ -108,7 +120,7 @@ impl TextContent {
 
                     // Handle words longer than max_width by slicing
                     let mut remaining_glyphs = word_glyphs;
-                    #[allow(clippy::cast_possible_truncation)]
+                    #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                     while remaining_glyphs.len() as u16 > max_width {
                         let tail = remaining_glyphs.split_off(max_width as usize);
                         out.push(Sequence::new(remaining_glyphs, max_width));
@@ -116,7 +128,7 @@ impl TextContent {
                     }
 
                     // Put the remaining part of the word on the current line
-                    #[allow(clippy::cast_possible_truncation)]
+                    #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                     let new_width = remaining_glyphs.len() as u16;
                     current_width = new_width;
                     current_line = remaining_glyphs;
@@ -134,7 +146,7 @@ impl TextContent {
                 for ch in line.chars() {
                     buffer.push(codex.lookup(ch));
                 }
-                #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
+                #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 out.push(Sequence::new(buffer, line.len() as u16));
             }
         }
@@ -150,14 +162,23 @@ pub struct Sequence {
 }
 
 impl Sequence {
+    /// Create a new Sequence
+    #[inline]
+    #[must_use]
     pub fn new(buffer: Vec<Glyph>, width: u16) -> Self {
         Self { buffer, width }
     }
 
+    /// Get the width
+    #[inline]
+    #[must_use]
     pub fn width(&self) -> u16 {
         self.width
     }
 
+    /// Get the glyphs
+    #[inline]
+    #[must_use]
     pub fn glyphs(&self) -> &[Glyph] {
         &self.buffer
     }
