@@ -24,31 +24,30 @@
 )]
 use std::io::Write;
 use std::process::exit;
+use core::mem::swap;
 
-use crate::codex::Codex;
-use crate::input::Parser;
-use crate::input::poll_input_bytes;
-use crate::ui::render::ccell::CCell;
-use crate::ui::render::style::Style;
+use codex::Codex;
+use input::Parser;
+use input::poll_input_bytes;
+use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
 use utils::write_all_bytes;
 
 mod builder;
-pub use builder::{layout_builder::LayoutBuilder, parser_builder::ParserBuilder, talos_builder::TalosBuilder};
+pub use builder::{LayoutBuilder, ParserBuilder, TalosBuilder};
 pub mod error;
-pub use error::TalosError;
-pub use error::TalosResult;
+pub use error::{Error as TalosError, Result as TalosResult};
 
 /// Style and Layout Atlases
 pub mod atlases;
 
-use crate::backend::terminal::term_io::TerminalIO;
+use crate::backend::TerminalIO;
 use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
-use crate::input::event::Event;
-use crate::ui::render::canvas::Canvas;
+use crate::input::Event;
+use crate::ui::render::Canvas;
 use crate::utils::move_render_cursor;
 
 mod backend;
@@ -101,12 +100,7 @@ pub enum Present {
 }
 
 impl Talos {
-    /// Returns a new `TalosBuilder`
-    ///
-    /// This builder can be used to configure `Talos`.
-    ///
-    /// For an exhaustive list of options, see the [`TalosBuilder`](struct.TalosBuilder.html) struct.
-    /// Most options are shown in the example below.
+    /// Get a `TalosBuilder`
     ///
     /// # Example
     /// ```rust,no_run
@@ -257,7 +251,7 @@ impl Talos {
         self.terminal.stdout().flush()?;
 
         // Pointer swapping of the buffers
-        core::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
+        swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
         Ok(Present::Presented)
     }
@@ -369,7 +363,6 @@ impl Talos {
     /// Returns an error if internal I/O errors occur
     fn handle_signals(&mut self) -> TalosResult<bool> {
         if check_terminate() {
-
             // We need to shut down now - No state will be saved, just restore the terminal
             self.terminal.restore()?;
             exit(0);
