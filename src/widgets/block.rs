@@ -54,6 +54,7 @@ pub struct Block {
 }
 
 impl Default for Block {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -61,6 +62,8 @@ impl Default for Block {
 
 impl Block {
     /// Creates a new, empty block
+    #[inline]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             title: TitleContents::default(),
@@ -74,6 +77,8 @@ impl Block {
     /// Sets the block to use a fat border
     ///
     /// By default, the block uses a thin border
+    #[inline]
+    #[must_use]
     pub fn with_fat_border(mut self) -> Self {
         self.fat_border = true;
         self
@@ -88,6 +93,8 @@ impl Block {
     /// * `centered` - Whether the title should be centered
     ///
     /// if `centered` is false the title will be on the top left corner
+    #[inline]
+    #[must_use]
     pub fn title(mut self, title: impl Into<String>, codex: &Codex, centered: bool) -> Self {
         if centered {
             self.title
@@ -105,6 +112,8 @@ impl Block {
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
     /// * `codex` - The codex to use
+    #[inline]
+    #[must_use]
     pub fn top_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::TopRight, subtitle, codex);
@@ -117,6 +126,8 @@ impl Block {
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
     /// * `codex` - The codex to use
+    #[inline]
+    #[must_use]
     pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomRight, subtitle, codex);
@@ -129,6 +140,8 @@ impl Block {
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
     /// * `codex` - The codex to use
+    #[inline]
+    #[must_use]
     pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomCenter, subtitle, codex);
@@ -141,6 +154,8 @@ impl Block {
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
     /// * `codex` - The codex to use
+    #[inline]
+    #[must_use]
     pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
         self.title
             .set_position(&TitlePosition::BottomLeft, subtitle, codex);
@@ -148,12 +163,16 @@ impl Block {
     }
 
     /// Sets the block to fill the background set in the style of the block
+    #[inline]
+    #[must_use]
     pub fn with_bg_fill(mut self) -> Self {
         self.fill_bg = true;
         self
     }
 
     /// Sets the block to beautify the border breaks for the title and subtitles
+    #[inline]
+    #[must_use]
     pub fn with_beautify_border_breaks(mut self) -> Self {
         self.beautfy_border_breaks = true;
         self
@@ -161,6 +180,7 @@ impl Block {
 
     /// Returns the inner area inside the block's borders.
     /// Useful for rendering child widgets inside this block.
+    #[inline]
     #[must_use]
     pub fn inner(&self, area: Rect) -> Rect {
         if area.width < 2 || area.height < 2 {
@@ -176,10 +196,11 @@ impl Block {
 }
 
 impl Widget for Block {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    #[allow(clippy::too_many_lines)]
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 {
             return;
@@ -200,22 +221,22 @@ impl Widget for Block {
         } else {
             codex.lookup('│')
         };
-        let tl = if self.fat_border {
+        let tl_corner = if self.fat_border {
             codex.lookup('╔')
         } else {
             codex.lookup('┌')
         };
-        let tr = if self.fat_border {
+        let tr_corner = if self.fat_border {
             codex.lookup('╗')
         } else {
             codex.lookup('┐')
         };
-        let bl = if self.fat_border {
+        let bl_corner = if self.fat_border {
             codex.lookup('╚')
         } else {
             codex.lookup('└')
         };
-        let br = if self.fat_border {
+        let br_corner = if self.fat_border {
             codex.lookup('╝')
         } else {
             codex.lookup('┘')
@@ -226,7 +247,7 @@ impl Widget for Block {
             left,
             top,
             CCell {
-                char: tl,
+                char: tl_corner,
                 style: self.style,
             },
         );
@@ -234,7 +255,7 @@ impl Widget for Block {
             right,
             top,
             CCell {
-                char: tr,
+                char: tr_corner,
                 style: self.style,
             },
         );
@@ -242,7 +263,7 @@ impl Widget for Block {
             left,
             bottom,
             CCell {
-                char: bl,
+                char: bl_corner,
                 style: self.style,
             },
         );
@@ -250,7 +271,7 @@ impl Widget for Block {
             right,
             bottom,
             CCell {
-                char: br,
+                char: br_corner,
                 style: self.style,
             },
         );
@@ -345,7 +366,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in title.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -356,7 +377,7 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + title.len() as u16,
@@ -368,9 +389,9 @@ impl Widget for Block {
                 );
             }
         } else if let Some(title) = &self.title.get_position(&TitlePosition::TopCenter) {
-            let start_x = (area.width as usize / 2).saturating_sub(title.len() / 2);
-            #[allow(clippy::cast_possible_truncation)]
-            let mut start_x = left + start_x as u16 + 1;
+            let start_offset = (area.width as usize / 2).saturating_sub(title.len() / 2);
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+            let mut start_x = left + start_offset as u16 + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x,
@@ -382,7 +403,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in title.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -393,7 +414,7 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + title.len() as u16,
@@ -408,7 +429,7 @@ impl Widget for Block {
 
         // Draw subtitles if set
         if let Some(top_subtitle) = &self.title.get_position(&TitlePosition::TopRight) {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             let mut start_x = right - top_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
@@ -421,7 +442,7 @@ impl Widget for Block {
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in top_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -432,7 +453,7 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + top_subtitle.len() as u16,
@@ -445,7 +466,7 @@ impl Widget for Block {
             }
         }
 
-        let left_break = if self.beautfy_border_breaks {
+        let left_break_bot = if self.beautfy_border_breaks {
             if self.fat_border {
                 codex.lookup('╝')
             } else {
@@ -454,7 +475,7 @@ impl Widget for Block {
         } else {
             0
         };
-        let right_break = if self.beautfy_border_breaks {
+        let right_break_bot = if self.beautfy_border_breaks {
             if self.fat_border {
                 codex.lookup('╚')
             } else {
@@ -471,13 +492,13 @@ impl Widget for Block {
                     start_x,
                     bottom,
                     CCell {
-                        char: left_break,
+                        char: left_break_bot,
                         style: self.style,
                     },
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in bottom_left_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -488,13 +509,13 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_left_subtitle.len() as u16,
                     bottom,
                     CCell {
-                        char: right_break,
+                        char: right_break_bot,
                         style: self.style,
                     },
                 );
@@ -503,22 +524,22 @@ impl Widget for Block {
 
         if let Some(bottom_center_subtitle) = &self.title.get_position(&TitlePosition::BottomCenter)
         {
-            let start_x =
+            let start_offset =
                 (area.width as usize / 2).saturating_sub(bottom_center_subtitle.len() / 2);
-            #[allow(clippy::cast_possible_truncation)]
-            let mut start_x = left + start_x as u16 + 1;
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+            let mut start_x = left + start_offset as u16 + 1;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x,
                     bottom,
                     CCell {
-                        char: left_break,
+                        char: left_break_bot,
                         style: self.style,
                     },
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in bottom_center_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -529,13 +550,13 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_center_subtitle.len() as u16,
                     bottom,
                     CCell {
-                        char: right_break,
+                        char: right_break_bot,
                         style: self.style,
                     },
                 );
@@ -543,20 +564,20 @@ impl Widget for Block {
         }
 
         if let Some(bottom_right_subtitle) = &self.title.get_position(&TitlePosition::BottomRight) {
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             let mut start_x = right - bottom_right_subtitle.len() as u16 - 2;
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x,
                     bottom,
                     CCell {
-                        char: left_break,
+                        char: left_break_bot,
                         style: self.style,
                     },
                 );
                 start_x += 1;
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             for (i, glyph) in bottom_right_subtitle.iter().enumerate() {
                 canvas.set_ccell(
                     start_x + i as u16,
@@ -567,13 +588,13 @@ impl Widget for Block {
                     },
                 );
             }
-            #[allow(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
             if self.beautfy_border_breaks {
                 canvas.set_ccell(
                     start_x + bottom_right_subtitle.len() as u16,
                     bottom,
                     CCell {
-                        char: right_break,
+                        char: right_break_bot,
                         style: self.style,
                     },
                 );
@@ -585,13 +606,14 @@ impl Widget for Block {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::TalosResult;
+    use crate::error::Result as TalosResult;
     use crate::codex::Codex;
     use crate::codex::pages::SPACE_GLYPH;
     use crate::render::Canvas;
+    use crate::widgets::traits::Widget;
 
     #[test]
-    fn test_block_render_borders() -> TalosResult<()> {
+    fn block_render_borders() -> TalosResult<()> {
         // 1. Setup Headless Environment
         let mut canvas = Canvas::new(10, 10); // 10x10 virtual grid
         let codex = Codex::new(); // Standard glyph lookups (CP437/Windows1252)
@@ -601,8 +623,6 @@ mod tests {
         let mut block = Block::new(); // Default block (simple borders)
 
         // 3. Render (No terminal needed!)
-        // Note: We need to import the Widget trait in the test module or parent to call .render()
-        use crate::widgets::traits::Widget;
         block.render(&mut canvas, area, &codex);
 
         // 4. Verification
@@ -652,11 +672,10 @@ mod tests {
     }
 
     #[test]
-    fn test_block_clipping() -> TalosResult<()> {
+    fn block_clipping() -> TalosResult<()> {
         // Test that block doesn't draw outside its Rect
         let mut canvas = Canvas::new(10, 10);
         let codex = Codex::new();
-        use crate::widgets::traits::Widget;
 
         // Draw a block starting at (2,2) with size 3x3
         // It covers (2,2) to (4,4)
@@ -683,10 +702,9 @@ mod tests {
     }
 
     #[test]
-    fn test_block_title() -> TalosResult<()> {
+    fn block_title() -> TalosResult<()> {
         let mut canvas = Canvas::new(20, 5);
         let codex = Codex::new();
-        use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
         let mut block = Block::new().title("Test", &codex, false);
