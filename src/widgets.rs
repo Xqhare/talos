@@ -28,15 +28,16 @@
 //! }
 //! ```
 
-mod area;
-mod block;
-mod internal_text;
-mod number;
-mod text;
-pub use area::Area;
-pub use block::Block;
-pub use number::Number;
-pub use text::Text;
+/// Area
+pub mod area;
+/// Block
+pub mod block;
+/// Internal Text
+pub mod internal_text;
+/// Number
+pub mod number;
+/// Text
+pub mod text;
 
 /// Stateful widgets
 pub mod stateful;
@@ -46,7 +47,8 @@ pub mod traits {
     use crate::{
         codex::Codex,
         layout::Rect,
-        render::{Canvas, Style},
+        ui::render::canvas::Canvas,
+        ui::render::style::Style,
     };
 
     /// Widget trait
@@ -72,6 +74,7 @@ pub mod traits {
         /// Returns the widget with the specified style set
         ///
         /// This is a convenience method for chaining
+        #[inline]
         #[must_use]
         fn with_style(mut self, style: Style) -> Self
         where
@@ -83,9 +86,11 @@ pub mod traits {
     }
 
     impl Widget for &mut dyn Widget {
+        #[inline]
         fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
             (**self).render(canvas, area, codex);
         }
+        #[inline]
         fn style(&mut self, style: Style) {
             (**self).style(style);
         }
@@ -95,6 +100,8 @@ pub mod traits {
     ///
     /// Useful for passing a vector of widgets to a widget that expects a vector of dynamic
     /// widgets like `List` or `MenuButton`.
+    #[inline]
+    #[must_use]
     pub fn make_dyn_iter<'a, I, W>(iter: I) -> Vec<&'a mut dyn Widget>
     where
         I: Iterator<Item = &'a mut W>,
