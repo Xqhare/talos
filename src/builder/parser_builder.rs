@@ -114,7 +114,7 @@ impl ParserBuilder {
     #[inline]
     #[must_use]
     pub fn build(self) -> Parser {
-        let poll_input_buffer = vec![0_u8; self.initial_poll_input_buffer_size];
+        let poll_input_buffer = vec![0u8; self.initial_poll_input_buffer_size];
 
         let event_buffer = Vec::with_capacity(self.initial_poll_input_buffer_size);
         Parser {
