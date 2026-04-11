@@ -38,8 +38,10 @@
 
 use std::{cmp::min, io::{Read, ErrorKind}};
 
-mod event;
+/// Event module.
+pub mod event;
 pub use event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+/// Parser module.
 mod parse;
 pub use parse::{InputParser, XtermParser};
 
@@ -47,15 +49,15 @@ use crate::error::Result as TalosResult;
 
 /// The input parser abstract interface
 pub struct Parser {
-    /// The specific input parser to use
+    /// The specific input parser to use.
     pub parser: Box<dyn InputParser>,
-    /// The events that have been parsed
+    /// The events that have been parsed.
     pub event_buffer: Vec<Event>,
-    /// The buffer to poll new bytes into
+    /// The buffer to poll new bytes into.
     pub poll_input_buffer: Vec<u8>,
-    /// The amount to grow the `poll_input_buffer` by when it is full
+    /// The amount to grow the `poll_input_buffer` by when it is full.
     pub buffer_linear_growth_step: usize,
-    /// The maximum size of the `poll_input_buffer`
+    /// The maximum size of the `poll_input_buffer`.
     pub max_poll_input_buffer: usize,
 }
 
@@ -143,6 +145,7 @@ mod tests {
     use std::io::Cursor;
 
     #[test]
+    #[expect(clippy::panic_in_result_fn, reason = "Test logic")]
     fn poll_input_parsing_branches() -> TalosResult<()> {
         // A stream simulating:
         // - 'a'
@@ -206,6 +209,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::panic_in_result_fn, reason = "Test logic")]
     fn empty_input() -> TalosResult<()> {
         let mut reader = Cursor::new(vec![]);
         let mut buffer = vec![0u8; 32];
