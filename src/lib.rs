@@ -44,7 +44,7 @@ pub use error::TalosResult;
 /// Style and Layout Atlases
 pub mod atlases;
 
-use crate::backend::terminal::term_io::TerminalIO;
+use crate::backend::TerminalIO;
 use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
 use crate::input::Event;
