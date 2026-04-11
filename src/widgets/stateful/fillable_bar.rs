@@ -77,7 +77,7 @@ impl<'a> FillableBar<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::FillableBar};
+    /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();

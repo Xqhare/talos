@@ -96,6 +96,8 @@ mod backend;
 pub mod codex;
 /// Content abstraction.
 mod content;
+pub use content::text;
+pub use content::title;
 /// UI abstraction.
 mod ui;
 
