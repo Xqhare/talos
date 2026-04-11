@@ -17,7 +17,6 @@ pub struct ParserBuilder {
 }
 
 impl Default for ParserBuilder {
-    #[inline]
     fn default() -> Self {
         // Around 1MB of max input - PER FRAME
         let max_poll_input_buffer = 1024 * 1024;
@@ -45,8 +44,6 @@ impl ParserBuilder {
     ///     .with_initial_poll_input_buffer_size(1024)
     ///     .build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_initial_poll_input_buffer_size(mut self, poll_input_buffer_size: usize) -> Self {
         self.initial_poll_input_buffer_size = poll_input_buffer_size;
         self
@@ -63,8 +60,6 @@ impl ParserBuilder {
     ///     .with_max_poll_input_buffer(2 * 1024 * 1024)
     ///     .build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_max_poll_input_buffer(mut self, max_poll_input_buffer: usize) -> Self {
         self.max_poll_input_buffer = max_poll_input_buffer;
         self
@@ -81,8 +76,6 @@ impl ParserBuilder {
     ///     .with_buffer_linear_growth_step(4096)
     ///     .build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_buffer_linear_growth_step(mut self, buffer_linear_growth_step: usize) -> Self {
         self.buffer_linear_growth_step = buffer_linear_growth_step;
         self
@@ -97,8 +90,6 @@ impl ParserBuilder {
     ///     .with_input_parser(Box::new(XtermParser::new()))
     ///     .build();
     /// ```
-    #[inline]
-    #[must_use]
     pub fn with_input_parser(mut self, input_parser: Box<dyn InputParser>) -> Self {
         self.parser = input_parser;
         self
@@ -111,10 +102,9 @@ impl ParserBuilder {
     ///
     /// let parser = ParserBuilder::default().build();
     /// ```
-    #[inline]
     #[must_use]
     pub fn build(self) -> Parser {
-        let poll_input_buffer = vec![0_u8; self.initial_poll_input_buffer_size];
+        let poll_input_buffer = vec![0u8; self.initial_poll_input_buffer_size];
 
         let event_buffer = Vec::with_capacity(self.initial_poll_input_buffer_size);
         Parser {
