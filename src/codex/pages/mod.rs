@@ -1,14 +1,10 @@
-/// Codex Page 437
-pub mod cp_437;
+mod cp_437;
 use cp_437::CP437;
-/// Codex Page Windows 1252
-pub mod win_1252;
+mod win_1252;
 use win_1252::WIN_1252;
-/// Codex Page UTF Misc Technical
-pub mod utf_misc_technical;
+mod utf_misc_technical;
 use utf_misc_technical::MISC_TECHNICAL;
-/// Codex Page UTF Geometric Shapes
-pub mod utf_geometric_shapes;
+mod utf_geometric_shapes;
 use utf_geometric_shapes::GEOMETRIC_SHAPES;
 
 use crate::{
@@ -51,7 +47,6 @@ pub const REG_UTF_GEOMETRIC_SHAPES: (u8, &Page) = (3, &GEOMETRIC_SHAPES);
 ///
 /// # Errors
 /// Returns an error if the page is invalid (does not have 256 entries or if any entry is not a single unicode character)
-#[inline]
 pub fn validate_page(page: &Page) -> TalosResult<()> {
     if page.len() != 256 {
         return Err(TalosError::InvalidArgument(format!(
@@ -79,7 +74,6 @@ pub fn validate_page(page: &Page) -> TalosResult<()> {
 ///
 /// # Returns
 /// Returns the character if the glyph is ASCII, otherwise returns None
-#[inline]
 #[must_use]
 pub fn pre_computed_char(g: Glyph) -> Option<&'static str> {
     match g {
