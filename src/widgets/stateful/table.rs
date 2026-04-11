@@ -57,27 +57,16 @@ use crate::{
 #[must_use]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
-    /// The state of the table.
     state: Option<&'a mut TableState>,
-    /// The rows of the table.
     rows: Vec<Vec<&'a mut dyn Widget>>,
-    /// Whether to alternate colours vertically.
     alternate_colour_vertically: bool,
-    /// Whether to alternate colours horizontally.
     alternate_colour_horizontally: bool,
-    /// The primary style of the table.
     style: Style,
-    /// The alternate style of the table.
     alternate_style: Style,
-    /// The style of the borders.
     border_style: Style,
-    /// The style of the header.
     header_style: Style,
-    /// The index of the header row.
     header_row: Option<usize>,
-    /// Whether to draw the outer border.
     draw_outer_border: bool,
-    /// Whether to draw inner borders.
     draw_inner_border: bool,
 }
 
@@ -341,7 +330,6 @@ impl Widget for Table<'_> {
         self.style = style;
     }
     #[inline]
-    #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let tl = codex.lookup('\u{2554}'); // ╔
         let tr = codex.lookup('\u{2557}'); // ╗

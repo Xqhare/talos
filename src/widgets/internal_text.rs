@@ -4,21 +4,14 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
-/// Internal representation of a text widget.
 #[derive(Debug, Clone)]
 #[must_use]
 pub struct InternalText {
-    /// The text content.
     content: TextContent,
-    /// The style of the text.
     style: Style,
-    /// Whether to align the text to the center.
     align_center: bool,
-    /// Whether to align the text vertically.
     align_vertically: bool,
-    /// The index of the glyph to highlight.
     highlight_glyph_num: Option<usize>,
-    /// The style of the highlighted glyph.
     highlight_style: Option<Style>,
 }
 

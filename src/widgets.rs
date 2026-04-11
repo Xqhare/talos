@@ -28,15 +28,16 @@
 //! }
 //! ```
 
-mod area;
-mod block;
-mod internal_text;
-mod number;
-mod text;
-pub use area::Area;
-pub use block::Block;
-pub use number::Number;
-pub use text::Text;
+/// Area
+pub mod area;
+/// Block
+pub mod block;
+/// Internal Text
+pub mod internal_text;
+/// Number
+pub mod number;
+/// Text
+pub mod text;
 
 /// Stateful widgets
 pub mod stateful;
@@ -46,7 +47,8 @@ pub mod traits {
     use crate::{
         codex::Codex,
         layout::Rect,
-        render::{Canvas, Style},
+        ui::render::canvas::Canvas,
+        ui::render::style::Style,
     };
 
     /// Widget trait

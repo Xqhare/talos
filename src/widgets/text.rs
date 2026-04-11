@@ -46,7 +46,6 @@ use crate::widgets::traits::Widget;
 #[derive(Debug, Clone)]
 #[must_use]
 pub struct Text {
-    /// The internal text content.
     content: InternalText,
 }
 

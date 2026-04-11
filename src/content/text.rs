@@ -99,43 +99,39 @@ impl TextContent {
                 #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
                 let word_len = word_glyphs.len() as u16;
 
-                match (current_width + word_len).cmp(&max_width) {
-                    std::cmp::Ordering::Less => {
-                        current_line.extend(word_glyphs);
-                        current_width += word_len;
-                    }
-                    std::cmp::Ordering::Equal => {
-                        current_line.extend(word_glyphs);
+                if current_width + word_len < max_width {
+                    current_line.extend(word_glyphs);
+                    current_width += word_len;
+                } else if current_width + word_len == max_width {
+                    current_line.extend(word_glyphs);
+                    out.push(Sequence::new(
+                        std::mem::take(&mut current_line),
+                        current_width,
+                    ));
+                    current_width = 0;
+                } else {
+                    // If line isn't empty, push it and start new line
+                    if !current_line.is_empty() {
                         out.push(Sequence::new(
                             std::mem::take(&mut current_line),
                             current_width,
                         ));
-                        current_width = 0;
                     }
-                    std::cmp::Ordering::Greater => {
-                        // If line isn't empty, push it and start new line
-                        if !current_line.is_empty() {
-                            out.push(Sequence::new(
-                                std::mem::take(&mut current_line),
-                                current_width,
-                            ));
-                        }
 
-                        // Handle words longer than max_width by slicing
-                        let mut remaining_glyphs = word_glyphs;
-                        #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
-                        while remaining_glyphs.len() as u16 > max_width {
-                            let tail = remaining_glyphs.split_off(max_width as usize);
-                            out.push(Sequence::new(remaining_glyphs, max_width));
-                            remaining_glyphs = tail;
-                        }
-
-                        // Put the remaining part of the word on the current line
-                        #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
-                        let new_width = remaining_glyphs.len() as u16;
-                        current_width = new_width;
-                        current_line = remaining_glyphs;
+                    // Handle words longer than max_width by slicing
+                    let mut remaining_glyphs = word_glyphs;
+                    #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+                    while remaining_glyphs.len() as u16 > max_width {
+                        let tail = remaining_glyphs.split_off(max_width as usize);
+                        out.push(Sequence::new(remaining_glyphs, max_width));
+                        remaining_glyphs = tail;
                     }
+
+                    // Put the remaining part of the word on the current line
+                    #[expect(clippy::cast_possible_truncation, reason = "Coords are also truncated")]
+                    let new_width = remaining_glyphs.len() as u16;
+                    current_width = new_width;
+                    current_line = remaining_glyphs;
                 }
             }
 

@@ -58,9 +58,7 @@ pub struct BlockBoxState<'a> {
 /// }
 /// ```
 pub struct BlockBox<'a> {
-    /// The state of the block box.
     state: BlockBoxState<'a>,
-    /// The style of the block box.
     style: Style,
 }
 

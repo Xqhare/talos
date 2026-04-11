@@ -14,7 +14,9 @@
     clippy::implicit_return,
     clippy::allow_attributes,
     clippy::allow_attributes_without_reason,
+    clippy::partial_pub_fields,
     clippy::pub_with_shorthand,
+    clippy::useless_asref,
     clippy::exhaustive_structs,
     clippy::float_arithmetic,
     clippy::integer_division,
@@ -42,7 +44,9 @@
     clippy::blanket_clippy_restriction_lints,
     clippy::doc_include_without_cfg,
     clippy::doc_markdown,
+    clippy::empty_line_after_doc_comments,
     clippy::absolute_paths,
+    clippy::from_over_into,
     clippy::std_instead_of_alloc,
     clippy::cloned_instead_of_copied,
     clippy::missing_panics_doc,
@@ -51,21 +55,28 @@
     clippy::unwrap_or_default,
     clippy::let_underscore_untyped,
     clippy::let_underscore_must_use,
+    clippy::renamed_function_params,
+    clippy::new_without_default,
     clippy::if_then_some_else_none,
+    clippy::decimal_bitwise_operands,
+    clippy::return_and_then,
+    clippy::field_reassign_with_default,
     clippy::undocumented_unsafe_blocks,
     clippy::multiple_unsafe_ops_per_block,
     clippy::module_name_repetitions,
+    clippy::missing_docs_in_private_items,
     clippy::default_numeric_fallback,
     clippy::fn_to_numeric_cast_any,
+    clippy::string_slice,
     clippy::must_use_candidate,
     clippy::collapsible_if,
+    clippy::panic_in_result_fn,
+    clippy::redundant_test_prefix,
+    clippy::items_after_statements,
+    clippy::unnecessary_wraps,
     clippy::similar_names,
-    clippy::field_scoped_visibility_modifiers,
-    clippy::unused_self,
-    clippy::comparison_chain,
-    clippy::too_many_lines,
-    clippy::unnecessary_lazy_evaluations,
-    function_casts_as_integer,
+    clippy::function_casts_as_integer,
+    unused_must_use,
     dead_code,
     reason = "Ignored warnings"
 )]
@@ -111,9 +122,7 @@ mod utils;
 /// Widgets
 pub mod widgets;
 
-/// Width of the terminal.
 type Width = u16;
-/// Height of the terminal.
 type Height = u16;
 
 /// The main struct of the library
@@ -128,21 +137,15 @@ type Height = u16;
 ///
 /// For more information on building the struct, see [`TalosBuilder`](struct.TalosBuilder.html).
 pub struct Talos {
-    /// Terminal abstraction.
     terminal: TerminalIO,
-    /// Drawing canvas.
     canvas: Canvas,
-    /// Character mapping codex.
     codex: Codex,
     // Terminal Size
     /// Width, Height
     size: (Width, Height),
-    /// Previous frame's buffer for optimized rendering.
     previous_buffer: Vec<CCell>,
-    /// Buffer for storing the output bytes.
     output_buffer: Vec<u8>,
     // Input-Parser
-    /// Input parser.
     parser: Parser,
 }
 
@@ -424,7 +427,7 @@ impl Talos {
         }
 
         if check_resize() {
-            let (rows, cols) = TerminalIO::size()?;
+            let (rows, cols) = self.terminal.size()?;
             self.size = (cols, rows);
 
             self.canvas = Canvas::new(self.size.0, self.size.1);

@@ -42,13 +42,9 @@ use crate::{
 /// ```
 #[must_use]
 pub struct SignalBox<'a> {
-    /// The state of the signal box.
     state: Option<&'a mut SignalBoxState>,
-    /// The style of the signal box.
     style: Style,
-    /// The symbol to display when the signal is on.
     signal_on_symbol: Glyph,
-    /// The symbol to display when the signal is off.
     signal_off_symbol: Glyph,
 }
 

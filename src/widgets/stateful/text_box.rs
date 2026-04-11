@@ -18,11 +18,8 @@ pub struct TextBoxState {
 
 /// A widget for text input.
 pub struct TextBox<'a> {
-    /// The state of the text box.
     state: Option<&'a mut TextBoxState>,
-    /// The style of the text box.
     style: Style,
-    /// The style of the highlighted part of the text box.
     highlight_style: Option<Style>,
 }
 

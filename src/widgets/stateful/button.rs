@@ -40,15 +40,10 @@ use crate::{
 /// }
 /// ```
 pub struct Button<'a> {
-    /// The text of the button.
     text: Text,
-    /// The style of the button.
     style: Style,
-    /// The state of the button.
     state: Option<&'a mut ButtonState>,
-    /// The style when the button is clicked.
     clicked_style: Style,
-    /// The text to display when the button is clicked.
     clicked_text: Option<Text>,
 }
 

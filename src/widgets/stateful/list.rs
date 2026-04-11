@@ -54,15 +54,10 @@ use crate::{
 /// ```
 #[must_use]
 pub struct List<'a> {
-    /// The items in the list.
     items: Vec<&'a mut dyn Widget>,
-    /// The state of the list.
     state: &'a mut ListState,
-    /// The style of the selected item.
     selected_style: Style,
-    /// The symbol of the selected item.
     selected_symbol: Option<Glyph>,
-    /// Whether the list is horizontal.
     horizontal: bool,
 }
 
@@ -138,7 +133,6 @@ impl Widget for List<'_> {
         self.selected_style = style;
     }
     #[inline]
-    #[expect(clippy::too_many_lines, reason = "Render functions are naturally long")]
     fn render(
         &mut self,
         canvas: &mut Canvas,

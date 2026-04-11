@@ -32,9 +32,7 @@ use crate::{
 #[derive(Debug, Clone)]
 #[must_use]
 pub struct Number {
-    /// The text content of the number.
     content: TextContent,
-    /// The style of the number.
     style: Style,
 }
 
