@@ -1,7 +1,11 @@
+/// Foreground color prefix for normal colors.
 pub const FG_PRE_DIGIT_NORMAL: u8 = 3;
+/// Foreground color prefix for bright colors.
 pub const FG_PRE_DIGIT_BRIGHT: u8 = 9;
 
+/// Background color prefix for normal colors.
 pub const BG_PRE_DIGIT_NORMAL: u8 = 4;
+/// Background color prefix for bright colors.
 pub const BG_PRE_DIGIT_BRIGHT: u8 = 10;
 
 /// Colour is a representation of a terminal colour
@@ -135,8 +139,11 @@ pub enum Extended {
     TrueColour(TrueColour),
 }
 
+/// Bit indicating 256-color mode.
 pub const COLOURMODE_SIGNAL_BIT: u8 = 5;
+/// ANSI code for extended foreground color.
 pub const EXTENDED_FG_BIT: u8 = 38;
+/// ANSI code for extended background color.
 pub const EXTENDED_BG_BIT: u8 = 48;
 
 /// One byte RGB
@@ -172,6 +179,7 @@ impl ColourMode {
     }
 }
 
+/// Bit indicating TrueColor (24-bit) mode.
 pub const TRUE_COLOURMODE_SIGNAL_BIT: u8 = 2;
 
 /// Three byte RGB

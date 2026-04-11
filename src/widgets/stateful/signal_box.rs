@@ -53,7 +53,6 @@ pub struct SignalBox<'a> {
 }
 
 /// The state of a signal box
-#[non_exhaustive]
 pub struct SignalBoxState {
     /// Whether the signal is on or off
     pub signal: bool,

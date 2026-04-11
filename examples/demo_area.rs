@@ -7,7 +7,7 @@ use talos::render::{Colour, Normal, Style};
 use talos::widgets::traits::Widget;
 use talos::widgets::{Area, Block};
 
-fn main() -> Result<(), talos::error::TalosError> {
+fn main() -> Result<(), talos::TalosError> {
     // 1. Initialize Talos
     let mut talos = Talos::builder().build()?;
 

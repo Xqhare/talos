@@ -6,7 +6,6 @@ use crate::{
 };
 
 /// The state of a `TextBox`.
-#[non_exhaustive]
 pub struct TextBoxState {
     /// Whether the text box is currently focused/active.
     pub active: bool,
@@ -53,12 +52,7 @@ impl Widget for TextBox<'_> {
         self.style = style;
     }
     #[inline]
-    fn render(
-        &mut self,
-        canvas: &mut Canvas,
-        area: Rect,
-        codex: &Codex,
-    ) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if let Some(state) = &mut self.state {
             let cursor = if state.active { state.cursor } else { None };
 

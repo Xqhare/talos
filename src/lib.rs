@@ -18,7 +18,6 @@
     clippy::exhaustive_structs,
     clippy::float_arithmetic,
     clippy::integer_division,
-    clippy::unwrap_used,
     clippy::cognitive_complexity,
     clippy::integer_division_remainder_used,
     clippy::std_instead_of_core,
@@ -57,15 +56,9 @@
     clippy::module_name_repetitions,
     clippy::default_numeric_fallback,
     clippy::fn_to_numeric_cast_any,
-    clippy::must_use_candidate,
     clippy::collapsible_if,
     clippy::similar_names,
     clippy::field_scoped_visibility_modifiers,
-    clippy::unused_self,
-    clippy::comparison_chain,
-    clippy::too_many_lines,
-    clippy::unnecessary_lazy_evaluations,
-    function_casts_as_integer,
     dead_code,
     reason = "Ignored warnings"
 )]

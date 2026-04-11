@@ -10,7 +10,6 @@ use crate::{
 /// A `BlockBox` is a block that contains another widget
 ///
 /// Use `BlockBox::new` to create a new `BlockBox`
-#[non_exhaustive]
 pub struct BlockBoxState<'a> {
     /// The block that contains or surrounds the widget
     pub block: &'a mut Block,
@@ -99,13 +98,7 @@ impl Widget for BlockBox<'_> {
         self.style = style;
     }
     #[inline]
-    fn render(
-        &mut self,
-        canvas: &mut Canvas,
-        area: Rect,
-        codex: &Codex,
-    ) {
-
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         self.state.block.style(self.style);
         self.state.block.render(canvas, area, codex);
         self.state.content.style(self.style);

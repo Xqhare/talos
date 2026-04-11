@@ -9,7 +9,6 @@ use crate::{
 };
 
 /// The state or contents of a `MenuButton`
-#[non_exhaustive]
 pub struct MenuButtonState<'a> {
     /// The main button, always visible
     pub main_button: Button<'a>,
@@ -159,10 +158,14 @@ impl Widget for MenuButton<'_> {
                     child.style(style);
                 }
                 let (x, y) = if self.vertical {
-                    let offset = u16::try_from(num).unwrap_or(u16::MAX).saturating_mul(child_height);
+                    let offset = u16::try_from(num)
+                        .unwrap_or(u16::MAX)
+                        .saturating_mul(child_height);
                     (area.x, area.bottom().saturating_add(offset))
                 } else {
-                    let offset = u16::try_from(num).unwrap_or(u16::MAX).saturating_mul(child_width);
+                    let offset = u16::try_from(num)
+                        .unwrap_or(u16::MAX)
+                        .saturating_mul(child_width);
                     (area.right().saturating_add(offset), area.y)
                 };
 
