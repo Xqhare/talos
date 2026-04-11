@@ -28,7 +28,8 @@ use std::process::exit;
 use crate::codex::Codex;
 use crate::input::Parser;
 use crate::input::poll_input_bytes;
-use ui::render::{CCell, Style};
+use crate::ui::render::ccell::CCell;
+use crate::ui::render::style::Style;
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
@@ -47,7 +48,7 @@ use crate::backend::terminal::term_io::TerminalIO;
 use crate::backend::sys::check_resize;
 use crate::backend::sys::check_terminate;
 use crate::input::event::Event;
-use crate::ui::render::Canvas;
+use crate::ui::render::canvas::Canvas;
 use crate::utils::move_render_cursor;
 
 mod backend;
