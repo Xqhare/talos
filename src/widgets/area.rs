@@ -45,6 +45,7 @@ pub struct Area {
 }
 
 impl Default for Area {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -52,6 +53,8 @@ impl Default for Area {
 
 impl Area {
     /// Creates a new, empty area
+    #[inline]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             style: Style::default(),
@@ -60,10 +63,12 @@ impl Area {
 }
 
 impl Widget for Area {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
 
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
         let left = area.left();
         let right = area.right();
@@ -88,12 +93,12 @@ impl Widget for Area {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::TalosResult;
+    use crate::error::Result as TalosResult;
     use crate::codex::Codex;
     use crate::render::Canvas;
 
     #[test]
-    fn test_area_builder() {
+    fn area_builder() {
         use crate::render::{Colour, Normal};
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Blue))
@@ -104,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn test_area_render_temporary() -> TalosResult<()> {
+    fn area_render_temporary() -> TalosResult<()> {
         use crate::render::{Colour, Normal};
         let mut canvas = Canvas::new(10, 10);
         let codex = Codex::new();
