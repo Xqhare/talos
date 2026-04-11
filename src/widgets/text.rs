@@ -50,14 +50,16 @@ pub struct Text {
 }
 
 impl From<InternalText> for Text {
+    #[inline]
     fn from(content: InternalText) -> Self {
         Self { content }
     }
 }
 
-impl Into<InternalText> for Text {
-    fn into(self) -> InternalText {
-        self.content
+impl From<Text> for InternalText {
+    #[inline]
+    fn from(val: Text) -> Self {
+        val.content
     }
 }
 
@@ -73,6 +75,8 @@ impl Text {
     /// let text = Text::new("Hello, world!", &codex);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
         Self {
             content: InternalText::new(content, codex),
@@ -80,10 +84,14 @@ impl Text {
     }
 
     /// Update the text content.
+    #[inline]
     pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
         self.content.set_content(content, codex);
     }
 
+    /// Returns a mutable reference to the internal text content.
+    #[inline]
+    #[must_use]
     pub(super) fn get_mut_content(&mut self) -> &mut InternalText {
         &mut self.content
     }
@@ -99,6 +107,8 @@ impl Text {
     /// let text = Text::new("Hello, world!", &codex).align_center();
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn align_center(mut self) -> Self {
         self.content = self.content.align_center();
         self
@@ -115,6 +125,8 @@ impl Text {
     /// let text = Text::new("Hello, world!", &codex).align_vertically();
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn align_vertically(mut self) -> Self {
         self.content = self.content.align_vertically();
         self
@@ -122,9 +134,11 @@ impl Text {
 }
 
 impl Widget for Text {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.content.style(style);
     }
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         self.content.render(canvas, area, codex);
     }
