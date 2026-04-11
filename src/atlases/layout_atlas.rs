@@ -2,7 +2,13 @@ use std::collections::BTreeMap;
 
 use crate::layout::Rect;
 
+/// A collection of named layout `Rect` objects.
+///
+/// A `LayoutAtlas` allows for storing and retrieving `Rect` objects by string keys,
+/// which is useful for managing complex layouts where different parts of the UI
+/// need to share or reference specific areas.
 pub struct LayoutAtlas {
+    /// The internal store for the `Rect` objects, mapped by their names.
     pub store: BTreeMap<String, Rect>,
 }
 

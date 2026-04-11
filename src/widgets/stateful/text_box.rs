@@ -4,12 +4,17 @@ use crate::{
     widgets::{Text, traits::Widget},
 };
 
+/// The state of a `TextBox`.
 pub struct TextBoxState {
+    /// Whether the text box is currently focused/active.
     pub active: bool,
+    /// The current position of the cursor within the text.
     pub cursor: Option<usize>,
+    /// The text content of the text box.
     pub text: Text,
 }
 
+/// A widget for text input.
 pub struct TextBox<'a> {
     state: Option<&'a mut TextBoxState>,
     style: Style,
@@ -17,6 +22,7 @@ pub struct TextBox<'a> {
 }
 
 impl<'a> TextBox<'a> {
+    /// Create a new `TextBox` with the given state.
     pub fn new(state: &'a mut TextBoxState) -> Self {
         Self {
             state: Some(state),
@@ -24,6 +30,8 @@ impl<'a> TextBox<'a> {
             highlight_style: None,
         }
     }
+
+    /// Set the style for the highlighted part of the text box (e.g. the cursor).
     pub fn with_highlight_style(mut self, style: Style) -> Self {
         self.highlight_style = Some(style);
         self

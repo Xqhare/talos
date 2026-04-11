@@ -6,8 +6,8 @@ use talos::{
     layout::{Constraint, Direction, Rect},
     render::{Colour, Normal, Style},
     widgets::{
-        Text,
-        stateful::{Button, ButtonState, MenuButton, TextBox, TextBoxState},
+        Block, Text,
+        stateful::{BlockBox, Button, ButtonState, MenuButton, TextBox, TextBoxState},
         traits::Widget,
     },
 };
@@ -188,11 +188,16 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         // Create the nested menu for "Load"
+        let mut path_block = Block::new()
+            .title("enter a path", codex, true)
+            .with_bg_fill();
         let mut path_text_box =
             TextBox::new(&mut path_text_state).with_highlight_style(highlight_style);
-        path_text_box.style(sub_menu_style);
 
-        let mut load_items: Vec<&mut dyn Widget> = vec![&mut path_text_box];
+        let mut block_box = BlockBox::new(&mut path_block, &mut path_text_box);
+        block_box.style(sub_menu_style);
+
+        let mut load_items: Vec<&mut dyn Widget> = vec![&mut block_box];
         let mut load_menu = MenuButton::new(
             Button::new("Load", codex)
                 .with_state(&mut sub_menu_open)
@@ -200,7 +205,8 @@ fn main() -> Result<(), talos::TalosError> {
             load_items.iter_mut(),
         )
         .with_horizontal_layout()
-        .with_child_width(30);
+        .with_child_width(30)
+        .with_child_height(3);
 
         // Define menu buttons for the main File menu
         let mut save_btn = Button::new("Save", codex).with_style(menu_style);
@@ -228,7 +234,7 @@ fn main() -> Result<(), talos::TalosError> {
                 x: item_rects[1].right(),
                 y: item_rects[1].y,
                 width: 30,
-                height: item_rects[1].height,
+                height: 3,
             };
         }
 

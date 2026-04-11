@@ -32,6 +32,14 @@ I have limited the scope of the project at some points to make it easier on myse
             - [ ] Support for `usize`, `isize` and `f32` & `f64`
                 - `isize` and `float` will need the x-axis to be in the middle to support negative values
 
+## Constraints
+
+- Coordinate calculations truncate to `u16::MAX`.
+    - This caps structures like tables to around 65,000 rows and columns.
+    - This also caps the Terminal size to around 65,000 rows and columns.
+- No full Unicode support.
+    - At most, `u16::MAX` Unicode code points can be supported.
+
 ## Features
 
 - Supports all UNIX systems
@@ -125,7 +133,7 @@ talos = { git = "https://github.com/Xqhare/talos" }
 
 ### Basic Usage
 
-```rust
+```rust,no_run
 use talos::{
     Talos,
     input::{Event, KeyCode, KeyEvent},

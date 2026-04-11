@@ -79,6 +79,7 @@ impl Text {
         }
     }
 
+    /// Update the text content.
     pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
         self.content.set_content(content, codex);
     }
