@@ -30,6 +30,7 @@ pub struct StyleAtlas {
 }
 
 impl From<StyleAtlas> for BTreeMap<String, Style> {
+    #[inline]
     fn from(atlas: StyleAtlas) -> Self {
         atlas.store
     }
@@ -55,12 +56,10 @@ impl StyleAtlas {
     /// let atlas = StyleAtlas::new(None);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new(default: Option<Style>) -> Self {
-        let default = if let Some(style) = default {
-            style
-        } else {
-            Style::default()
-        };
+        let default = default.unwrap_or_else(Style::default);
         let ok = Style::builder()
             .set_fg(Colour::Normal(Normal::Green))
             .set_bg_option(default.get_bg())
@@ -75,10 +74,10 @@ impl StyleAtlas {
             .build();
 
         let mut store = BTreeMap::new();
-        store.insert("default".to_string(), default);
-        store.insert("ok".to_string(), ok);
-        store.insert("warning".to_string(), warning);
-        store.insert("error".to_string(), error);
+        let _ = store.insert("default".to_string(), default);
+        let _ = store.insert("ok".to_string(), ok);
+        let _ = store.insert("warning".to_string(), warning);
+        let _ = store.insert("error".to_string(), error);
 
         Self { store }
     }
@@ -86,6 +85,8 @@ impl StyleAtlas {
     ///
     /// This is the default style, as passed in the constructor or the default Terminal Session style
     /// To change use `update_default` or `update_default_only` as needed.
+    #[inline]
+    #[must_use]
     pub fn get_default(&self) -> Style {
         self.get_style_exists("default")
     }
@@ -93,6 +94,8 @@ impl StyleAtlas {
     ///
     /// Uses `Green` as the foreground color and the default background.
     /// To change use `update_ok`
+    #[inline]
+    #[must_use]
     pub fn get_ok(&self) -> Style {
         self.get_style_exists("ok")
     }
@@ -100,6 +103,8 @@ impl StyleAtlas {
     ///
     /// Uses `Yellow` as the foreground color and the default background.
     /// To change use `update_warning`
+    #[inline]
+    #[must_use]
     pub fn get_warning(&self) -> Style {
         self.get_style_exists("warning")
     }
@@ -107,6 +112,8 @@ impl StyleAtlas {
     ///
     /// Uses `Red` as the foreground color and the default background.
     /// To change use `update_error`
+    #[inline]
+    #[must_use]
     pub fn get_error(&self) -> Style {
         self.get_style_exists("error")
     }
@@ -114,52 +121,57 @@ impl StyleAtlas {
     ///
     /// This also updates the `ok`, `warning` and `error` styles background colours to be the
     /// same as the new default
+    #[inline]
     pub fn update_default(&mut self, style: Style) {
         let new_bg = style.get_bg();
-        self.store.entry("default".to_string()).and_modify(|s| {
+        if let Some(s) = self.store.get_mut("default") {
             s.set_bg(new_bg);
-        });
-        self.store.entry("ok".to_string()).and_modify(|s| {
+        }
+        if let Some(s) = self.store.get_mut("ok") {
             s.set_bg(new_bg);
-        });
-        self.store.entry("warning".to_string()).and_modify(|s| {
+        }
+        if let Some(s) = self.store.get_mut("warning") {
             s.set_bg(new_bg);
-        });
-        self.store.entry("error".to_string()).and_modify(|s| {
+        }
+        if let Some(s) = self.store.get_mut("error") {
             s.set_bg(new_bg);
-        });
+        }
     }
     /// Updates the `default` `Style`
     ///
     /// This only updates the `default` `Style`, and gives full control over the style
+    #[inline]
     pub fn update_default_only(&mut self, style: Style) {
-        self.store
-            .entry("default".to_string())
-            .and_modify(|s| *s = style);
+        if let Some(s) = self.store.get_mut("default") {
+            *s = style;
+        }
     }
     /// Updates the `ok` `Style`
     ///
     /// This only updates the `ok` `Style`, and gives full control over the style
+    #[inline]
     pub fn update_ok(&mut self, style: Style) {
-        self.store
-            .entry("ok".to_string())
-            .and_modify(|s| *s = style);
+        if let Some(s) = self.store.get_mut("ok") {
+            *s = style;
+        }
     }
     /// Updates the `warning` `Style`
     ///
     /// This only updates the `warning` `Style`, and gives full control over the style
+    #[inline]
     pub fn update_warning(&mut self, style: Style) {
-        self.store
-            .entry("warning".to_string())
-            .and_modify(|s| *s = style);
+        if let Some(s) = self.store.get_mut("warning") {
+            *s = style;
+        }
     }
     /// Updates the `error` `Style`
     ///
     /// This only updates the `error` `Style`, and gives full control over the style
+    #[inline]
     pub fn update_error(&mut self, style: Style) {
-        self.store
-            .entry("error".to_string())
-            .and_modify(|s| *s = style);
+        if let Some(s) = self.store.get_mut("error") {
+            *s = style;
+        }
     }
     /// Get a `Style` by key
     ///
@@ -167,6 +179,8 @@ impl StyleAtlas {
     ///
     /// Consider using `get_Style_exists` if you're sure the key exists to write less
     /// boilerplate
+    #[inline]
+    #[must_use]
     pub fn get_style(&self, key: &str) -> Option<Style> {
         self.store.get(key).cloned()
     }
@@ -175,6 +189,8 @@ impl StyleAtlas {
     /// Only use this if you're sure the `Style` exists.
     ///
     /// Convenience function to replace `get_Style("default").expect("Known key must exist")`
+    #[inline]
+    #[must_use]
     pub fn get_style_exists(&self, key: &str) -> Style {
         match self.store.get(key) {
             Some(style) => *style,
@@ -182,7 +198,8 @@ impl StyleAtlas {
         }
     }
     /// Insert a `Style` into the atlas. Will overwrite if the key already exists
+    #[inline]
     pub fn insert(&mut self, key: String, style: Style) {
-        self.store.insert(key, style);
+        let _ = self.store.insert(key, style);
     }
 }
