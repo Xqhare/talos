@@ -187,7 +187,6 @@ impl Canvas {
     }
 }
 
-/// Creates a default buffer filled with empty cells.
 fn make_default_buffer(width: u16, height: u16) -> Vec<CCell> {
     vec![CCell::default(); usize::from(width).saturating_mul(usize::from(height))]
 }

@@ -169,7 +169,6 @@ impl Layout {
         rects
     }
 
-    /// Solves the constraints to determine the actual sizes along the main axis.
     #[inline]
     fn solve_constraints(&self, total_space: u16) -> Vec<u16> {
         let mut results = vec![0; self.constraints.len()];

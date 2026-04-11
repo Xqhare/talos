@@ -11,11 +11,8 @@ pub(crate) use utils::handle_colour;
 /// The style of a cell on the canvas
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Style {
-    /// Foreground color.
     fg: Option<Colour>,
-    /// Background color.
     bg: Option<Colour>,
-    /// Bit flags for style attributes.
     bit_flag: u8,
 }
 
@@ -55,49 +52,41 @@ impl Style {
         self.bg
     }
 
-    /// Whether the bold attribute is set.
     #[inline]
     #[must_use]
     fn is_bold(self) -> bool {
         self.bit_flag & 0b1000_0000 != 0
     }
-    /// Whether the dim attribute is set.
     #[inline]
     #[must_use]
     fn is_dim(self) -> bool {
         self.bit_flag & 0b0100_0000 != 0
     }
-    /// Whether the italic attribute is set.
     #[inline]
     #[must_use]
     fn is_italic(self) -> bool {
         self.bit_flag & 0b0010_0000 != 0
     }
-    /// Whether the underline attribute is set.
     #[inline]
     #[must_use]
     fn is_underline(self) -> bool {
         self.bit_flag & 0b0001_0000 != 0
     }
-    /// Whether the blink attribute is set.
     #[inline]
     #[must_use]
     fn is_blink(self) -> bool {
         self.bit_flag & 0b0000_1000 != 0
     }
-    /// Whether the reverse attribute is set.
     #[inline]
     #[must_use]
     fn is_reverse(self) -> bool {
         self.bit_flag & 0b0000_0100 != 0
     }
-    /// Whether the hidden attribute is set.
     #[inline]
     #[must_use]
     fn is_hidden(self) -> bool {
         self.bit_flag & 0b0000_0010 != 0
     }
-    /// Whether the strikethrough attribute is set.
     #[inline]
     #[must_use]
     fn is_strikethrough(self) -> bool {
