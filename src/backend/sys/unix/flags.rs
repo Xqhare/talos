@@ -1,43 +1,54 @@
-use crate::error::Result as TalosResult;
-use std::{mem, ptr, sync::atomic::{AtomicBool, Ordering}};
+use crate::error::TalosResult;
+use std::sync::Once;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::{io, mem, ptr};
 
-static RESIZED: AtomicBool = AtomicBool::new(false);
-static TERMINATED: AtomicBool = AtomicBool::new(false);
+static RESIZE_NEEDED: AtomicBool = AtomicBool::new(false);
+static TERMINATE_NEEDED: AtomicBool = AtomicBool::new(false);
+static HANDLER_REGISTERED: Once = Once::new();
 
 extern "C" fn signal_handler(sig: libc::c_int) {
     match sig {
-        libc::SIGWINCH => RESIZED.store(true, Ordering::SeqCst),
-        libc::SIGTERM | libc::SIGINT => TERMINATED.store(true, Ordering::SeqCst),
+        libc::SIGWINCH => RESIZE_NEEDED.store(true, Ordering::Relaxed),
+        libc::SIGTERM | libc::SIGINT => TERMINATE_NEEDED.store(true, Ordering::Relaxed),
         _ => {}
     }
 }
 
 pub fn register_signal_handlers() -> TalosResult<()> {
-    unsafe {
-        let mut sa: libc::sigaction = mem::zeroed();
-        sa.sa_sigaction = signal_handler as usize;
-        sa.sa_flags = libc::SA_RESTART;
-        libc::sigemptyset(&raw mut sa.sa_mask);
+    let mut out = Ok(());
 
-        if libc::sigaction(libc::SIGWINCH, &raw const sa, ptr::null_mut()) == -1 {
-            return Err(std::io::Error::last_os_error().into());
-        }
+    HANDLER_REGISTERED.call_once(|| {
+        unsafe {
+            let mut sa: libc::sigaction = mem::zeroed();
 
-        if libc::sigaction(libc::SIGTERM, &raw const sa, ptr::null_mut()) == -1 {
-            return Err(std::io::Error::last_os_error().into());
-        }
+            sa.sa_sigaction = signal_handler as *const () as usize;
+            sa.sa_flags = libc::SA_RESTART;
 
-        if libc::sigaction(libc::SIGINT, &raw const sa, ptr::null_mut()) == -1 {
-            return Err(std::io::Error::last_os_error().into());
+            // Register SIGWINCH
+            if libc::sigaction(libc::SIGWINCH, &raw const sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
+
+            // Register SIGTERM (Kill request)
+            if libc::sigaction(libc::SIGTERM, &raw const sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
+
+            // Register SIGINT (Keyboard Interrupt via kill -INT)
+            if libc::sigaction(libc::SIGINT, &raw const sa, ptr::null_mut()) == -1 {
+                out = Err(io::Error::last_os_error().into());
+            }
         }
-    }
-    Ok(())
+    });
+
+    out
 }
 
 pub fn check_resize() -> bool {
-    RESIZED.swap(false, Ordering::SeqCst)
+    RESIZE_NEEDED.swap(false, Ordering::Relaxed)
 }
 
 pub fn check_terminate() -> bool {
-    TERMINATED.load(Ordering::SeqCst)
+    TERMINATE_NEEDED.load(Ordering::Relaxed)
 }
