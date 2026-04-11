@@ -19,6 +19,8 @@ I have limited the scope of the project at some points to make it easier on myse
 ## Roadmap
 
 - [ ] Windows support - If I ever feel the desire to work with the windows kernel again
+- [ ] Add 16 Code pages for double wide characters (with 16 already reserverd for default single width == 32 Code pages out of 256 reserved => 224 free)
+    - With support for rendering them
 - [ ] Widgets
     - [ ] Simple Widgets
         - [ ] Key hints
@@ -63,7 +65,7 @@ I have limited the scope of the project at some points to make it easier on myse
     - This caps structures like tables to around 65,000 rows and columns.
     - This also caps the Terminal size to around 65,000 rows and columns.
 - No full Unicode support.
-    - At most, `u16::MAX` Unicode code points can be supported.
+    - At most, `u16::MAX` Unicode code-points are supported.
 
 ## Features
 
