@@ -4,6 +4,7 @@
 #![warn(clippy::all)]
 #![warn(clippy::restriction)]
 #![expect(
+    clippy::missing_docs_in_private_items,
     clippy::implicit_return,
     clippy::single_call_fn,
     clippy::str_to_string,
@@ -17,13 +18,13 @@
     clippy::missing_trait_methods,
     clippy::impl_trait_in_params,
     clippy::as_conversions,
+    clippy::cast_lossless,
     clippy::shadow_reuse,
     clippy::blanket_clippy_restriction_lints,
     clippy::doc_include_without_cfg,
     reason = "Ignored warnings"
 )]
 use std::io::Write;
-use std::process::exit;
 
 use crate::codex::Codex;
 use crate::input::Parser;
@@ -118,8 +119,6 @@ impl Talos {
     /// .build();
     /// assert!(talos.is_ok());
     /// ```
-    #[inline]
-    #[must_use]
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }
@@ -136,8 +135,6 @@ impl Talos {
     /// let canvas = talos.canvas_mut();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn canvas_mut(&mut self) -> &mut Canvas {
         &mut self.canvas
     }
@@ -152,8 +149,6 @@ impl Talos {
     /// let (canvas, codex) = talos.render_ctx();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn render_ctx(&mut self) -> (&mut Canvas, &Codex) {
         (&mut self.canvas, &self.codex)
     }
@@ -169,7 +164,6 @@ impl Talos {
     /// talos.begin_frame();
     /// # assert!(true);
     /// ```
-    #[inline]
     pub fn begin_frame(&mut self) {
         self.canvas.clear();
     }
@@ -193,7 +187,6 @@ impl Talos {
     /// let mut talos = Talos::builder().build().unwrap();
     /// assert!(talos.present().is_ok());
     /// ```
-    #[inline]
     pub fn present(&mut self) -> TalosResult<Present> {
         let resized = self.handle_signals()?;
         if resized {
@@ -209,12 +202,12 @@ impl Talos {
         // Doing this is not ideal (performance-wise) but it works
         Style::default().generate(&mut self.output_buffer);
 
-        let mut prev_x_cell = u16::MAX;
+        let mut prev_x_cell: u16 = u16::MAX;
         let mut current_terminal_style = Style::default();
 
         for y in 0..self.size.1 {
             for x in 0..self.size.0 {
-                let buffer_index = usize::from(x).saturating_add(usize::from(y).saturating_mul(usize::from(self.size.0)));
+                let buffer_index = (x + y * self.size.0) as usize;
 
                 if self.canvas.buffer[buffer_index] != self.previous_buffer[buffer_index] {
                     let ccell = self.canvas.get_ccell(x, y);
@@ -256,7 +249,7 @@ impl Talos {
         self.terminal.stdout().flush()?;
 
         // Pointer swapping of the buffers
-        core::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
+        std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
         Ok(Present::Presented)
     }
@@ -276,8 +269,6 @@ impl Talos {
     /// let codex = talos.codex_mut();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn codex_mut(&mut self) -> &mut Codex {
         &mut self.codex
     }
@@ -292,8 +283,6 @@ impl Talos {
     /// let codex = talos.codex();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn codex(&self) -> &Codex {
         &self.codex
     }
@@ -334,9 +323,8 @@ impl Talos {
     /// }
     /// # assert!(true);
     /// ```
-    #[inline]
     pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
-        let _: bool = self.handle_signals()?;
+        let _ = self.handle_signals()?;
 
         self.parser.event_buffer.clear();
 
@@ -368,10 +356,9 @@ impl Talos {
     /// Returns an error if internal I/O errors occur
     fn handle_signals(&mut self) -> TalosResult<bool> {
         if check_terminate() {
-
             // We need to shut down now - No state will be saved, just restore the terminal
             self.terminal.restore()?;
-            exit(0);
+            std::process::exit(0);
         }
 
         if check_resize() {
@@ -379,15 +366,15 @@ impl Talos {
             self.size = (cols, rows);
 
             self.canvas = Canvas::new(self.size.0, self.size.1);
-            let len = usize::from(self.size.0).saturating_mul(usize::from(self.size.1));
+            let len = (self.size.0 as usize) * (self.size.1 as usize);
             self.previous_buffer = vec![CCell::default(); len];
             self.output_buffer.clear();
-            self.output_buffer.reserve(len.saturating_mul(10));
+            self.output_buffer.reserve(len * 10);
             write_all_bytes(&mut self.terminal.stdout(), CLEAR_ALL.as_bytes())?;
             self.terminal.stdout().flush()?;
-            Ok(true)
-        } else {
-            Ok(false)
+            return Ok(true);
         }
+
+        Ok(false)
     }
 }
