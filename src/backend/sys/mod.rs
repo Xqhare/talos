@@ -1,6 +1,7 @@
 use std::os::fd;
 
 #[cfg(unix)]
+/// Unix-specific system abstraction.
 mod unix;
 
 #[cfg(unix)]

@@ -4,7 +4,9 @@ use crate::backend::sys::{disable_raw_mode, enable_raw_mode};
 
 /// A guard for raw mode
 pub struct RawMode {
+    /// Original terminal settings to restore.
     original_termios: libc::termios,
+    /// File descriptor for stdin.
     fd_stdin: i32,
 }
 
