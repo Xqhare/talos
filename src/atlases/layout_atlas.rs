@@ -13,19 +13,30 @@ pub struct LayoutAtlas {
 }
 
 impl From<BTreeMap<String, Rect>> for LayoutAtlas {
+    #[inline]
     fn from(store: BTreeMap<String, Rect>) -> Self {
         Self { store }
     }
 }
 
 impl From<LayoutAtlas> for BTreeMap<String, Rect> {
+    #[inline]
     fn from(atlas: LayoutAtlas) -> Self {
         atlas.store
     }
 }
 
+impl Default for LayoutAtlas {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LayoutAtlas {
     /// Creates a new layout atlas
+    #[inline]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             store: BTreeMap::new(),
@@ -37,6 +48,8 @@ impl LayoutAtlas {
     ///
     /// Consider using `get_rect_exists` if you're sure the key exists to write less
     /// boilerplate
+    #[inline]
+    #[must_use]
     pub fn get_rect(&self, key: &str) -> Option<Rect> {
         self.store.get(key).cloned()
     }
@@ -45,6 +58,8 @@ impl LayoutAtlas {
     /// Only use this if you're sure the `Rect` exists.
     ///
     /// Convenience function to replace `get_rect("default").expect("Known key must exist")`
+    #[inline]
+    #[must_use]
     pub fn get_rect_exists(&self, key: &str) -> Rect {
         match self.store.get(key) {
             Some(rect) => *rect,
@@ -52,6 +67,7 @@ impl LayoutAtlas {
         }
     }
     /// Insert a `Rect` into the atlas. Will overwrite if the key already exists
+    #[inline]
     pub fn insert(&mut self, key: String, rect: Rect) {
         self.store.insert(key, rect);
     }
