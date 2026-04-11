@@ -11,29 +11,19 @@ use super::InputParser;
 /// States for the Xterm state machine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ParserState {
-    /// Normal character input.
     Normal,
-    /// Escape sequence started.
     Esc,
-    /// Control Sequence Introducer.
     Csi,
-    /// Single Shift Select 3.
     Ss3,
 }
 
 /// The Xterm input parser
 pub struct XtermParser {
-    /// Current parser state.
     state: ParserState,
-    /// Collected parameters.
     params: Vec<u16>,
-    /// Current parameter being parsed.
     current_param: u16,
-    /// Whether the current parameter has a digit.
     has_param_digit: bool,
-    /// Buffer for pending bytes (e.g. partial UTF-8).
     pending_buffer: Vec<u8>,
-    /// Whether the parser is in SGR mouse mode.
     is_sgr_mouse: bool,
 }
 
@@ -288,7 +278,6 @@ impl XtermParser {
     }
 }
 
-/// Parses the modifier parameter.
 fn parse_modifier_param(param: u16) -> KeyModifiers {
     let (shift, alt, ctrl) = match param {
         2 => (true, false, false),
@@ -309,7 +298,6 @@ fn parse_modifier_param(param: u16) -> KeyModifiers {
     }
 }
 
-/// Parses a control byte into an event.
 fn parse_control_byte(byte: u8) -> Option<Event> {
     let (code, modifiers) = match byte {
         13 | 10 => (KeyCode::Enter, KeyModifiers::default()),
@@ -331,7 +319,6 @@ fn parse_control_byte(byte: u8) -> Option<Event> {
     Some(Event::KeyEvent(KeyEvent::new(code, modifiers)))
 }
 
-/// Attempts to parse a UTF-8 character from the buffer.
 fn try_parse_utf8(buffer: &[u8]) -> Option<(char, usize)> {
     if buffer.is_empty() {
         return None;

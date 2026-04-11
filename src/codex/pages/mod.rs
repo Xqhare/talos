@@ -1,13 +1,9 @@
-/// Code page 437.
 mod cp_437;
 use cp_437::CP437;
-/// Windows-1252 code page.
 mod win_1252;
 use win_1252::WIN_1252;
-/// UTF-8 Miscellaneous Technical geometric shapes.
 mod utf_misc_technical;
 use utf_misc_technical::MISC_TECHNICAL;
-/// UTF-8 Geometric Shapes.
 mod utf_geometric_shapes;
 use utf_geometric_shapes::GEOMETRIC_SHAPES;
 

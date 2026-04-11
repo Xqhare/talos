@@ -97,22 +97,16 @@ use crate::input::Event;
 use crate::ui::render::Canvas;
 use crate::utils::move_render_cursor;
 
-/// Backend abstraction.
 mod backend;
 /// Codex
 pub mod codex;
-/// Content abstraction.
 mod content;
-/// UI abstraction.
 mod ui;
 
 /// Input
 pub mod input;
-/// Layout abstraction.
 pub use ui::layout;
-/// Render abstraction.
 pub use ui::render;
-/// Utility functions.
 mod utils;
 /// Widgets
 pub mod widgets;

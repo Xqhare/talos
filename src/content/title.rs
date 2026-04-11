@@ -14,32 +14,20 @@ use crate::{codex::Codex, render::Glyph};
 ///     - Right
 #[derive(Default)]
 pub struct TitleContents {
-    /// Top left title string.
     top_left: Option<String>,
-    /// Top left title glyph buffer.
     top_left_buffer: Option<Vec<Glyph>>,
-    /// Top center title string.
     top_center: Option<String>,
-    /// Top center title glyph buffer.
     top_center_buffer: Option<Vec<Glyph>>,
-    /// Top right title string.
     top_right: Option<String>,
-    /// Top right title glyph buffer.
     top_right_buffer: Option<Vec<Glyph>>,
-    /// Bottom left title string.
+
     bottom_left: Option<String>,
-    /// Bottom left title glyph buffer.
     bottom_left_buffer: Option<Vec<Glyph>>,
-    /// Bottom center title string.
     bottom_center: Option<String>,
-    /// Bottom center title glyph buffer.
     bottom_center_buffer: Option<Vec<Glyph>>,
-    /// Bottom right title string.
     bottom_right: Option<String>,
-    /// Bottom right title glyph buffer.
     bottom_right_buffer: Option<Vec<Glyph>>,
 }
-
 
 pub enum TitlePosition {
     TopLeft,

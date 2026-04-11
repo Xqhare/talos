@@ -1,6 +1,5 @@
-//! This module contains the internal logic for content handling.
+//! This module contains the `Text` and `Title` structs, which are used to represent and manipulate
+//! text content in the UI.
 
-/// Text content handling.
 pub mod text;
-/// Title content handling.
 pub mod title;
