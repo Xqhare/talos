@@ -48,6 +48,7 @@ pub struct Button<'a> {
 }
 
 /// The state of the button
+#[non_exhaustive]
 pub struct ButtonState {
     /// Whether the button is currently in a clicked/active state.
     pub clicked: bool,
@@ -69,11 +70,13 @@ impl<'a> Button<'a> {
     /// let button = Button::new("Hello, world!", &codex);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn new(text: impl Into<String>, codex: &Codex) -> Self {
         let mut text = Text::new(text, codex);
         text = text.align_vertically().align_center();
         Self {
-            text: text,
+            text,
             style: Style::default(),
             clicked_style: Style::default(),
             clicked_text: None,
@@ -97,6 +100,8 @@ impl<'a> Button<'a> {
     /// let button = Button::new("Hello, world!", &codex).with_state(&mut button_state);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn with_state(mut self, state: &'a mut ButtonState) -> Self {
         self.state = Some(state);
         self
@@ -118,11 +123,15 @@ impl<'a> Button<'a> {
     /// assert!(state.clicked);
     /// # assert!(true);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn get_state(&self) -> Option<&ButtonState> {
         self.state.as_deref()
     }
     /// This style is used when the button is clicked.
     /// Not used for the `Text` widget itself.
+    #[inline]
+    #[must_use]
     pub fn with_clicked_style(mut self, style: Style) -> Self {
         self.clicked_style = style;
         self
@@ -130,6 +139,8 @@ impl<'a> Button<'a> {
     /// This text is used when the button is clicked
     ///
     /// If left blank or unused, the original text is used
+    #[inline]
+    #[must_use]
     pub fn with_clicked_text(mut self, text: impl Into<String>, codex: &Codex) -> Self {
         let mut text = Text::new(text, codex);
         text = text.align_vertically().align_center();
@@ -139,9 +150,11 @@ impl<'a> Button<'a> {
 }
 
 impl Widget for Button<'_> {
+    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    #[inline]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let bg_style = if let Some(state) = &self.state {
             if state.clicked {
@@ -158,14 +171,13 @@ impl Widget for Button<'_> {
         outer_block.render(canvas, area, codex);
 
         let inner_rect = outer_block.inner(area);
-        if let Some(state) = &mut self.state {
-            if state.clicked {
-                if let Some(text) = &mut self.clicked_text {
-                    text.style(bg_style);
-                    text.render(canvas, inner_rect, codex);
-                    return;
-                }
-            }
+        if let Some(state) = &mut self.state
+            && state.clicked
+            && let Some(text) = &mut self.clicked_text
+        {
+            text.style(bg_style);
+            text.render(canvas, inner_rect, codex);
+            return;
         }
         self.text.style(bg_style);
         self.text.render(canvas, inner_rect, codex);
