@@ -18,7 +18,7 @@ pub fn handle_bg(colour: Colour, output_buffer: &mut Vec<u8>) {
     handle_colour(colour, false, output_buffer);
 }
 
-pub(crate) fn handle_colour(colour: Colour, fg: bool, output_buffer: &mut Vec<u8>) {
+fn handle_colour(colour: Colour, fg: bool, output_buffer: &mut Vec<u8>) {
     match colour {
         Colour::Normal(n) => {
             let base = if fg {

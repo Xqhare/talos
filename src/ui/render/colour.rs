@@ -12,7 +12,7 @@ pub const BG_PRE_DIGIT_BRIGHT: u8 = 10;
 ///
 /// let color = Colour::Normal(Normal::Red);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Colour {
     /// Normal 8 colours
     Normal(Normal),
@@ -30,8 +30,8 @@ pub enum Colour {
 ///
 /// let color = Normal::Red;
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[expect(missing_docs, reason = "Self explanatory names")]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum Normal {
     /// Black - Note: This may be rendered as a dark gray in some terminals.
     /// To use the terminal's default background, use `None` in the `Style` struct.
@@ -55,7 +55,6 @@ impl Normal {
     /// let color = Normal::Red;
     /// assert_eq!(color.decode(), 1);
     /// ```
-    #[inline]
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -79,8 +78,8 @@ impl Normal {
 ///
 /// let color = Bright::Red;
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[expect(missing_docs, reason = "Self explanatory names")]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum Bright {
     Black,
     Red,
@@ -102,7 +101,6 @@ impl Bright {
     /// let color = Bright::Red;
     /// assert_eq!(color.decode(), 1);
     /// ```
-    #[inline]
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -127,7 +125,7 @@ impl Bright {
 /// let color = Extended::ColourMode(ColourMode::RgbBit(123));
 /// let true_color = Extended::TrueColour(TrueColour::RGB(10, 20, 30));
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Extended {
     /// Simple one byte RGB
     ColourMode(ColourMode),
@@ -147,7 +145,7 @@ pub const EXTENDED_BG_BIT: u8 = 48;
 ///
 /// let color = ColourMode::RgbBit(123);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColourMode {
     /// One byte RGB
     RgbBit(u8),
@@ -163,7 +161,6 @@ impl ColourMode {
     /// let color = ColourMode::RgbBit(123);
     /// assert_eq!(color.decode(), 123);
     /// ```
-    #[inline]
     #[must_use]
     pub fn decode(self) -> u8 {
         match self {
@@ -182,7 +179,7 @@ pub const TRUE_COLOURMODE_SIGNAL_BIT: u8 = 2;
 ///
 /// let color = TrueColour::RGB(10, 20, 30);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TrueColour {
     /// Three byte RGB
     RGB(u8, u8, u8),
@@ -198,7 +195,6 @@ impl TrueColour {
     /// let color = TrueColour::RGB(10, 20, 30);
     /// assert_eq!(color.decode(), (10, 20, 30));
     /// ```
-    #[inline]
     #[must_use]
     pub fn decode(self) -> (u8, u8, u8) {
         match self {
