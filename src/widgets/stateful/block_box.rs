@@ -1,6 +1,5 @@
 use crate::{
-    layout::Rect,
-    render::{Canvas, Style},
+    render::Style,
     widgets::{Block, traits::Widget},
 };
 
@@ -9,7 +8,6 @@ use crate::{
 /// A `BlockBox` is a block that contains another widget
 ///
 /// Use `BlockBox::new` to create a new `BlockBox`
-#[non_exhaustive]
 pub struct BlockBoxState<'a> {
     /// The block that contains or surrounds the widget
     pub block: &'a mut Block,
@@ -80,8 +78,6 @@ impl<'a> BlockBox<'a> {
     /// let mut text = Text::new("Hello World!", &codex);
     /// let block_box = BlockBox::new(&mut block, &mut text);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn new(block: &'a mut Block, content: &'a mut dyn Widget) -> Self {
         Self {
             state: BlockBoxState { block, content },
@@ -91,16 +87,14 @@ impl<'a> BlockBox<'a> {
 }
 
 impl Widget for BlockBox<'_> {
-    #[inline]
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    #[inline]
     fn render(
         &mut self,
-        canvas: &mut Canvas,
-        area: Rect,
-        codex: &Codex,
+        canvas: &mut crate::render::Canvas,
+        area: crate::layout::Rect,
+        codex: &crate::codex::Codex,
     ) {
         self.state.block.style(self.style);
         self.state.block.render(canvas, area, codex);
