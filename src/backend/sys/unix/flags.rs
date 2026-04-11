@@ -1,54 +1,43 @@
-use crate::error::TalosResult;
-use std::sync::Once;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::{io, mem, ptr};
+use crate::error::Result as TalosResult;
+use std::{mem, ptr, sync::atomic::{AtomicBool, Ordering}};
 
-static RESIZE_NEEDED: AtomicBool = AtomicBool::new(false);
-static TERMINATE_NEEDED: AtomicBool = AtomicBool::new(false);
-static HANDLER_REGISTERED: Once = Once::new();
+static RESIZED: AtomicBool = AtomicBool::new(false);
+static TERMINATED: AtomicBool = AtomicBool::new(false);
 
 extern "C" fn signal_handler(sig: libc::c_int) {
     match sig {
-        libc::SIGWINCH => RESIZE_NEEDED.store(true, Ordering::Relaxed),
-        libc::SIGTERM | libc::SIGINT => TERMINATE_NEEDED.store(true, Ordering::Relaxed),
+        libc::SIGWINCH => RESIZED.store(true, Ordering::SeqCst),
+        libc::SIGTERM | libc::SIGINT => TERMINATED.store(true, Ordering::SeqCst),
         _ => {}
     }
 }
 
 pub fn register_signal_handlers() -> TalosResult<()> {
-    let mut out = Ok(());
+    unsafe {
+        let mut sa: libc::sigaction = mem::zeroed();
+        sa.sa_sigaction = signal_handler as usize;
+        sa.sa_flags = libc::SA_RESTART;
+        libc::sigemptyset(&raw mut sa.sa_mask);
 
-    HANDLER_REGISTERED.call_once(|| {
-        unsafe {
-            let mut sa: libc::sigaction = mem::zeroed();
-
-            sa.sa_sigaction = signal_handler as *const () as usize;
-            sa.sa_flags = libc::SA_RESTART;
-
-            // Register SIGWINCH
-            if libc::sigaction(libc::SIGWINCH, &raw const sa, ptr::null_mut()) == -1 {
-                out = Err(io::Error::last_os_error().into());
-            }
-
-            // Register SIGTERM (Kill request)
-            if libc::sigaction(libc::SIGTERM, &raw const sa, ptr::null_mut()) == -1 {
-                out = Err(io::Error::last_os_error().into());
-            }
-
-            // Register SIGINT (Keyboard Interrupt via kill -INT)
-            if libc::sigaction(libc::SIGINT, &raw const sa, ptr::null_mut()) == -1 {
-                out = Err(io::Error::last_os_error().into());
-            }
+        if libc::sigaction(libc::SIGWINCH, &raw const sa, ptr::null_mut()) == -1 {
+            return Err(std::io::Error::last_os_error().into());
         }
-    });
 
-    out
+        if libc::sigaction(libc::SIGTERM, &raw const sa, ptr::null_mut()) == -1 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+
+        if libc::sigaction(libc::SIGINT, &raw const sa, ptr::null_mut()) == -1 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+    }
+    Ok(())
 }
 
 pub fn check_resize() -> bool {
-    RESIZE_NEEDED.swap(false, Ordering::Relaxed)
+    RESIZED.swap(false, Ordering::SeqCst)
 }
 
 pub fn check_terminate() -> bool {
-    TERMINATE_NEEDED.load(Ordering::Relaxed)
+    TERMINATED.load(Ordering::SeqCst)
 }
