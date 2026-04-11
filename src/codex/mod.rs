@@ -47,7 +47,9 @@ pub mod pages;
 #[derive(Debug, Clone, Default)]
 #[must_use]
 pub struct Codex {
+    /// Registered code pages.
     pages: Vec<Option<&'static Page>>,
+    /// Reverse mapping from character to glyph ID.
     reverse_map: HashMap<char, Glyph>,
 }
 

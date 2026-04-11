@@ -1,8 +1,10 @@
 use super::Colour;
 
+/// Style builder module.
 mod style_builder;
 pub use style_builder::StyleBuilder;
 
+/// Style utility functions.
 mod utils;
 pub(crate) use utils::handle_colour;
 

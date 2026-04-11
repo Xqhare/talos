@@ -5,8 +5,11 @@ use crate::{codex::Codex, render::Glyph};
 /// A glyph sequence is a vector of glyphs bounded by included, trailing, whitespace
 #[derive(Debug, Clone)]
 pub struct TextContent {
+    /// The raw text string.
     raw: String,
+    /// The parsed glyph sequences.
     buffer: Vec<Sequence>,
+    /// The maximum width for wrapping.
     // If not set, Sequences will be bounded by included, trailing, newlines.
     max_width: Option<u16>,
 }

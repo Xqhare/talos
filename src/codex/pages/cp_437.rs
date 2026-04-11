@@ -1,5 +1,6 @@
 use super::Page;
 
+/// Code page 437 character mapping.
 pub const CP437: Page = [
     // 0x00 - 0x1F (Control Chars / Graphics)
     "\0", "☺", "☻", "♥", "♦", "♣", "♠", "•", "◘", "○", "◙", "♂", "♀", "♪", "♫", "☼", "►", "◄", "↕",

@@ -63,18 +63,22 @@ impl TerminalIO {
         Ok(())
     }
 
+    /// Hides the terminal cursor.
     fn hide_cursor(&mut self) -> TalosResult<()> {
         crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::HIDE_CURSOR.as_bytes())
     }
 
+    /// Shows the terminal cursor.
     fn show_cursor(&mut self) -> TalosResult<()> {
         crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::SHOW_CURSOR.as_bytes())
     }
 
+    /// Enters the alternate screen.
     fn enter_alternate_screen(&mut self) -> TalosResult<()> {
         crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::ENTER_ALT_SCREEN.as_bytes())
     }
 
+    /// Exits the alternate screen.
     fn exit_alternate_screen(&mut self) -> TalosResult<()> {
         crate::utils::write_all_bytes(&mut self.stdout, crate::utils::constants::ansi::EXIT_ALT_SCREEN.as_bytes())
     }
