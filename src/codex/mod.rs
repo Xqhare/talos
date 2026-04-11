@@ -61,8 +61,6 @@ impl Codex {
     /// let codex = Codex::new();
     /// # assert!(true);
     /// ```
-    #[inline]
-    #[must_use]
     pub fn new() -> Self {
         let mut codex = Codex {
             // Initialize all 256 pages with `None`. This does not expand the memory footprint
@@ -132,7 +130,6 @@ impl Codex {
     /// let mut codex = Codex::new();
     /// assert!(codex.register_page(16, REG_UTF_GEOMETRIC_SHAPES.1).is_ok());
     /// ```
-    #[inline]
     pub fn register_page(&mut self, id: u8, page: &'static Page) -> TalosResult<()> {
         if id < 16 {
             return Err(TalosError::DefaultPageId(id));
@@ -168,7 +165,6 @@ impl Codex {
     /// assert_eq!(char, "a");
     /// ```
     ///
-    #[inline]
     #[must_use]
     pub fn resolve(&self, glyph: Glyph) -> &str {
         if let Some(char) = pre_computed_char(glyph) {
@@ -202,7 +198,6 @@ impl Codex {
     /// assert_eq!(char, "a");
     /// ```
     ///
-    #[inline]
     #[must_use]
     pub fn lookup(&self, ch: char) -> Glyph {
         if ch.is_ascii() {
@@ -217,7 +212,7 @@ impl Codex {
     fn update_cache(&mut self, id: u8, page: &'static Page) {
         for (index, &symbol) in page.iter().enumerate() {
             if let Some(ch) = symbol.chars().next() {
-                #[expect(clippy::cast_possible_truncation, reason = "Index must be less than 256")]
+                #[allow(clippy::cast_possible_truncation)] // Index must be less than 256
                 let glyph_id = (u16::from(id) << 8) | (index as u16);
                 self.reverse_map.entry(ch).or_insert(glyph_id);
             }
