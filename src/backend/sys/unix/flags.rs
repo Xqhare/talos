@@ -15,7 +15,7 @@ extern "C" fn signal_handler(sig: libc::c_int) {
 pub fn register_signal_handlers() -> TalosResult<()> {
     unsafe {
         let mut sa: libc::sigaction = mem::zeroed();
-        sa.sa_sigaction = signal_handler as *const () as usize;
+        sa.sa_sigaction = signal_handler as usize;
         sa.sa_flags = libc::SA_RESTART;
         libc::sigemptyset(&raw mut sa.sa_mask);
 
