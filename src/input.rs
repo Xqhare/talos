@@ -38,12 +38,14 @@
 
 use std::{cmp::min, io::Read};
 
-mod event;
-pub use event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
-mod parse;
-pub use parse::{InputParser, XtermParser};
+/// Event types
+pub mod event;
+/// Parser types
+pub mod parse;
 
 use crate::TalosResult;
+use crate::input::event::Event;
+use crate::input::parse::InputParser;
 
 /// The input parser abstract interface
 pub struct Parser {
@@ -73,6 +75,7 @@ pub struct Parser {
 ///
 /// # Errors
 /// Returns an error if the input stream returns an error
+#[inline]
 pub fn poll_input_bytes<'a, R: Read>(
     std_in: &mut R,
     poll_input_buffer: &'a mut Vec<u8>,
@@ -140,6 +143,8 @@ pub fn poll_input_bytes<'a, R: Read>(
 mod tests {
     use super::*;
     use std::io::Cursor;
+    use crate::input::event::{KeyCode, KeyEvent, KeyModifiers};
+    use crate::input::parse::XtermParser;
 
     #[test]
     fn test_poll_input_parsing_branches() -> TalosResult<()> {
