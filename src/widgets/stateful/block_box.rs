@@ -84,6 +84,10 @@ impl<'a> BlockBox<'a> {
             style: Style::default(),
         }
     }
+    /// Get the state of the `BlockBox`
+    pub fn get_state(&self) -> &BlockBoxState<'a> {
+        &self.state
+    }
 }
 
 impl Widget for BlockBox<'_> {

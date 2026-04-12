@@ -103,8 +103,8 @@ pub const GEOMETRIC_SHAPES: Page = [
     "◺",
     "◻",
     "◼",
-    UNKNOWN_CHAR,
-    UNKNOWN_CHAR,
+    "☐", // U+2610
+    "☑", // U+2611
     "◿",
     UNKNOWN_CHAR,
     UNKNOWN_CHAR,

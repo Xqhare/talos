@@ -111,6 +111,11 @@ impl<'a> List<'a> {
         }
     }
 
+    /// Gets the state of the list
+    pub fn get_state(&mut self) -> &mut ListState {
+        &mut self.state
+    }
+
     /// Sets the list to be horizontal
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;

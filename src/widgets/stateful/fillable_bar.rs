@@ -82,6 +82,11 @@ impl<'a> FillableBar<'a> {
         }
     }
 
+    /// Returns the state of the fillable bar
+    pub fn get_state(&self) -> &FillableBarState {
+        &self.state
+    }
+
     /// Show the percentage in text in the middle of the bar
     pub fn show_percentage(mut self) -> Self {
         self.show_percentage = true;

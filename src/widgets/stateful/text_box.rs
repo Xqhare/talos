@@ -31,6 +31,11 @@ impl<'a> TextBox<'a> {
         }
     }
 
+    /// Get the state of the `TextBox`.
+    pub fn get_state(&self) -> &TextBoxState {
+        &self.state
+    }
+
     /// Set the style for the highlighted part of the text box (e.g. the cursor).
     pub fn with_highlight_style(mut self, style: Style) -> Self {
         self.highlight_style = Some(style);

@@ -21,3 +21,6 @@ pub use menu_button::{MenuButton, MenuButtonState};
 
 mod block_box;
 pub use block_box::{BlockBox, BlockBoxState};
+
+mod check_box;
+pub use check_box::{CheckBox, CheckBoxState};

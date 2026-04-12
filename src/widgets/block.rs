@@ -79,6 +79,13 @@ impl Block {
         self
     }
 
+    /// Sets the border of the checkbox to be fat or double lined
+    ///
+    /// Same as `with_fat_border` but takes a boolean and does not return self
+    pub fn set_fat_border(&mut self, fat: bool) {
+        self.fat_border = fat;
+    }
+
     /// Sets the title of the block
     ///
     /// By default, the block has no title

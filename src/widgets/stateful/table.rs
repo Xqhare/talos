@@ -310,6 +310,11 @@ impl<'a> Table<'a> {
         self.draw_inner_border = border;
         self
     }
+
+    /// Gets the state of the table
+    pub fn get_state(&mut self) -> &mut TableState {
+        &mut self.state
+    }
 }
 
 impl Widget for Table<'_> {

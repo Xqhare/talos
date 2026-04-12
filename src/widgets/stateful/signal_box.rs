@@ -78,6 +78,11 @@ impl<'a> SignalBox<'a> {
         }
     }
 
+    /// Gets the state of the signal box
+    pub fn get_state(&mut self) -> &mut SignalBoxState {
+        &mut self.state
+    }
+
     /// Sets the on symbol of the signal box
     pub fn with_signal_on_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_on_symbol = codex.lookup(char);
@@ -87,6 +92,13 @@ impl<'a> SignalBox<'a> {
     /// Sets the off symbol of the signal box
     pub fn with_signal_off_symbol(mut self, char: char, codex: &Codex) -> Self {
         self.signal_off_symbol = codex.lookup(char);
+        self
+    }
+
+    /// Uses `☐` and `☑` as the on and off symbols instead of the default diamond
+    pub fn use_classical_symbols(mut self) -> Self {
+        self.signal_on_symbol = 0x035E;
+        self.signal_off_symbol = 0x035D;
         self
     }
 }

@@ -91,6 +91,10 @@ impl<'a> MenuButton<'a> {
             vertical: true,
         }
     }
+    /// Returns the state of the `MenuButton`
+    pub fn get_state(&mut self) -> &mut MenuButtonState<'a> {
+        &mut self.state
+    }
     /// Sets the layout to be vertical
     ///
     /// Default layout
