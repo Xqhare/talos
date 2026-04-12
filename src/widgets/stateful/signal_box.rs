@@ -29,8 +29,7 @@ use crate::{
 ///
 ///     let mut signal_box_state = SignalBoxState { signal: true };
 ///
-///     let mut signal_box = SignalBox::new()
-///         .with_state(&mut signal_box_state);
+///     let mut signal_box = SignalBox::new(&mut signal_box_state);
 ///
 ///     let rect = Rect::new(0, 0, 1, 1);
 ///     signal_box.render(canvas, rect, codex);
@@ -63,7 +62,8 @@ impl<'a> SignalBox<'a> {
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let signal_box = SignalBox::new();
+    /// let mut state = SignalBoxState { signal: true };
+    /// let signal_box = SignalBox::new(&mut state);
     /// # assert!(true);
     /// ```
     pub fn new(state: &'a mut SignalBoxState) -> Self {

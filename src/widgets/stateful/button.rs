@@ -21,7 +21,7 @@ use crate::{
 ///     Talos,
 ///     layout::Rect,
 ///     render::{Colour, Normal, Style},
-///     widgets::{stateful::Button, traits::Widget},
+///     widgets::{stateful::{Button, ButtonState}, traits::Widget},
 /// };
 ///
 /// fn main() -> Result<(), talos::TalosError> {
@@ -31,7 +31,8 @@ use crate::{
 ///     let (canvas, codex) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     let mut button = Button::new("Hello, world!", &codex);
+///     let mut state = ButtonState { clicked: false };
+///     let mut button = Button::new("Hello, world!", &mut state, &codex);
 ///     button.render(canvas, rect, codex);
 ///
 ///     talos.present()?;
@@ -62,11 +63,12 @@ impl<'a> Button<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::Button};
+    /// use talos::{Talos, widgets::stateful::{Button, ButtonState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let button = Button::new("Hello, world!", &codex);
+    /// let mut state = ButtonState { clicked: true };
+    /// let button = Button::new("Hello, world!", &mut state, &codex);
     /// # assert!(true);
     /// ```
     pub fn new(text: impl Into<String>, state: &'a mut ButtonState, codex: &Codex) -> Self {
@@ -92,10 +94,9 @@ impl<'a> Button<'a> {
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
     /// let mut button_state = ButtonState { clicked: true };
-    /// let button = Button::new("Hello, world!", &codex).with_state(&mut button_state);
-    /// let state = button.get_state().unwrap();
+    /// let button = Button::new("Hello, world!", &mut button_state, &codex);
+    /// let state = button.get_state();
     /// assert!(state.clicked);
-    /// # assert!(true);
     /// ```
     pub fn get_state(&self) -> &ButtonState {
         &self.state

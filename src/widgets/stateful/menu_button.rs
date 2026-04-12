@@ -39,11 +39,12 @@ pub struct MenuButtonState<'a> {
 /// # Example
 ///
 /// ```rust,no_run
-/// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton}}};
+/// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, ButtonState, MenuButton}}};
 /// let mut menus: Vec<&mut dyn Widget> = vec![];
 /// let mut talos = Talos::builder().build().unwrap();
 /// let (mut canvas, codex) = talos.render_ctx();
-/// let main_button = MenuButton::new(Button::new("Main", &codex), menus.iter_mut());
+/// let mut button_state = ButtonState { clicked: true };
+/// let main_button = MenuButton::new(Button::new("Main", &mut button_state, &codex), menus.iter_mut());
 /// ```
 pub struct MenuButton<'a> {
     state: MenuButtonState<'a>,
@@ -65,11 +66,12 @@ impl<'a> MenuButton<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton}}};
+    /// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton, ButtonState}}};
     /// let mut menus: Vec<&mut dyn Widget> = vec![];
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (mut canvas, codex) = talos.render_ctx();
-    /// let main_button = MenuButton::new(Button::new("Main", &codex), menus.iter_mut());
+    /// let mut button_state = ButtonState { clicked: true };
+    /// let main_button = MenuButton::new(Button::new("Main", &mut button_state, &codex), menus.iter_mut());
     ///
     /// ```
     ///

@@ -29,7 +29,12 @@ use crate::{
 ///     let mut talos = Talos::builder().build()?;
 ///     let (canvas, codex) = talos.render_ctx();
 ///
-///     let mut table_state = TableState::default();
+///     let mut table_state = TableState {
+///         x_offset: 0,
+///         y_offset: 0,
+///         max_rows: None,
+///         max_columns: None,
+///     };
 ///
 ///     let mut rows = vec![
 ///         vec![
@@ -42,8 +47,7 @@ use crate::{
 ///         ],
 ///     ];
 ///
-///     let mut table = Table::new()
-///         .with_state(&mut table_state)
+///     let mut table = Table::new(&mut table_state)
 ///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()));
 ///
 ///     let rect = Rect::new(0, 0, 40, 10);
@@ -86,7 +90,6 @@ pub struct Table<'a> {
 /// };
 /// # assert!(true);
 /// ```
-#[derive(Default)]
 pub struct TableState {
     /// The x offset of the table - used for scrolling
     pub x_offset: usize,
@@ -125,11 +128,17 @@ impl<'a> Table<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::Table};
+    /// use talos::{Talos, widgets::stateful::{Table, TableState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table = Table::new();
+    /// let mut state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new(&mut state);
     /// # assert!(true);
     /// ```
     pub fn new(state: &'a mut TableState) -> Self {
@@ -154,11 +163,17 @@ impl<'a> Table<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::Table, render::{Style, Colour, Normal}};
+    /// use talos::{Talos, widgets::stateful::{Table, TableState}, render::{Style, Colour, Normal}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table = Table::new().with_header_style(Style::builder().set_fg(Colour::Normal(Normal::Red)).build());
+    /// let mut state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new(&mut state).with_header_style(Style::builder().set_fg(Colour::Normal(Normal::Red)).build());
     /// # assert!(true);
     /// ```
     pub fn with_header_style(mut self, style: Style) -> Self {
@@ -172,11 +187,17 @@ impl<'a> Table<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::Table};
+    /// use talos::{Talos, widgets::stateful::{Table, TableState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
-    /// let table = Table::new().with_header_row(0);
+    /// let mut state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let table = Table::new(&mut state).with_header_row(0);
     /// # assert!(true);
     /// ```
     pub fn with_header_row(mut self, row: usize) -> Self {
@@ -199,8 +220,7 @@ impl<'a> Table<'a> {
     ///     max_columns: None,
     /// };
     /// let mut rows = vec![Text::new("Hello", codex)];
-    /// let table = Table::new()
-    ///     .with_state(&mut table_state)
+    /// let table = Table::new(&mut table_state)
     ///     .add_row(rows.iter_mut().map(|w| w as &mut dyn Widget).collect());
     /// # assert!(true);
     /// ```
@@ -224,8 +244,7 @@ impl<'a> Table<'a> {
     ///     max_columns: None,
     /// };
     /// let mut rows = vec![vec![Text::new("Hello", codex)], vec![Text::new("World", codex)]];
-    /// let table = Table::new()
-    ///     .with_state(&mut table_state)
+    /// let table = Table::new(&mut table_state)
     ///     .with_rows(rows.iter_mut().map(|r| r.iter_mut()));
     /// # assert!(true);
     /// ```
@@ -614,7 +633,12 @@ mod tests {
 
     #[test]
     fn test_table_inner_border_rows() {
-        let mut table_state = TableState::default();
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
         let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
@@ -639,7 +663,12 @@ mod tests {
 
     #[test]
     fn test_table_inner_border_columns() {
-        let mut table_state = TableState::default();
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
         let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
@@ -662,7 +691,12 @@ mod tests {
 
     #[test]
     fn test_table_inner_border_all() {
-        let mut table_state = TableState::default();
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
         let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];

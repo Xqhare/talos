@@ -29,8 +29,7 @@ use crate::{
 ///
 ///     let mut fillable_bar_state = FillableBarState { fill: 0.5 };
 ///
-///     let mut fillable_bar = FillableBar::new()
-///         .with_state(&mut fillable_bar_state)
+///     let mut fillable_bar = FillableBar::new(&mut fillable_bar_state)
 ///         .show_percentage()
 ///         .glow();
 ///
@@ -70,7 +69,7 @@ impl<'a> FillableBar<'a> {
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
     /// let mut fillable_bar_state = FillableBarState { fill: 0.5 };
-    /// let fillable_bar = FillableBar::new().with_state(&mut fillable_bar_state);
+    /// let fillable_bar = FillableBar::new(&mut fillable_bar_state);
     /// # assert!(true);
     /// ```
     pub fn new(state: &'a mut FillableBarState) -> Self {
