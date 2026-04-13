@@ -18,28 +18,38 @@ I have limited the scope of the project at some points to make it easier on myse
 
 ## Roadmap
 
-- [ ] Windows support - If I ever feel the desire to work with the windows kernel again
-- [ ] Add 16 Code pages for double wide characters (with 16 already reserverd for default single width == 32 Code pages out of 256 reserved => 224 free)
-    - With support for rendering them
+Items marked in **bold** are hard blockers for other projects.\
+Items marked in *italic* are priority items.\
+Items marked in ~~strikethrough~~ are probably not happening, but might. 
+
+- [ ] ~~Windows support - If I ever feel the desire to work with the windows kernel again~~ 
+- [ ] ~~Add 16 Code pages for double wide characters (with 16 already reserved for default single width == 32 Code pages out of 256 reserved => 224 free)~~
+    - ~~With support for rendering them~~
 - [ ] Widgets
     - [ ] Simple Widgets
         - [ ] Key hints
             - E.g "F1 -> Help | ESC -> Exit"
     - [ ] Stateful Widgets
-        - [ ] Tree View
+        - [ ] **Sequence**
+            - A widget that holds a Vector of other widgets that are rendered in sequence
+            - horizontally or vertically
+            - custom Layout
+            - scrollable
+        - [ ] *Tree View*
             - It handles expanding/collapsing nodes (e.g., ▼ Folder, ▶ Subfolder).
-        - [ ] Notification
+        - [ ] *Notification*
             - Really just a Block with a title and a single Text widget inside
                 - Timer needed / also alternate way of dismissing
             - Persistant vs temporary -> Both would be nice
-        - [ ] Splitter
-            - Takes two areas and draws a separator between them
-        - [ ] Checkbox / Radio Button
+        - [ ] *Separator*
+            - horizontal or vertical
+        - [ ] Slider
+        - [ ] Radio Button
         - [ ] Multi-line text box
         - [ ] Dropdown selection
         - [ ] Tabs
             - A widget that allows the user to switch between tabs / Windows / Panes whatever
-        - [ ] ScrollArea
+        - [ ] *ScrollArea*
             - Both vertical and horizontal scrollable
         - [ ] Colour picker
             - A widget that allows the user to pick a colour
@@ -51,7 +61,7 @@ I have limited the scope of the project at some points to make it easier on myse
             - Would also shadow the rest of the screen / run dim as the styles
             - Draw itself on top of the rest of the screen
         - [ ] Chart widget
-            - [ ] Sparkline - One line high chart using varying block heights ( , ▂, ▃, ▄, ▅, ▆, ▇, █ )
+            - [ ] *Sparkline* - One line high chart using varying block heights ( , ▂, ▃, ▄, ▅, ▆, ▇, █ )
             - [ ] Column / Bar
             - [ ] Stacked Column / Bar
             - [ ] Min - Max Chart (Two points per x coordinate, connected with vertical lines)
@@ -115,6 +125,7 @@ I have limited the scope of the project at some points to make it easier on myse
     - Button: A simple clickable button with text inside.
     - TextBox: A simple text entry box for inputting text.
     - MenuButton: A button with an expandable Vector of Widgets.
+    - CheckBox: A simple button and indicator Widget.
 
 ## Images
 
@@ -282,7 +293,7 @@ However, it is very unlikely that this will cause any issues in practice.
 
 ### Custom Code Pages
 
-There are a total of 256 possible code pages. The first two (Index 0 and 1) are reserved for windows-1252 and cp437 respectively.
+There are a total of 256 possible code pages. The first sixteen are reserved for provided default code pages.
 
 Each code page has 256 entries and each entry represents a character.\
 Every entry must have a displayed width of 1 and must be stored in valid utf-8.
