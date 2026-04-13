@@ -25,6 +25,12 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
 - [ ] ~~Windows support - If I ever feel the desire to work with the windows kernel again~~ 
 - [ ] ~~Add 16 Code pages for double wide characters (with 16 already reserved for default single width == 32 Code pages out of 256 reserved => 224 free)~~
     - ~~With support for rendering them~~
+- [ ] Mouse position reporting without a mouse button pressed
+    - [ ] Backend
+        - [x] Xterm Parser
+        - [ ] Flags to enable mouse reporting in `TerminalIO`
+            - Needs to be configurable
+    - [x] Frontend
 - [ ] Widgets
     - [ ] Simple Widgets
         - [ ] Key hints
@@ -51,6 +57,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - [ ] Date and Time picker
             - Calendar and Clock
         - [ ] Gauge (like a speedometer) - hard because round things are hard, but also interesting because of it
+            - ▅,▙ etc
         - [ ] Modal Dialog
             - A widget that blocks input from the user until it is closed
             - Would also shadow the rest of the screen / run dim as the styles

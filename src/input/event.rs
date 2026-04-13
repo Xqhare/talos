@@ -57,7 +57,7 @@ pub enum MouseEventKind {
     Up(MouseButton),
     /// A mouse button was dragged
     Drag(MouseButton),
-    /// The mouse was moved
+    /// The mouse was moved - Not yet implemented in the Backend `TerminalIO`
     Moved,
     /// The mouse wheel was scrolled upwards
     ScrollUp,
