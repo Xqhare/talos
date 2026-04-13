@@ -45,11 +45,17 @@ impl LayoutAtlas {
     /// Only use this if you're sure the `Rect` exists.
     ///
     /// Convenience function to replace `get_rect("default").expect("Known key must exist")`
-    pub fn get_rect_exists(&self, key: &str) -> Rect {
+    pub fn get_known_rect(&self, key: &str) -> Rect {
         match self.store.get(key) {
             Some(rect) => *rect,
             None => panic!("No such key: {}", key),
         }
+    }
+    /// Get all stored `Rect` tuples
+    ///
+    /// In the format `(key, rect)`
+    pub fn all_stored_kvs(&self) -> Vec<(&String, &Rect)> {
+        self.store.iter().collect()
     }
     /// Insert a `Rect` into the atlas. Will overwrite if the key already exists
     pub fn insert(&mut self, key: String, rect: Rect) {

@@ -87,28 +87,28 @@ impl StyleAtlas {
     /// This is the default style, as passed in the constructor or the default Terminal Session style
     /// To change use `update_default` or `update_default_only` as needed.
     pub fn get_default(&self) -> Style {
-        self.get_style_exists("default")
+        self.get_known_style("default")
     }
     /// Get the `ok` `Style`
     ///
     /// Uses `Green` as the foreground color and the default background.
     /// To change use `update_ok`
     pub fn get_ok(&self) -> Style {
-        self.get_style_exists("ok")
+        self.get_known_style("ok")
     }
     /// Get the `warning` `Style`
     ///
     /// Uses `Yellow` as the foreground color and the default background.
     /// To change use `update_warning`
     pub fn get_warning(&self) -> Style {
-        self.get_style_exists("warning")
+        self.get_known_style("warning")
     }
     /// Get the `error` `Style`
     ///
     /// Uses `Red` as the foreground color and the default background.
     /// To change use `update_error`
     pub fn get_error(&self) -> Style {
-        self.get_style_exists("error")
+        self.get_known_style("error")
     }
     /// Updates the default `Style`
     ///
@@ -175,7 +175,7 @@ impl StyleAtlas {
     /// Only use this if you're sure the `Style` exists.
     ///
     /// Convenience function to replace `get_Style("default").expect("Known key must exist")`
-    pub fn get_style_exists(&self, key: &str) -> Style {
+    pub fn get_known_style(&self, key: &str) -> Style {
         match self.store.get(key) {
             Some(style) => *style,
             None => panic!("No such key: {}", key),

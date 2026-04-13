@@ -22,13 +22,23 @@ mod utils;
 ///     .set_bold(true)
 ///     .build();
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Style {
     fg: Option<Colour>,
     bg: Option<Colour>,
     /// Contains the bit flags for the style.
     /// From MSB to LSB: bold, dim, italic, underline, `blink_slow`, `reverse_colours`, hidden, strikethrough
     bit_flag: u8,
+}
+
+impl Default for Style {
+    fn default() -> Self {
+        Self {
+            fg: None,
+            bg: None,
+            bit_flag: 0,
+        }
+    }
 }
 
 impl Style {

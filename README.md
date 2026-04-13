@@ -30,11 +30,6 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - [ ] Key hints
             - E.g "F1 -> Help | ESC -> Exit"
     - [ ] Stateful Widgets
-        - [ ] **Sequence**
-            - A widget that holds a Vector of other widgets that are rendered in sequence
-            - horizontally or vertically
-            - custom Layout
-            - scrollable
         - [ ] *Tree View*
             - It handles expanding/collapsing nodes (e.g., ▼ Folder, ▶ Subfolder).
         - [ ] *Notification*
@@ -75,7 +70,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
     - This caps structures like tables to around 65,000 rows and columns.
     - This also caps the Terminal size to around 65,000 rows and columns.
 - No full Unicode support.
-    - At most, `u16::MAX` Unicode code-points are supported.
+    - At most, `u16::MAX` Unicode code-points with a single cell display width are supported.
 
 ## Features
 
@@ -100,9 +95,9 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - Button support
         - Drags & Scrolls
 - Rendering
-    - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and `TrueColor` / RGB).
+    - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and `TrueColor` / 8bit and 24bit RGB).
     - Text Attributes (Bold, Dim, Italic, Underline, Blink, Reverse, and Strikethrough)
-    - Layout engine: Supports horizontal and vertical alignment and using Constraints
+    - Layout engine: Supports horizontal and vertical alignment and using Constraints to calculate the layout for seamless resizing
     - Codex
         - Emulation of old school code pages for character rendering
         - Includes as default:
@@ -126,6 +121,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
     - TextBox: A simple text entry box for inputting text.
     - MenuButton: A button with an expandable Vector of Widgets.
     - CheckBox: A simple button and indicator Widget.
+    - Sequence: A widget that holds a Vector of other widgets that are rendered in sequence.
 
 ## Images
 
@@ -146,6 +142,12 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
 <p align="center">
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_much_text.png" alt="A lot of text" width="750" height="400"/> 
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/demo_signal_box.png" alt="Talos can handle state" width="750" height="400"/>   
+</p>
+
+### Full Applications
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/nyx.png" alt="A simple system explorer for my homelab" width="750" height="400"/>
 </p>
 
 ## Performance

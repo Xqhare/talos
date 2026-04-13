@@ -24,3 +24,6 @@ pub use block_box::{BlockBox, BlockBoxState};
 
 mod check_box;
 pub use check_box::{CheckBox, CheckBoxState};
+
+mod sequence;
+pub use sequence::{Sequence, SequenceState};
