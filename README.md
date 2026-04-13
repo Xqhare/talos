@@ -157,6 +157,8 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
     <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/nyx.png" alt="A simple system explorer for my homelab" width="750" height="400"/>
 </p>
 
+You can find Nyx [here](https://github.com/xqhare/nyx).
+
 ## Performance
 
 Talos is designed for extreme efficiency and low-latency rendering. In a "worst-case scenario" stress test (filling a 236x64 grid with unique random colors and styles on every frame), Talos achieved:
