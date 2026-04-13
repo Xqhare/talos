@@ -49,6 +49,7 @@ pub use constraint::Constraint;
 
 /// A struct to construct a layout from a list of constraints
 #[must_use]
+#[derive(Debug, Clone)]
 pub struct Layout {
     /// The direction of the layout
     pub direction: Direction,

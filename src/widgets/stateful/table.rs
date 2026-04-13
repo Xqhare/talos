@@ -1,7 +1,7 @@
 use crate::{
     LayoutBuilder,
     codex::Codex,
-    layout::{Constraint, Direction, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     render::{CCell, Canvas, Style},
     widgets::traits::Widget,
 };
@@ -70,6 +70,7 @@ pub struct Table<'a> {
     border_style: Style,
     header_style: Style,
     header_row: Option<usize>,
+    col_layout: Option<Layout>,
     draw_outer_border: bool,
     draw_inner_border: InnerBorder,
 }
@@ -152,9 +153,22 @@ impl<'a> Table<'a> {
             border_style: Style::default(),
             header_style: Style::default(),
             header_row: None,
+            col_layout: None,
             draw_outer_border: false,
             draw_inner_border: InnerBorder::default(),
         }
+    }
+
+    /// Sets the layout of the columns
+    ///
+    /// Use this for fine grained control over how the columns are rendered.
+    ///
+    /// The `Direction` of the layout is ignored and always set to [`Direction::Horizontal`]
+    pub fn with_col_layout(mut self, layout: Layout) -> Self {
+        let mut layout = layout;
+        layout.direction = Direction::Horizontal;
+        self.col_layout = Some(layout);
+        self
     }
 
     /// Sets the style of the table header
@@ -469,7 +483,7 @@ impl Widget for Table<'_> {
             if matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows)
                 && rendered_rows > 0
             {
-                let y = row_areas[rendered_rows].y;
+                let y = row_area.y;
 
                 for x in table_area.left()..table_area.right() {
                     canvas.set_ccell(
@@ -508,22 +522,28 @@ impl Widget for Table<'_> {
                 self.style
             };
 
-            let mut tmp = LayoutBuilder::new();
-            let mut col_layout = tmp.direction(Direction::Horizontal);
-            let col_amount = if let Some(max_columns) = self.state.max_columns {
-                max_columns
-            } else {
-                row.len()
+            let (col_amount, col_layout) = {
+                let col_amount = if let Some(max_columns) = self.state.max_columns {
+                    max_columns
+                } else {
+                    row.len()
+                };
+                if let Some(col_layout) = &self.col_layout {
+                    (col_amount, col_layout)
+                } else {
+                    let mut tmp = LayoutBuilder::new();
+                    let mut col_layout = tmp.direction(Direction::Horizontal);
+                    let col_percentage = 100usize.saturating_div(col_amount);
+                    #[allow(clippy::cast_possible_truncation)]
+                    for _ in 0..col_amount {
+                        col_layout = col_layout
+                            .add_constraint(Constraint::Percentage(col_percentage as u16));
+                    }
+                    (col_amount, &col_layout.build())
+                }
             };
-            let col_percentage = 100usize.saturating_div(col_amount);
-            #[allow(clippy::cast_possible_truncation)]
-            for _ in 0..col_amount {
-                col_layout =
-                    col_layout.add_constraint(Constraint::Percentage(col_percentage as u16));
-            }
-            let col_layout = col_layout.build();
 
-            let col_areas = col_layout.split(row_areas[rendered_rows]);
+            let col_areas = col_layout.split(row_area);
 
             for (rendered_cols, (j, col)) in row
                 .iter_mut()
@@ -558,10 +578,10 @@ impl Widget for Table<'_> {
                     InnerBorder::All | InnerBorder::Columns
                 ) && rendered_cols > 0
                 {
-                    let x = col_areas[rendered_cols].x;
+                    let x = cell_area.x;
 
-                    let y_start = row_areas[rendered_rows].y;
-                    let y_end = row_areas[rendered_rows].bottom();
+                    let y_start = row_area.y;
+                    let y_end = row_area.bottom();
 
                     for y in y_start..y_end {
                         canvas.set_ccell(
