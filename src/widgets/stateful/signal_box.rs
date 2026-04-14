@@ -124,3 +124,47 @@ impl Widget for SignalBox<'_> {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_signal_box_render_on() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(1, 1);
+        let mut state = SignalBoxState { signal: true };
+        let mut signal_box = SignalBox::new(&mut state);
+        let area = Rect::new(0, 0, 1, 1);
+
+        signal_box.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, 0x0328);
+    }
+
+    #[test]
+    fn test_signal_box_render_off() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(1, 1);
+        let mut state = SignalBoxState { signal: false };
+        let mut signal_box = SignalBox::new(&mut state);
+        let area = Rect::new(0, 0, 1, 1);
+
+        signal_box.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, 0x0327);
+    }
+
+    #[test]
+    fn test_signal_box_classical_symbols() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(1, 1);
+        let mut state = SignalBoxState { signal: true };
+        let mut signal_box = SignalBox::new(&mut state).use_classical_symbols();
+        let area = Rect::new(0, 0, 1, 1);
+
+        signal_box.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, 0x035E);
+    }
+}

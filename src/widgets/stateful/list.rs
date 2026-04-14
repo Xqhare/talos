@@ -300,3 +300,77 @@ impl Widget for List<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::widgets::Text;
+
+    #[test]
+    fn test_list_render_vertical() {
+        let codex = Codex::new();
+        let mut canvas = crate::render::Canvas::new(10, 5);
+        let mut state = ListState::default();
+        let mut items = vec![
+            Text::new("Item 1", &codex),
+            Text::new("Item 2", &codex),
+            Text::new("Item 3", &codex),
+        ];
+        let mut list = List::new(&mut state, items.iter_mut());
+        let area = Rect::new(0, 0, 10, 5);
+
+        list.render(&mut canvas, area, &codex);
+
+        // Check if items are rendered line by line
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('I'));
+        assert_eq!(canvas.get_ccell(0, 1).char, codex.lookup('I'));
+        assert_eq!(canvas.get_ccell(0, 2).char, codex.lookup('I'));
+    }
+
+    #[test]
+    fn test_list_selected_symbol() {
+        let codex = Codex::new();
+        let mut canvas = crate::render::Canvas::new(10, 5);
+        let mut state = ListState::default();
+        state.selected = Some(1);
+        let mut items = vec![
+            Text::new("Item 1", &codex),
+            Text::new("Item 2", &codex),
+        ];
+        let mut list = List::new(&mut state, items.iter_mut())
+            .with_selected_symbol('>', &codex);
+        let area = Rect::new(0, 0, 10, 5);
+
+        list.render(&mut canvas, area, &codex);
+
+        // Item 2 is at y=1. Symbol should be at x=1.
+        assert_eq!(canvas.get_ccell(1, 1).char, codex.lookup('>'));
+        // Text should be offset by 3.
+        assert_eq!(canvas.get_ccell(3, 1).char, codex.lookup('I'));
+    }
+
+    #[test]
+    fn test_list_scrolling() {
+        let codex = Codex::new();
+        let mut canvas = crate::render::Canvas::new(10, 2); // Only 2 lines high
+        let mut state = ListState::default();
+        state.selected = Some(2); // Third item selected
+        let mut items = vec![
+            Text::new("Item 1", &codex),
+            Text::new("Item 2", &codex),
+            Text::new("Item 3", &codex),
+        ];
+        let mut list = List::new(&mut state, items.iter_mut());
+        let area = Rect::new(0, 0, 10, 2);
+
+        list.render(&mut canvas, area, &codex);
+
+        // Should have scrolled to show Item 3 at some position.
+        // If height is 2, and selected is 2 (index 2), scroll_offset becomes 1.
+        // So Item 2 and Item 3 are shown.
+        assert_eq!(state.scroll_offset, 1);
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('I')); // This is Item 2
+        assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('2'));
+        assert_eq!(canvas.get_ccell(5, 1).char, codex.lookup('3'));
+    }
+}

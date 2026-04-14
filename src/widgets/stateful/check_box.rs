@@ -122,3 +122,37 @@ impl Widget for CheckBox<'_> {
         self.state.button.render(canvas, layout[1], codex);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::widgets::stateful::ButtonState;
+
+    #[test]
+    fn test_checkbox_render() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 5);
+        let mut button_state = ButtonState { clicked: true };
+        let mut state = CheckBoxState {
+            button: Button::new("Test", &mut button_state, &codex),
+        };
+        let mut checkbox = CheckBox::new(&mut state);
+        let area = Rect::new(0, 0, 20, 5);
+
+        checkbox.render(&mut canvas, area, &codex);
+
+        // SignalBox should show '[X]' or similar.
+        // In classical symbols, it should be 0x035E if clicked.
+        // It is rendered in layout[0], which is at (1,1) if area is (0,0,20,3)
+        assert_eq!(canvas.get_ccell(1, 1).char, 0x035E);
+
+        // Button text should be in layout[1].
+        // layout[1] starts at x=2.
+        // Button uses Block internally, so it adds more borders.
+        // Inner area of Button starts at x=2+1=3.
+        // Button centers text: (15 - 4) / 2 + 1 = 6.
+        // Start x = 3 + 6 = 9.
+        // y = 1 (inner area start) + 1 (vertical center) = 2.
+        assert_eq!(canvas.get_ccell(9, 2).char, codex.lookup('T'));
+    }
+}

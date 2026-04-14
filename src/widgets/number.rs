@@ -93,3 +93,51 @@ impl Widget for Number {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_number_render() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let mut number = Number::new(&123, &codex);
+        let area = Rect::new(0, 0, 10, 1);
+
+        number.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('1'));
+        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('2'));
+        assert_eq!(canvas.get_ccell(2, 0).char, codex.lookup('3'));
+    }
+
+    #[test]
+    fn test_number_render_negative() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let mut number = Number::new(&-42, &codex);
+        let area = Rect::new(0, 0, 10, 1);
+
+        number.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('-'));
+        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('4'));
+        assert_eq!(canvas.get_ccell(2, 0).char, codex.lookup('2'));
+    }
+
+    #[test]
+    fn test_number_render_float() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let mut number = Number::new(&3.14, &codex);
+        let area = Rect::new(0, 0, 10, 1);
+
+        number.render(&mut canvas, area, &codex);
+
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('3'));
+        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('.'));
+        assert_eq!(canvas.get_ccell(2, 0).char, codex.lookup('1'));
+        assert_eq!(canvas.get_ccell(3, 0).char, codex.lookup('4'));
+    }
+}

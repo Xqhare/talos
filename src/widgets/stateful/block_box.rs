@@ -108,3 +108,32 @@ impl Widget for BlockBox<'_> {
             .render(canvas, self.state.block.inner(area), codex);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::codex::Codex;
+    use crate::layout::Rect;
+    use crate::render::Canvas;
+    use crate::widgets::Text;
+
+    #[test]
+    fn test_block_box_render() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 3);
+        let mut block = Block::new(); // Default has borders
+        let mut text = Text::new("OK", &codex);
+        let mut block_box = BlockBox::new(&mut block, &mut text);
+        let area = Rect::new(0, 0, 10, 3);
+
+        block_box.render(&mut canvas, area, &codex);
+
+        // Block border at (0,0)
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('┌'));
+        // Text inside at (1,1) - Text by default is not centered unless we call align_center()
+        // But here we didn't call it on Text, so it should be at the top-left of the inner area.
+        // Inner area starts at (1,1).
+        assert_eq!(canvas.get_ccell(1, 1).char, codex.lookup('O'));
+        assert_eq!(canvas.get_ccell(2, 1).char, codex.lookup('K'));
+    }
+}

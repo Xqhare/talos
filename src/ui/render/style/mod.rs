@@ -150,6 +150,54 @@ impl Style {
         self.bg
     }
 
+    /// Returns whether the bold attribute is set
+    #[must_use]
+    pub fn get_bold(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b1000_0000 != 0)
+    }
+
+    /// Returns whether the dim attribute is set
+    #[must_use]
+    pub fn get_dim(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0100_0000 != 0)
+    }
+
+    /// Returns whether the italic attribute is set
+    #[must_use]
+    pub fn get_italic(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0010_0000 != 0)
+    }
+
+    /// Returns whether the underline attribute is set
+    #[must_use]
+    pub fn get_underline(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0001_0000 != 0)
+    }
+
+    /// Returns whether the blink attribute is set
+    #[must_use]
+    pub fn get_blink(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0000_1000 != 0)
+    }
+
+    /// Returns whether the reverse attribute is set
+    #[must_use]
+    pub fn get_reverse(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0000_0100 != 0)
+    }
+
+    /// Returns whether the hidden attribute is set
+    #[must_use]
+    pub fn get_hidden(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0000_0010 != 0)
+    }
+
+    /// Returns whether the strikethrough attribute is set
+    #[must_use]
+    pub fn get_strikethrough(&self) -> Option<bool> {
+        Some(self.bit_flag & 0b0000_0001 != 0)
+    }
+
     /// Generates an ANSI control sequence that transforms the terminal style from `from` to `self`
     pub(crate) fn generate_diff(self, from: Style, output_buffer: &mut Vec<u8>) {
         if self == from {

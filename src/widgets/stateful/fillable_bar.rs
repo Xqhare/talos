@@ -114,9 +114,12 @@ impl Widget for FillableBar<'_> {
     fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let fill = self.state.fill;
         // BODGE: flip bg and fg
-        self.style = Style::builder()
-            .set_fg(self.style.get_bg().unwrap())
-            .set_bg(self.style.get_fg().unwrap())
+        let fg = self.style.get_fg();
+        let bg = self.style.get_bg();
+        self.style = self.style
+            .new_from_self()
+            .set_fg_option(bg)
+            .set_bg_option(fg)
             .build();
         if self.vertical {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
@@ -264,5 +267,54 @@ impl Widget for FillableBar<'_> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fillable_bar_render_horizontal() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let mut state = FillableBarState { fill: 0.5 };
+        let mut bar = FillableBar::new(&mut state);
+        let area = Rect::new(0, 0, 10, 1);
+
+        bar.render(&mut canvas, area, &codex);
+
+        // fill=0.5 of 10 is 5.
+        // First 5 cells should be '█' (filled).
+        let full = codex.lookup('█');
+        for x in 0..5 {
+            assert_eq!(canvas.get_ccell(x, 0).char, full);
+        }
+        for x in 5..10 {
+            assert_eq!(canvas.get_ccell(x, 0).char, SPACE_GLYPH);
+        }
+    }
+
+    #[test]
+    fn test_fillable_bar_render_glow() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let mut state = FillableBarState { fill: 0.5 };
+        let mut bar = FillableBar::new(&mut state).glow();
+        let area = Rect::new(0, 0, 10, 1);
+
+        bar.render(&mut canvas, area, &codex);
+
+        // fill=0.5 of 10 is 5.
+        // x=4 is depth 0 -> '░'
+        // x=3 is depth 1 -> '▒'
+        // x=2 is depth 2 -> '▓'
+        // x=1 is '█'
+        // x=0 is '█'
+        assert_eq!(canvas.get_ccell(4, 0).char, codex.lookup('░'));
+        assert_eq!(canvas.get_ccell(3, 0).char, codex.lookup('▒'));
+        assert_eq!(canvas.get_ccell(2, 0).char, codex.lookup('▓'));
+        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('█'));
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('█'));
     }
 }

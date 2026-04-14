@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_menu_button_render_no_overlap() {
-        let codex = Codex::default();
+        let codex = Codex::new();
         let mut canvas = Canvas::new(20, 20);
         let mut main_state = ButtonState { clicked: true };
         let mut menu_state = ButtonState { clicked: true };
@@ -195,5 +195,48 @@ mod tests {
         // Button uses Block with bg fill, so it should write something.
         let cell = canvas.get_ccell(0, 1);
         assert_ne!(cell.char, 0); // Assuming 0 is the default empty char
+    }
+
+    #[test]
+    fn test_menu_button_horizontal_layout() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 2);
+        let mut main_state = ButtonState { clicked: true };
+        let mut menu_state = ButtonState { clicked: false };
+        let main_button = Button::new("Main", &mut main_state, &codex);
+        let mut item = Button::new("Item", &mut menu_state, &codex);
+        let items = vec![&mut item];
+
+        let mut menu_button = MenuButton::new(main_button, items.into_iter())
+            .with_horizontal_layout();
+        let area = Rect::new(0, 0, 5, 3);
+
+        menu_button.render(&mut canvas, area, &codex);
+
+        // Main button is at (0,0) with width 5.
+        // Item should be at (5,0).
+        assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('┌'));
+    }
+
+    #[test]
+    fn test_menu_button_not_clicked() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 2);
+        let mut main_state = ButtonState { clicked: false };
+        let mut menu_state = ButtonState { clicked: false };
+        let main_button = Button::new("Main", &mut main_state, &codex);
+        let mut item = Button::new("Item", &mut menu_state, &codex);
+        let items = vec![&mut item];
+
+        let mut menu_button = MenuButton::new(main_button, items.into_iter());
+        let area = Rect::new(0, 0, 5, 1);
+
+        menu_button.render(&mut canvas, area, &codex);
+
+        // Main button is at (0,0). Item at (0,1) should NOT be rendered.
+        // Button with borders: (0,1) would be '┌' if it were rendered.
+        // It should be SPACE_GLYPH (0) if not rendered and canvas was empty.
+        use crate::codex::pages::SPACE_GLYPH;
+        assert_eq!(canvas.get_ccell(0, 1).char, SPACE_GLYPH);
     }
 }

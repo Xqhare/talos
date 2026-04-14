@@ -174,3 +174,47 @@ impl Widget for Sequence<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::widgets::Text;
+
+    #[test]
+    fn test_sequence_render_horizontal() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 1);
+        let state = SequenceState { scroll_offset: 0 };
+        let mut t1 = Text::new("A", &codex);
+        let mut t2 = Text::new("B", &codex);
+        let items = vec![&mut t1, &mut t2];
+        let mut sequence = Sequence::new(state, items.into_iter());
+        let area = Rect::new(0, 0, 20, 1);
+
+        sequence.render(&mut canvas, area, &codex);
+
+        // By default, it splits the area equally if no layout.
+        // 2 items in 20 width -> 10 each.
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('A'));
+        assert_eq!(canvas.get_ccell(10, 0).char, codex.lookup('B'));
+    }
+
+    #[test]
+    fn test_sequence_scroll_offset() {
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(10, 1);
+        let state = SequenceState { scroll_offset: 1 };
+        let mut t1 = Text::new("A", &codex);
+        let mut t2 = Text::new("B", &codex);
+        let items = vec![&mut t1, &mut t2];
+        let mut sequence = Sequence::new(state, items.into_iter());
+        let area = Rect::new(0, 0, 10, 1);
+
+        sequence.render(&mut canvas, area, &codex);
+
+        // scroll_offset = 1, so only "B" should be rendered.
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('B'));
+        // "A" should not be rendered.
+        assert_ne!(canvas.get_ccell(0, 0).char, codex.lookup('A'));
+    }
+}

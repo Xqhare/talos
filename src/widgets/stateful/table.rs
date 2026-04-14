@@ -736,4 +736,30 @@ mod tests {
         assert_eq!(canvas.get_ccell(10, 0).char, v_in);
         assert_eq!(canvas.get_ccell(10, 5).char, cross);
     }
+
+    #[test]
+    fn test_table_outer_border() {
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 10);
+        let mut r1 = vec![Text::new("R1C1", &codex)];
+        let rows = vec![r1.iter_mut()];
+
+        let mut table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_outer_border();
+
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+
+        // Outer border corners
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('╔'));
+        assert_eq!(canvas.get_ccell(19, 0).char, codex.lookup('╗'));
+        assert_eq!(canvas.get_ccell(0, 9).char, codex.lookup('╚'));
+        assert_eq!(canvas.get_ccell(19, 9).char, codex.lookup('╝'));
+    }
 }
