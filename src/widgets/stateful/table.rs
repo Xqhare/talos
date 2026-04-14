@@ -569,15 +569,6 @@ impl Widget for Table<'_> {
                     InnerBorder::All | InnerBorder::Columns
                 ) && rendered_cols > 0
                 {
-                    cell_area.x = cell_area.x.saturating_add(1);
-                    cell_area.width = cell_area.width.saturating_sub(1);
-                }
-
-                if matches!(
-                    self.draw_inner_border,
-                    InnerBorder::All | InnerBorder::Columns
-                ) && rendered_cols > 0
-                {
                     let x = cell_area.x;
 
                     let y_start = row_area.y;
@@ -627,6 +618,7 @@ impl Widget for Table<'_> {
                             );
                         }
                     }
+
                     cell_area.x = cell_area.x.saturating_add(1);
                     cell_area.width = cell_area.width.saturating_sub(1);
                 }

@@ -19,7 +19,7 @@ use crate::render::{Colour, Normal, Style};
 ///
 /// atlas.insert("custom".to_string(), Style::default());
 /// atlas.update_ok(Style::default());
-/// let custom = atlas.get_style_exists("custom");
+/// let custom = atlas.get_known_style("custom");
 /// let ok = atlas.get_ok();
 /// let warn = atlas.get_warning();
 /// # assert!(true);

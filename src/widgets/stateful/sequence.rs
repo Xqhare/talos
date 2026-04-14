@@ -36,8 +36,8 @@ pub struct SequenceState {
 /// let mut sequence_state = SequenceState {
 ///     scroll_offset: 0,
 /// };
-/// let items: Vec<&mut dyn Widget> = Vec::new();
-/// let sequence = Sequence::new(items, sequence_state.iter_mut());
+/// let mut items: Vec<&mut dyn Widget> = Vec::new();
+/// let sequence = Sequence::new(sequence_state, items.iter_mut());
 /// # assert!(true);
 /// ```
 pub struct Sequence<'a> {
@@ -62,11 +62,11 @@ impl<'a> Sequence<'a> {
     /// let mut sequence_state = SequenceState {
     ///     scroll_offset: 0,
     /// };
-    /// let items: Vec<&mut dyn Widget> = Vec::new();
-    /// let sequence = Sequence::new(items, sequence_state.iter_mut());
+    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
+    /// let sequence = Sequence::new(sequence_state, items.iter_mut());
     /// # assert!(true);
     /// ```
-    pub fn new<I, W>(items: I, state: SequenceState) -> Self
+    pub fn new<I, W>(state: SequenceState, items: I) -> Self
     where
         I: Iterator<Item = &'a mut W>,
         W: Widget + 'a,

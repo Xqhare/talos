@@ -36,11 +36,11 @@ pub struct CheckBoxState<'a> {
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
 ///     talos.begin_frame();
-///     let (canvas, codex) = talos.render_ctx();
+///     let (mut canvas, codex) = talos.render_ctx();
 ///
 ///     let mut button_state = ButtonState { clicked: true };
-///     let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &mut codex) };
-///     let checkbox = CheckBox::new(&mut state);
+///     let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &codex) };
+///     let mut checkbox = CheckBox::new(&mut state);
 ///     checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
 ///     # assert!(true);
 ///     Ok(())
@@ -57,13 +57,14 @@ impl<'a> CheckBox<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::stateful::{CheckBox, CheckBoxState, Button, ButtonState}};
+    /// use talos::{Talos, layout::Rect, widgets::{stateful::{CheckBox, CheckBoxState, Button, ButtonState}, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (mut canvas, codex) = talos.render_ctx();
     /// let mut button_state = ButtonState { clicked: true };
-    /// let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &mut codex) };
-    /// let checkbox = CheckBox::new(&mut state);
+    /// let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &codex) };
+    /// let mut checkbox = CheckBox::new(&mut state);
+    /// checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
     /// # assert!(true);
     /// ```
     pub fn new(state: &'a mut CheckBoxState<'a>) -> Self {
