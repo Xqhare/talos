@@ -627,6 +627,8 @@ impl Widget for Table<'_> {
                             );
                         }
                     }
+                    cell_area.x = cell_area.x.saturating_add(1);
+                    cell_area.width = cell_area.width.saturating_sub(1);
                 }
 
                 let mut col_style = if self.alternate_colour_horizontally && j % 2 == 1 {
