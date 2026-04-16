@@ -49,6 +49,11 @@ pub mod traits {
         render::{Canvas, Style},
     };
 
+    /// State trait
+    ///
+    /// A state is any data structure that is used to store the state of a widget.
+    pub trait State {}
+
     /// Widget trait
     ///
     /// A widget is a building block for your UI

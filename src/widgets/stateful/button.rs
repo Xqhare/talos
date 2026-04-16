@@ -2,7 +2,10 @@ use crate::{
     codex::Codex,
     layout::Rect,
     render::{Canvas, Style},
-    widgets::{Block, Text, traits::Widget},
+    widgets::{
+        Block, Text,
+        traits::{State, Widget},
+    },
 };
 
 /// A button widget
@@ -53,6 +56,8 @@ pub struct ButtonState {
     /// Whether the button is currently in a clicked/active state.
     pub clicked: bool,
 }
+
+impl State for ButtonState {}
 
 impl<'a> Button<'a> {
     /// Create a new button
@@ -178,8 +183,7 @@ mod tests {
         let mut canvas = Canvas::new(10, 3);
         let mut state = ButtonState { clicked: true };
         let style = Style::builder().set_fg(Colour::Normal(Normal::Red)).build();
-        let mut button = Button::new("OK", &mut state, &codex)
-            .with_clicked_style(style);
+        let mut button = Button::new("OK", &mut state, &codex).with_clicked_style(style);
         let area = Rect::new(0, 0, 10, 3);
 
         button.render(&mut canvas, area, &codex);
@@ -194,8 +198,7 @@ mod tests {
         let codex = Codex::new();
         let mut canvas = Canvas::new(10, 3);
         let mut state = ButtonState { clicked: true };
-        let mut button = Button::new("OK", &mut state, &codex)
-            .with_clicked_text("YES", &codex);
+        let mut button = Button::new("OK", &mut state, &codex).with_clicked_text("YES", &codex);
         let area = Rect::new(0, 0, 10, 3);
 
         button.render(&mut canvas, area, &codex);

@@ -3,7 +3,7 @@ use crate::{
     codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
     render::{CCell, Canvas, Style},
-    widgets::traits::Widget,
+    widgets::traits::{State, Widget},
 };
 
 /// A stateful widget that displays a scrollable table of items.
@@ -105,6 +105,8 @@ pub struct TableState {
     /// If `None`, the table will try and fit all columns into the available space
     pub max_columns: Option<usize>,
 }
+
+impl State for TableState {}
 
 /// The inner border of the table
 pub enum InnerBorder {

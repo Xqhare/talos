@@ -2,7 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::traits::{Widget, make_dyn_iter},
+    widgets::traits::{State, Widget, make_dyn_iter},
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -70,6 +70,8 @@ pub struct ListState {
     /// The offset of the list - used for scrolling
     pub scroll_offset: usize,
 }
+
+impl State for ListState {}
 
 impl AsRef<ListState> for ListState {
     fn as_ref(&self) -> &ListState {
@@ -333,12 +335,8 @@ mod tests {
         let mut canvas = crate::render::Canvas::new(10, 5);
         let mut state = ListState::default();
         state.selected = Some(1);
-        let mut items = vec![
-            Text::new("Item 1", &codex),
-            Text::new("Item 2", &codex),
-        ];
-        let mut list = List::new(&mut state, items.iter_mut())
-            .with_selected_symbol('>', &codex);
+        let mut items = vec![Text::new("Item 1", &codex), Text::new("Item 2", &codex)];
+        let mut list = List::new(&mut state, items.iter_mut()).with_selected_symbol('>', &codex);
         let area = Rect::new(0, 0, 10, 5);
 
         list.render(&mut canvas, area, &codex);

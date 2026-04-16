@@ -1,6 +1,9 @@
 use crate::{
     render::Style,
-    widgets::{Block, traits::Widget},
+    widgets::{
+        Block,
+        traits::{State, Widget},
+    },
 };
 
 /// The state of a `BlockBox`
@@ -14,6 +17,8 @@ pub struct BlockBoxState<'a> {
     /// The widget that is contained or surrounded by the block
     pub content: &'a mut dyn Widget,
 }
+
+impl State for BlockBoxState<'_> {}
 
 /// A block that contains or surrounds another widget
 ///

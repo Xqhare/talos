@@ -2,7 +2,10 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Canvas, Style},
-    widgets::{Number, traits::Widget},
+    widgets::{
+        Number,
+        traits::{State, Widget},
+    },
 };
 
 /// A stateful widget that displays a progress bar.
@@ -58,6 +61,8 @@ pub struct FillableBarState {
     /// The fill value
     pub fill: f32,
 }
+
+impl State for FillableBarState {}
 
 impl<'a> FillableBar<'a> {
     /// Creates a new, empty fillable bar
@@ -116,7 +121,8 @@ impl Widget for FillableBar<'_> {
         // BODGE: flip bg and fg
         let fg = self.style.get_fg();
         let bg = self.style.get_bg();
-        self.style = self.style
+        self.style = self
+            .style
             .new_from_self()
             .set_fg_option(bg)
             .set_bg_option(fg)
