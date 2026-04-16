@@ -4,7 +4,7 @@ use crate::{
     render::{Canvas, Style},
     widgets::{
         stateful::Button,
-        traits::{State, Widget, make_dyn_iter},
+        traits::{Widget, make_dyn_iter},
     },
 };
 
@@ -17,8 +17,6 @@ pub struct MenuButtonState<'a> {
     /// To create, consider using `talos::widgets::traits::make_dyn_iter`
     pub menu: Vec<&'a mut dyn Widget>,
 }
-
-impl State for MenuButtonState<'_> {}
 
 /// A menu button.
 ///

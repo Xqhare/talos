@@ -2,10 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Canvas, Style},
-    widgets::{
-        Number,
-        traits::{State, Widget},
-    },
+    widgets::{Number, traits::Widget},
 };
 
 /// A stateful widget that displays a progress bar.
@@ -61,8 +58,6 @@ pub struct FillableBarState {
     /// The fill value
     pub fill: f32,
 }
-
-impl State for FillableBarState {}
 
 impl<'a> FillableBar<'a> {
     /// Creates a new, empty fillable bar

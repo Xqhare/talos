@@ -6,7 +6,7 @@ use crate::{
     widgets::{
         Block,
         stateful::{Button, SignalBox, SignalBoxState},
-        traits::{State, Widget},
+        traits::Widget,
     },
 };
 
@@ -18,8 +18,6 @@ pub struct CheckBoxState<'a> {
     /// The styling of the `Button` will not be overwritten
     pub button: Button<'a>,
 }
-
-impl State for CheckBoxState<'_> {}
 
 /// A widget for a checkbox
 ///

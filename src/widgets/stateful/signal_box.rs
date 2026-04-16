@@ -2,7 +2,7 @@ use crate::{
     codex::Codex,
     layout::Rect,
     render::{CCell, Canvas, Glyph, Style},
-    widgets::traits::{State, Widget},
+    widgets::traits::Widget,
 };
 
 /// A stateful widget that displays a boolean state.
@@ -52,8 +52,6 @@ pub struct SignalBoxState {
     /// Whether the signal is on or off
     pub signal: bool,
 }
-
-impl State for SignalBoxState {}
 
 impl<'a> SignalBox<'a> {
     /// Creates a new, empty signal box

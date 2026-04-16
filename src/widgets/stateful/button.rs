@@ -2,10 +2,7 @@ use crate::{
     codex::Codex,
     layout::Rect,
     render::{Canvas, Style},
-    widgets::{
-        Block, Text,
-        traits::{State, Widget},
-    },
+    widgets::{Block, Text, traits::Widget},
 };
 
 /// A button widget
@@ -56,8 +53,6 @@ pub struct ButtonState {
     /// Whether the button is currently in a clicked/active state.
     pub clicked: bool,
 }
-
-impl State for ButtonState {}
 
 impl<'a> Button<'a> {
     /// Create a new button

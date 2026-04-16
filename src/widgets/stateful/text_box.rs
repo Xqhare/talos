@@ -1,10 +1,7 @@
 use crate::{
     codex::Codex,
     render::Style,
-    widgets::{
-        Text,
-        traits::{State, Widget},
-    },
+    widgets::{Text, traits::Widget},
 };
 
 /// The state of a `TextBox`.
@@ -16,8 +13,6 @@ pub struct TextBoxState {
     /// The text content of the text box.
     pub text: Text,
 }
-
-impl State for TextBoxState {}
 
 /// A widget for text input.
 pub struct TextBox<'a> {

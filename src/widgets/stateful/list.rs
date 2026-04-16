@@ -2,7 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::traits::{State, Widget, make_dyn_iter},
+    widgets::traits::{Widget, make_dyn_iter},
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -70,8 +70,6 @@ pub struct ListState {
     /// The offset of the list - used for scrolling
     pub scroll_offset: usize,
 }
-
-impl State for ListState {}
 
 impl AsRef<ListState> for ListState {
     fn as_ref(&self) -> &ListState {

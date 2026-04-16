@@ -7,7 +7,7 @@ use crate::{
     render::{Canvas, Style},
     widgets::{
         Area, Block,
-        traits::{State, Widget, make_dyn_iter},
+        traits::{Widget, make_dyn_iter},
     },
 };
 
@@ -16,8 +16,6 @@ pub struct SequenceState {
     /// The current scroll offset
     pub scroll_offset: usize,
 }
-
-impl State for SequenceState {}
 
 /// A sequence of widgets
 ///
