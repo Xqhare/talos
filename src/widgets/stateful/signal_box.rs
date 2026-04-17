@@ -48,6 +48,7 @@ pub struct SignalBox<'a> {
 }
 
 /// The state of a signal box
+#[derive(Default, Debug, Clone, Copy)]
 pub struct SignalBoxState {
     /// Whether the signal is on or off
     pub signal: bool,

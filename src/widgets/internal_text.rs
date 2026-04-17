@@ -4,7 +4,7 @@ use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 #[must_use]
 pub struct InternalText {
     content: TextContent,

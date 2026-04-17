@@ -49,6 +49,7 @@ pub struct Button<'a> {
 }
 
 /// The state of the button
+#[derive(Clone, Debug, Default, Copy)]
 pub struct ButtonState {
     /// Whether the button is currently in a clicked/active state.
     pub clicked: bool,

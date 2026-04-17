@@ -43,7 +43,7 @@ use crate::widgets::traits::Widget;
 ///     Ok(())
 /// }
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 #[must_use]
 pub struct Text {
     content: InternalText,
@@ -196,9 +196,7 @@ mod tests {
     fn test_text_style() {
         let codex = Codex::new();
         let mut canvas = Canvas::new(5, 1);
-        let style = Style::builder()
-            .set_fg(Colour::Normal(Normal::Red))
-            .build();
+        let style = Style::builder().set_fg(Colour::Normal(Normal::Red)).build();
         let mut text = Text::new("A", &codex);
         text.style(style);
         let area = Rect::new(0, 0, 5, 1);

@@ -53,7 +53,7 @@ pub struct FillableBar<'a> {
 /// The state of a fillable bar
 ///
 /// The fill value is between 0.0 and 1.0
-#[derive(Default)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct FillableBarState {
     /// The fill value
     pub fill: f32,

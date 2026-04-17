@@ -33,16 +33,22 @@ pub use sequence::{Sequence, SequenceState};
 /// Useful for constructing generic stores of States
 pub enum States<'a> {
     /// Block Box State
+    ///
+    /// Do not use for long term storage; Construct a new BlockBoxState on each render
     BlockBox(BlockBoxState<'a>),
     /// Button State
     Button(ButtonState),
     /// Check Box State
+    ///
+    /// Do not use for long term storage; Construct a new CheckBoxState on each render
     CheckBox(CheckBoxState<'a>),
     /// Fillable Bar State
     FillableBar(FillableBarState),
     /// List State
     List(ListState),
     /// Menu Button State
+    ///
+    /// Do not use for long term storage; Construct a new MenuButtonState on each render
     MenuButton(MenuButtonState<'a>),
     /// Sequence State
     Sequence(SequenceState),

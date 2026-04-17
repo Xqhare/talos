@@ -12,6 +12,7 @@ use crate::{
 };
 
 /// The state for the `Sequence` widget
+#[derive(Default, Debug, Clone, Copy)]
 pub struct SequenceState {
     /// The current scroll offset
     pub scroll_offset: usize,

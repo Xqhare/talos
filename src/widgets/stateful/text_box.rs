@@ -5,6 +5,7 @@ use crate::{
 };
 
 /// The state of a `TextBox`.
+#[derive(Debug, Default, Clone)]
 pub struct TextBoxState {
     /// Whether the text box is currently focused/active.
     pub active: bool,
