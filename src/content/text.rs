@@ -51,6 +51,10 @@ impl TextContent {
         self.buffer.iter().map(|s| s.width()).max().unwrap_or(0)
     }
 
+    pub fn get_content(&self) -> &str {
+        &self.raw
+    }
+
     // TODO: Cleanup of nested ifs
     fn parse_content_to_glyphs(
         content: &str,

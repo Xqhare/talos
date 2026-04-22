@@ -54,6 +54,10 @@ impl InternalText {
     pub fn get_rendered_width(&self) -> u16 {
         self.content.get_rendered_width()
     }
+
+    pub fn get_content(&self) -> &str {
+        &self.content.get_content()
+    }
 }
 
 impl Widget for InternalText {

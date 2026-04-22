@@ -84,6 +84,11 @@ impl Text {
         self.content.set_content(content, codex);
     }
 
+    /// Get the text content
+    pub fn get_content(&self) -> &str {
+        &self.content.get_content()
+    }
+
     pub(super) fn get_mut_content(&mut self) -> &mut InternalText {
         &mut self.content
     }
