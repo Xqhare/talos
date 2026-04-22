@@ -43,6 +43,14 @@ impl TextContent {
         &self.buffer
     }
 
+    pub fn len(&self) -> usize {
+        self.raw.chars().count()
+    }
+
+    pub fn get_rendered_width(&self) -> u16 {
+        self.buffer.iter().map(|s| s.width()).max().unwrap_or(0)
+    }
+
     // TODO: Cleanup of nested ifs
     fn parse_content_to_glyphs(
         content: &str,

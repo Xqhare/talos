@@ -119,6 +119,24 @@ impl Text {
         self.content = self.content.align_vertically();
         self
     }
+
+    /// Get the length of the text
+    ///
+    /// This is the length of the text in rendered Glyphs.
+    ///
+    /// To determine the maximum rendered width, use [`Text::get_rendered_width`]
+    pub fn len(&self) -> usize {
+        self.content.len()
+    }
+
+    /// Get the rendered width of the text
+    ///
+    /// This is the width of the text in Glyphs per line.
+    ///
+    /// To determine the length of the text, use [`Text::len`]
+    pub fn get_rendered_width(&self) -> u16 {
+        self.content.get_rendered_width()
+    }
 }
 
 impl Widget for Text {

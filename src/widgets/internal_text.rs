@@ -46,6 +46,14 @@ impl InternalText {
         self.align_vertically = true;
         self
     }
+
+    pub fn len(&self) -> usize {
+        self.content.len()
+    }
+
+    pub fn get_rendered_width(&self) -> u16 {
+        self.content.get_rendered_width()
+    }
 }
 
 impl Widget for InternalText {
