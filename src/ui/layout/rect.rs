@@ -19,9 +19,9 @@ use std::cmp::{max, min};
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Rect {
-    /// The x-coordinate of the top left corner
+    /// The x-coordinate of the top left corner; The Column
     pub x: u16,
-    /// The y-coordinate of the top left corner
+    /// The y-coordinate of the top left corner; The Row
     pub y: u16,
     /// The width of the rectangle
     pub width: u16,
@@ -84,8 +84,8 @@ impl Rect {
     /// Creates a new rectangle
     ///
     /// # Arguments
-    /// * `x` - The x-coordinate of the top left corner
-    /// * `y` - The y-coordinate of the top left corner
+    /// * `x` - The x-coordinate of the top left corner; The Column
+    /// * `y` - The y-coordinate of the top left corner; The Row
     /// * `width` - The width of the rectangle
     /// * `height` - The height of the rectangle
     ///
@@ -180,6 +180,10 @@ impl Rect {
     }
 
     /// Returns true if the given point is inside the rectangle
+    ///
+    /// # Arguments
+    /// * `x` - The x-coordinate of the point; The Column
+    /// * `y` - The y-coordinate of the point; The Row
     ///
     /// # Example
     /// ```rust
