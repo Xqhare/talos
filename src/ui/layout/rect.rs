@@ -109,6 +109,33 @@ impl Rect {
         }
     }
 
+    /// Shrinks the rectangle by the given width and height
+    ///
+    /// Note that the `Rect` is shrunk on all sides:
+    /// * The left edge is moved right by `width`
+    /// * The right edge is moved left by `width`
+    /// * The top edge is moved down by `height`
+    /// * The bottom edge is moved up by `height`
+    ///
+    /// # Arguments
+    /// * `width` - The width to shrink by
+    /// * `height` - The height to shrink by
+    ///
+    /// # Example
+    /// ```rust
+    /// use talos::layout::Rect;
+    ///
+    /// let mut rect = Rect::new(10, 20, 30, 40);
+    /// rect.shrink(5, 10);
+    /// assert_eq!(rect, Rect::new(15, 30, 25, 30));
+    /// ```
+    pub fn shrink(&mut self, width: u16, height: u16) {
+        self.x += width;
+        self.y += height;
+        self.width -= width * 2;
+        self.height -= height * 2;
+    }
+
     /// Returns the area of the rectangle
     ///
     /// # Example
