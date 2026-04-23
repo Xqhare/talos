@@ -122,9 +122,9 @@ impl Widget for InternalText {
                         && glyphs_rendered == highlight_glyph_num
                     {
                         if let Some(highlight_style) = self.highlight_style {
-                            highlight_style.new_from_self().set_blink(true).build()
+                            highlight_style.new_from_self().set_blink(true).set_reverse(true).build()
                         } else {
-                            self.style.new_from_self().set_blink(true).build()
+                            self.style.new_from_self().set_blink(true).set_reverse(true).build()
                         }
                     } else {
                         self.style
@@ -137,6 +137,7 @@ impl Widget for InternalText {
                             style,
                         },
                     );
+                    canvas.set_cursor(x, y);
                 }
 
                 glyphs_rendered += 1;
@@ -152,9 +153,9 @@ impl Widget for InternalText {
         {
             if last_x < area.right() && last_y < area.bottom() && last_y >= area.top() {
                 let style = if let Some(highlight_style) = self.highlight_style {
-                    highlight_style.new_from_self().set_blink(true).build()
+                    highlight_style.new_from_self().set_blink(true).set_reverse(true).build()
                 } else {
-                    self.style.new_from_self().set_blink(true).build()
+                    self.style.new_from_self().set_blink(true).set_reverse(true).build()
                 };
                 canvas.set_ccell(
                     last_x,
@@ -164,6 +165,7 @@ impl Widget for InternalText {
                         style,
                     },
                 );
+                canvas.set_cursor(last_x, last_y);
             }
         }
     }

@@ -10,6 +10,7 @@ use input::poll_input_bytes;
 use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
+use utils::constants::ansi::{SHOW_CURSOR, HIDE_CURSOR};
 use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
 use utils::write_all_bytes;
 
@@ -67,6 +68,7 @@ pub struct Talos {
     output_buffer: Vec<u8>,
     // Input-Parser
     parser: Parser,
+    hide_cursor: bool,
 }
 
 /// Return type of `Talos::present`
@@ -208,6 +210,13 @@ impl Talos {
                     prev_x_cell = x;
                 }
             }
+        }
+
+        if let Some((x, y)) = self.canvas.cursor {
+            move_render_cursor(&mut self.output_buffer, x, y)?;
+            write_all_bytes(&mut self.output_buffer, SHOW_CURSOR.as_bytes())?;
+        } else if self.hide_cursor {
+            write_all_bytes(&mut self.output_buffer, HIDE_CURSOR.as_bytes())?;
         }
 
         if self.handle_signals()? {

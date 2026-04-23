@@ -57,11 +57,11 @@ impl Widget for TextBox<'_> {
         let state = &mut self.state;
         let cursor = if state.active { state.cursor } else { None };
 
-        // Apply blink to the highlight style
+        // Apply blink and reverse to the highlight style
         let highlight_style = if let Some(h_style) = self.highlight_style {
-            Some(h_style.new_from_self().set_blink(true).build())
+            Some(h_style.new_from_self().set_blink(true).set_reverse(true).build())
         } else {
-            Some(self.style.new_from_self().set_blink(true).build())
+            Some(self.style.new_from_self().set_blink(true).set_reverse(true).build())
         };
 
         state
@@ -94,11 +94,12 @@ mod tests {
         text_box.render(&mut canvas, area, &codex);
 
         // 'A' at 0, 'B' at 1. Cursor is at 1.
-        // Cell at 1 should have blink set (if highlight_style is None)
+        // Cell at 1 should have blink and reverse set (if highlight_style is None)
         assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('B'));
         // We can't easily check blink bit from Style here unless we know its structure,
         // but we can check if it's different from default style.
         assert!(canvas.get_ccell(1, 0).style.get_blink().unwrap_or(false));
+        assert!(canvas.get_ccell(1, 0).style.get_reverse().unwrap_or(false));
     }
 
     #[test]
