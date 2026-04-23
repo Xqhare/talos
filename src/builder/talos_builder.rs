@@ -141,7 +141,6 @@ impl TalosBuilder {
             previous_buffer,
             output_buffer,
             parser: self.input_parser,
-            hide_cursor: self.hide_cursor,
         })
     }
 }

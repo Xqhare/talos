@@ -17,8 +17,6 @@ pub struct Canvas {
     width: u16,
     height: u16,
     last_set_cell: Option<(u16, u16)>,
-    /// The current cursor position (x, y)
-    pub cursor: Option<(u16, u16)>,
 }
 
 impl Canvas {
@@ -42,7 +40,6 @@ impl Canvas {
             width,
             height,
             last_set_cell: None,
-            cursor: None,
         }
     }
 
@@ -99,20 +96,6 @@ impl Canvas {
     /// ```
     pub fn clear(&mut self) {
         self.buffer.fill(CCell::default());
-        self.cursor = None;
-    }
-
-    /// Sets the cursor position
-    ///
-    /// # Example
-    /// ```rust
-    /// use talos::render::Canvas;
-    ///
-    /// let mut canvas = Canvas::new(10, 20);
-    /// canvas.set_cursor(5, 10);
-    /// ```
-    pub fn set_cursor(&mut self, x: u16, y: u16) {
-        self.cursor = Some((x, y));
     }
 
     /// Safely gets a cell. Returns default (space) if out of bounds.
