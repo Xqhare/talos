@@ -122,7 +122,7 @@ impl Widget for InternalText {
                         && glyphs_rendered == highlight_glyph_num
                     {
                         if let Some(highlight_style) = self.highlight_style {
-                            highlight_style
+                            highlight_style.new_from_self().set_blink(true).build()
                         } else {
                             self.style.new_from_self().set_blink(true).build()
                         }
@@ -152,7 +152,7 @@ impl Widget for InternalText {
         {
             if last_x < area.right() && last_y < area.bottom() && last_y >= area.top() {
                 let style = if let Some(highlight_style) = self.highlight_style {
-                    highlight_style
+                    highlight_style.new_from_self().set_blink(true).build()
                 } else {
                     self.style.new_from_self().set_blink(true).build()
                 };

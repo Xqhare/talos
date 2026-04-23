@@ -58,9 +58,11 @@ impl Widget for TextBox<'_> {
         let cursor = if state.active { state.cursor } else { None };
 
         // Apply blink to the highlight style
-        let highlight_style = self
-            .highlight_style
-            .map(|s| s.new_from_self().set_blink(true).build());
+        let highlight_style = if let Some(h_style) = self.highlight_style {
+            Some(h_style.new_from_self().set_blink(true).build())
+        } else {
+            Some(self.style.new_from_self().set_blink(true).build())
+        };
 
         state
             .text

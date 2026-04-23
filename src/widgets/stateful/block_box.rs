@@ -100,9 +100,11 @@ impl Widget for BlockBox<'_> {
         area: crate::layout::Rect,
         codex: &crate::codex::Codex,
     ) {
-        self.state.block.style(self.style);
+        if self.style != Style::default() {
+            self.state.block.style(self.style);
+            self.state.content.style(self.style);
+        }
         self.state.block.render(canvas, area, codex);
-        self.state.content.style(self.style);
         self.state
             .content
             .render(canvas, self.state.block.inner(area), codex);
