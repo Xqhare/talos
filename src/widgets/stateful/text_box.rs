@@ -80,7 +80,7 @@ impl Widget for TextBox<'_> {
             && let Some(hint_text) = self.hint_text.as_mut()
         {
             hint_text.with_highlight(cursor, highlight_style);
-            hint_text.style(self.style);
+            hint_text.style(self.style.new_from_self().set_dim(true).build());
             hint_text.render(canvas, area, codex);
             return;
         }
