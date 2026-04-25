@@ -89,6 +89,10 @@ impl Text {
         &self.content.get_content()
     }
 
+    pub(super) fn get_content_internal(&self) -> &InternalText {
+        &self.content
+    }
+
     pub(super) fn get_mut_content(&mut self) -> &mut InternalText {
         &mut self.content
     }

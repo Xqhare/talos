@@ -1,7 +1,7 @@
 use crate::{
     codex::Codex,
     render::Style,
-    widgets::{Text, traits::Widget},
+    widgets::{Text, internal_text::InternalText, traits::Widget},
 };
 
 /// The state of a `TextBox`.
@@ -20,6 +20,7 @@ pub struct TextBox<'a> {
     state: &'a mut TextBoxState,
     style: Style,
     highlight_style: Option<Style>,
+    hint_text: Option<InternalText>,
 }
 
 impl<'a> TextBox<'a> {
@@ -29,7 +30,17 @@ impl<'a> TextBox<'a> {
             state: state,
             style: Style::default(),
             highlight_style: None,
+            hint_text: None,
         }
+    }
+
+    /// Set the hint text for the `TextBox`.
+    ///
+    /// This will only be displayed when the `TextBox` is inactive and has no text inside the
+    /// state.
+    pub fn with_hint_text(mut self, hint_text: Text) -> Self {
+        self.hint_text = Some(hint_text.get_content_internal().clone());
+        self
     }
 
     /// Get the state of the `TextBox`.
@@ -63,6 +74,16 @@ impl Widget for TextBox<'_> {
         } else {
             Some(self.style.new_from_self().set_blink(true).build())
         };
+
+        if !state.active
+            && state.text.get_content().is_empty()
+            && let Some(hint_text) = self.hint_text.as_mut()
+        {
+            hint_text.with_highlight(cursor, highlight_style);
+            hint_text.style(self.style);
+            hint_text.render(canvas, area, codex);
+            return;
+        }
 
         state
             .text
