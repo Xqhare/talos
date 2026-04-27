@@ -19,6 +19,9 @@ pub use text_box::{TextBox, TextBoxState};
 mod menu_button;
 pub use menu_button::{MenuButton, MenuButtonState};
 
+mod dropdown;
+pub use dropdown::{Dropdown, DropdownState};
+
 mod block_box;
 pub use block_box::{BlockBox, BlockBoxState};
 
@@ -46,6 +49,8 @@ pub enum States<'a> {
     FillableBar(FillableBarState),
     /// List State
     List(ListState),
+    /// Dropdown State
+    Dropdown(DropdownState),
     /// Menu Button State
     ///
     /// Do not use for long term storage; Construct a new MenuButtonState on each render
@@ -137,6 +142,22 @@ impl<'a> States<'a> {
     pub fn as_list_mut(&mut self) -> Option<&mut ListState> {
         match self {
             States::List(state) => Some(state),
+            _ => None,
+        }
+    }
+
+    /// Gets the state of the dropdown
+    pub fn as_dropdown(&self) -> Option<&DropdownState> {
+        match self {
+            States::Dropdown(state) => Some(state),
+            _ => None,
+        }
+    }
+
+    /// Gets the mutable state of the dropdown
+    pub fn as_dropdown_mut(&mut self) -> Option<&mut DropdownState> {
+        match self {
+            States::Dropdown(state) => Some(state),
             _ => None,
         }
     }
@@ -249,6 +270,12 @@ impl From<FillableBarState> for States<'_> {
 impl From<ListState> for States<'_> {
     fn from(state: ListState) -> Self {
         States::List(state)
+    }
+}
+
+impl From<DropdownState> for States<'_> {
+    fn from(state: DropdownState) -> Self {
+        States::Dropdown(state)
     }
 }
 

@@ -51,7 +51,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - [ ] Slider
         - [ ] Radio Button
         - [ ] Multi-line text box
-        - [ ] *Dropdown selection*
+        - [x] *Dropdown selection*
         - [ ] Tabs
             - A widget that allows the user to switch between tabs / Windows / Panes whatever
         - [ ] *ScrollArea*

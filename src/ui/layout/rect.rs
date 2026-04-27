@@ -127,7 +127,7 @@ impl Rect {
     ///
     /// let rect = Rect::new(10, 20, 30, 40);
     /// let rect = rect.shrink(5, 10);
-    /// assert_eq!(rect, Rect::new(15, 30, 25, 30));
+    /// assert_eq!(rect, Rect::new(15, 30, 20, 20));
     /// ```
     pub fn shrink(&self, width: u16, height: u16) -> Rect {
         Rect {
