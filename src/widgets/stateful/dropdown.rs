@@ -30,6 +30,7 @@ pub struct Dropdown<'a> {
     placeholder: String,
     label: Option<String>,
     list_height: Option<u16>,
+    fat_border: bool,
 }
 
 impl<'a> Dropdown<'a> {
@@ -50,7 +51,14 @@ impl<'a> Dropdown<'a> {
             placeholder: "Select...".to_string(),
             label: None,
             list_height: None,
+            fat_border: false,
         }
+    }
+
+    /// Sets the border of the dropdown to be fat or double lined
+    pub fn with_fat_border(mut self) -> Self {
+        self.fat_border = true;
+        self
     }
 
     /// Sets the placeholder text shown when no item is selected
@@ -93,17 +101,27 @@ impl Widget for Dropdown<'_> {
             clicked: self.state.expanded,
         };
         let mut button = Button::new(display_text, &mut button_state, codex).with_style(self.style);
+        if self.fat_border {
+            button = button.with_fat_border();
+        }
         button.render(canvas, area, codex);
 
         // Render the list if expanded
         if self.state.expanded {
+            let item_height = area.height;
             let list_height = self
                 .list_height
-                .unwrap_or_else(|| (self.items.len() as u16).min(10));
+                .unwrap_or_else(|| (self.items.len() as u16).saturating_mul(item_height).min(10u16.saturating_mul(item_height)));
             let list_area = Rect::new(area.x, area.bottom(), area.width, list_height);
 
             let mut list = List::new(&mut self.state.list_state, self.items.iter_mut())
-                .with_selected_style(self.style); // Use same style for selection for now
+                .with_selected_style(self.style)
+                .with_as_buttons()
+                .with_item_height(item_height);
+
+            if self.fat_border {
+                list = list.with_fat_border();
+            }
 
             list.render(canvas, list_area, codex);
         }
@@ -152,12 +170,15 @@ mod tests {
         let items = vec![&mut item1];
 
         let mut dropdown = Dropdown::new(&mut state, items.into_iter());
-        let area = Rect::new(0, 0, 10, 1); // 1 height button
+        let area = Rect::new(0, 0, 10, 3); // 3 height button
 
         dropdown.render(&mut canvas, area, &codex);
 
-        // List should be rendered at y=1.
-        // Option 1 starts with 'O'.
-        assert_eq!(canvas.get_ccell(0, 1).char, codex.lookup('O'));
+        // List should be rendered starting at y=3.
+        // First item is at y=3,4,5.
+        // It's a button, so it has borders.
+        // Top border at y=3, bottom at y=5, left at x=0, right at x=9.
+        // Text "Option 1" should be at y=4, starting at x=1.
+        assert_eq!(canvas.get_ccell(1, 4).char, codex.lookup('O'));
     }
 }

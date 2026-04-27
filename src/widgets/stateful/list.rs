@@ -2,7 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::traits::{Widget, make_dyn_iter},
+    widgets::{traits::{Widget, make_dyn_iter}, Block},
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -60,6 +60,9 @@ pub struct List<'a> {
     selected_style: Style,
     selected_symbol: Option<Glyph>,
     horizontal: bool,
+    item_height: u16,
+    as_buttons: bool,
+    fat_border: bool,
 }
 
 /// The state of a list
@@ -108,6 +111,9 @@ impl<'a> List<'a> {
             selected_style: Style::default(),
             selected_symbol: None,
             horizontal: false,
+            item_height: 1,
+            as_buttons: false,
+            fat_border: false,
         }
     }
 
@@ -119,6 +125,24 @@ impl<'a> List<'a> {
     /// Sets the list to be horizontal
     pub fn horizontal(mut self) -> Self {
         self.horizontal = true;
+        self
+    }
+
+    /// Sets the height of each item in the list
+    pub fn with_item_height(mut self, height: u16) -> Self {
+        self.item_height = height;
+        self
+    }
+
+    /// Sets the list to render each item as a button
+    pub fn with_as_buttons(mut self) -> Self {
+        self.as_buttons = true;
+        self
+    }
+
+    /// Sets the border of the buttons to be fat or double lined
+    pub fn with_fat_border(mut self) -> Self {
+        self.fat_border = true;
         self
     }
 
@@ -206,12 +230,24 @@ impl Widget for List<'_> {
                     break;
                 }
 
-                let item_area = Rect::new(
+                let mut item_area = Rect::new(
                     x_sum,
                     area.y,
                     area.right().saturating_sub(x_sum),
                     area.height,
                 );
+
+                if self.as_buttons {
+                    let mut block = Block::new().with_bg_fill();
+                    if self.fat_border {
+                        block = block.with_fat_border();
+                    }
+                    if is_selected {
+                        block.style(self.selected_style);
+                    }
+                    block.render(canvas, item_area, codex);
+                    item_area = block.inner(item_area);
+                }
 
                 item.render(canvas, item_area, codex);
 
@@ -243,12 +279,13 @@ impl Widget for List<'_> {
         } else {
             // Ensure the selected item is visible before we start rendering.
             if let (state, Some(selected)) = (self.state.as_mut(), selected_idx) {
-                let height = area.height as usize;
+                let visible_items = (area.height / self.item_height.max(1)) as usize;
 
                 if selected < state.scroll_offset {
                     state.scroll_offset = selected;
-                } else if selected >= state.scroll_offset + height {
-                    state.scroll_offset = selected.saturating_sub(height).saturating_add(1);
+                } else if selected >= state.scroll_offset + visible_items {
+                    state.scroll_offset =
+                        selected.saturating_sub(visible_items).saturating_add(1);
                 }
             }
 
@@ -257,7 +294,7 @@ impl Widget for List<'_> {
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
                 #[allow(clippy::cast_possible_truncation)]
-                let y = area.y.saturating_add(line_index as u16);
+                let y = area.y.saturating_add((line_index as u16).saturating_mul(self.item_height));
 
                 if y >= area.bottom() {
                     break;
@@ -288,12 +325,24 @@ impl Widget for List<'_> {
                     }
                 }
 
-                let item_area = Rect::new(
+                let mut item_area = Rect::new(
                     area.x.saturating_add(x_offset),
                     y,
                     area.width.saturating_sub(x_offset),
-                    1,
+                    self.item_height,
                 );
+
+                if self.as_buttons {
+                    let mut block = Block::new().with_bg_fill();
+                    if self.fat_border {
+                        block = block.with_fat_border();
+                    }
+                    if is_selected {
+                        block.style(self.selected_style);
+                    }
+                    block.render(canvas, item_area, codex);
+                    item_area = block.inner(item_area);
+                }
 
                 item.render(canvas, item_area, codex);
             }

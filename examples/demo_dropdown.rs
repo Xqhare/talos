@@ -17,6 +17,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut running = true;
 
     let mut dropdown_state = DropdownState::default();
+    let mut fat_border = false;
     let options = vec![
         "Option 1".to_string(),
         "Option 2".to_string(),
@@ -40,6 +41,12 @@ fn main() -> Result<(), talos::TalosError> {
                     }) => {
                         running = false;
                     }
+                    Event::KeyEvent(KeyEvent {
+                        code: KeyCode::Char('f'),
+                        ..
+                    }) => {
+                        fat_border = !fat_border;
+                    }
                     Event::MouseEvent(MouseEvent {
                         kind: MouseEventKind::Down(MouseButton::Left),
                         column,
@@ -51,7 +58,10 @@ fn main() -> Result<(), talos::TalosError> {
                             dropdown_state.expanded = !dropdown_state.expanded;
                         } else if dropdown_state.expanded {
                             // Hit testing for the list
-                            let list_height = options.len() as u16;
+                            let item_height = dropdown_rect.height;
+                            let list_height = (options.len() as u16)
+                                .saturating_mul(item_height)
+                                .min(10u16.saturating_mul(item_height));
                             let list_rect = Rect::new(
                                 dropdown_rect.x,
                                 dropdown_rect.bottom(),
@@ -60,7 +70,9 @@ fn main() -> Result<(), talos::TalosError> {
                             );
 
                             if list_rect.contains(*column, *row) {
-                                let index = (row - list_rect.y) as usize;
+                                let item_height = dropdown_rect.height;
+                                let visible_index = ((row - list_rect.y) / item_height) as usize;
+                                let index = visible_index + dropdown_state.list_state.scroll_offset;
                                 if index < options.len() {
                                     dropdown_state.list_state.selected = Some(index);
                                     dropdown_state.expanded = false;
@@ -88,12 +100,16 @@ fn main() -> Result<(), talos::TalosError> {
             .build()
             .split(root_rect);
 
+        // Render the help text first, so that the dropdown can be rendered on top of it when expanded
+        let mut help_text = Text::new(
+            "Click the dropdown to expand. Click an option to select. 'f' to toggle fat border. 'q' to quit.",
+            codex,
+        );
+        help_text.render(canvas, chunks[1], codex);
+
         dropdown_rect = chunks[0];
 
-        let mut items: Vec<Text> = options
-            .iter()
-            .map(|opt| Text::new(opt, codex))
-            .collect();
+        let mut items: Vec<Text> = options.iter().map(|opt| Text::new(opt, codex)).collect();
 
         let selected_label = dropdown_state
             .list_state
@@ -109,17 +125,15 @@ fn main() -> Result<(), talos::TalosError> {
                     .build(),
             );
 
+        if fat_border {
+            dropdown = dropdown.with_fat_border();
+        }
+
         if let Some(label) = selected_label {
             dropdown = dropdown.with_label(label);
         }
 
         dropdown.render(canvas, dropdown_rect, codex);
-
-        let mut help_text = Text::new(
-            "Click the dropdown to expand. Click an option to select. 'q' to quit.",
-            codex,
-        );
-        help_text.render(canvas, chunks[1], codex);
 
         talos.present()?;
         thread::sleep(Duration::from_millis(16));

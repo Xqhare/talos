@@ -46,6 +46,7 @@ pub struct Button<'a> {
     state: &'a mut ButtonState,
     clicked_style: Style,
     clicked_text: Option<Text>,
+    fat_border: bool,
 }
 
 /// The state of the button
@@ -81,6 +82,7 @@ impl<'a> Button<'a> {
             clicked_style: Style::default(),
             clicked_text: None,
             state,
+            fat_border: false,
         }
     }
     /// Get the state of the button
@@ -117,6 +119,11 @@ impl<'a> Button<'a> {
         self.clicked_text = Some(text);
         self
     }
+    /// Sets the border of the button to be fat or double lined
+    pub fn with_fat_border(mut self) -> Self {
+        self.fat_border = true;
+        self
+    }
 }
 
 impl Widget for Button<'_> {
@@ -134,6 +141,9 @@ impl Widget for Button<'_> {
         };
 
         let mut outer_block = Block::new().with_bg_fill();
+        if self.fat_border {
+            outer_block = outer_block.with_fat_border();
+        }
         outer_block.style(bg_style);
         outer_block.render(canvas, area, codex);
 
