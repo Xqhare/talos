@@ -22,6 +22,10 @@ Items marked in **bold** are hard blockers for other projects.\
 Items marked in *italic* are priority items.\
 Items marked in ~~strikethrough~~ are probably not happening, but might. 
 
+- [ ] Bug fixes / improvements
+    - [ ] Cursor of TextBoxes is not always correct (for a large box, the cursor will be at the bottom left corner, no matter the text layout)
+    - [ ] Some way for `printf` debugging
+        - Lightweight logger basically, to write the output to disk, instead of relying on stdout
 - [ ] ~~Windows support - If I ever feel the desire to work with the windows kernel again~~ 
 - [ ] ~~Add 16 Code pages for double wide characters (with 16 already reserved for default single width == 32 Code pages out of 256 reserved => 224 free)~~
     - ~~With support for rendering them~~
@@ -47,7 +51,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - [ ] Slider
         - [ ] Radio Button
         - [ ] Multi-line text box
-        - [ ] Dropdown selection
+        - [ ] *Dropdown selection*
         - [ ] Tabs
             - A widget that allows the user to switch between tabs / Windows / Panes whatever
         - [ ] *ScrollArea*
