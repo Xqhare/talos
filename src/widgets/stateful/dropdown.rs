@@ -27,7 +27,8 @@ pub struct Dropdown<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: &'a mut DropdownState,
     style: Style,
-    alt_style: Style,
+    active_style: Style,
+    selected_style: Style,
     placeholder: String,
     label: Option<String>,
     list_height: Option<u16>,
@@ -49,7 +50,8 @@ impl<'a> Dropdown<'a> {
             items: make_dyn_iter(items),
             state,
             style: Style::default(),
-            alt_style: Style::default(),
+            active_style: Style::default(),
+            selected_style: Style::default(),
             placeholder: "Select...".to_string(),
             label: None,
             list_height: None,
@@ -57,9 +59,15 @@ impl<'a> Dropdown<'a> {
         }
     }
 
-    /// Sets the alternate style of the dropdown
-    pub fn with_alt_style(mut self, style: Style) -> Self {
-        self.alt_style = style;
+    /// Sets the style of the dropdown main button if active
+    pub fn with_active_style(mut self, style: Style) -> Self {
+        self.active_style = style;
+        self
+    }
+
+    /// Sets the style of the dropdown used for the selected item
+    pub fn with_selected_style(mut self, style: Style) -> Self {
+        self.selected_style = style;
         self
     }
 
@@ -108,7 +116,9 @@ impl Widget for Dropdown<'_> {
         let mut button_state = ButtonState {
             clicked: self.state.expanded,
         };
-        let mut button = Button::new(display_text, &mut button_state, codex).with_style(self.style);
+        let mut button = Button::new(display_text, &mut button_state, codex)
+            .with_style(self.style)
+            .with_clicked_style(self.active_style);
         if self.fat_border {
             button = button.with_fat_border();
         }
@@ -126,7 +136,7 @@ impl Widget for Dropdown<'_> {
 
             let mut list = List::new(&mut self.state.list_state, self.items.iter_mut())
                 .with_style(self.style)
-                .with_selected_style(self.alt_style)
+                .with_selected_style(self.selected_style)
                 .with_as_buttons()
                 .with_item_height(item_height);
 
