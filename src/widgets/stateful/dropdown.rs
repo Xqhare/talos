@@ -27,6 +27,7 @@ pub struct Dropdown<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: &'a mut DropdownState,
     style: Style,
+    alt_style: Style,
     placeholder: String,
     label: Option<String>,
     list_height: Option<u16>,
@@ -48,11 +49,18 @@ impl<'a> Dropdown<'a> {
             items: make_dyn_iter(items),
             state,
             style: Style::default(),
+            alt_style: Style::default(),
             placeholder: "Select...".to_string(),
             label: None,
             list_height: None,
             fat_border: false,
         }
+    }
+
+    /// Sets the alternate style of the dropdown
+    pub fn with_alt_style(mut self, style: Style) -> Self {
+        self.alt_style = style;
+        self
     }
 
     /// Sets the border of the dropdown to be fat or double lined
@@ -109,13 +117,16 @@ impl Widget for Dropdown<'_> {
         // Render the list if expanded
         if self.state.expanded {
             let item_height = area.height;
-            let list_height = self
-                .list_height
-                .unwrap_or_else(|| (self.items.len() as u16).saturating_mul(item_height).min(10u16.saturating_mul(item_height)));
+            let list_height = self.list_height.unwrap_or_else(|| {
+                (self.items.len() as u16)
+                    .saturating_mul(item_height)
+                    .min(10u16.saturating_mul(item_height))
+            });
             let list_area = Rect::new(area.x, area.bottom(), area.width, list_height);
 
             let mut list = List::new(&mut self.state.list_state, self.items.iter_mut())
-                .with_selected_style(self.style)
+                .with_style(self.style)
+                .with_selected_style(self.alt_style)
                 .with_as_buttons()
                 .with_item_height(item_height);
 
