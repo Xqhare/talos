@@ -2,7 +2,10 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::{traits::{Widget, make_dyn_iter}, Block},
+    widgets::{
+        Block,
+        traits::{Widget, make_dyn_iter},
+    },
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -57,6 +60,7 @@ use crate::{
 pub struct List<'a> {
     items: Vec<&'a mut dyn Widget>,
     state: &'a mut ListState,
+    style: Style,
     selected_style: Style,
     selected_symbol: Option<Glyph>,
     horizontal: bool,
@@ -108,6 +112,7 @@ impl<'a> List<'a> {
         Self {
             items: make_dyn_iter(items),
             state,
+            style: Style::default(),
             selected_style: Style::default(),
             selected_symbol: None,
             horizontal: false,
@@ -162,7 +167,7 @@ impl<'a> List<'a> {
 
 impl Widget for List<'_> {
     fn style(&mut self, style: Style) {
-        self.selected_style = style;
+        self.style = style;
     }
     #[allow(clippy::too_many_lines)]
     fn render(
@@ -238,7 +243,7 @@ impl Widget for List<'_> {
                 );
 
                 if self.as_buttons {
-                    let mut block = Block::new().with_bg_fill();
+                    let mut block = Block::new().with_bg_fill().with_style(self.style);
                     if self.fat_border {
                         block = block.with_fat_border();
                     }
@@ -271,7 +276,7 @@ impl Widget for List<'_> {
                         area.y,
                         CCell {
                             char: SPACE_GLYPH,
-                            style: Style::default(),
+                            style: self.style,
                         },
                     );
                 }
@@ -284,8 +289,7 @@ impl Widget for List<'_> {
                 if selected < state.scroll_offset {
                     state.scroll_offset = selected;
                 } else if selected >= state.scroll_offset + visible_items {
-                    state.scroll_offset =
-                        selected.saturating_sub(visible_items).saturating_add(1);
+                    state.scroll_offset = selected.saturating_sub(visible_items).saturating_add(1);
                 }
             }
 
@@ -294,7 +298,9 @@ impl Widget for List<'_> {
             for (i, item) in self.items.iter_mut().enumerate().skip(offset) {
                 let line_index = i - offset;
                 #[allow(clippy::cast_possible_truncation)]
-                let y = area.y.saturating_add((line_index as u16).saturating_mul(self.item_height));
+                let y = area
+                    .y
+                    .saturating_add((line_index as u16).saturating_mul(self.item_height));
 
                 if y >= area.bottom() {
                     break;
@@ -333,7 +339,7 @@ impl Widget for List<'_> {
                 );
 
                 if self.as_buttons {
-                    let mut block = Block::new().with_bg_fill();
+                    let mut block = Block::new().with_bg_fill().with_style(self.style);
                     if self.fat_border {
                         block = block.with_fat_border();
                     }
