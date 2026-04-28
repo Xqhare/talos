@@ -116,6 +116,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
             - CP437
             - UTF Geometric Shapes block
             - UTF Miscellaneous Technical Symbols block
+            - UTF General Punctuation block (rolled into the Geometric Shapes page)
 
 ### Widgets
 
