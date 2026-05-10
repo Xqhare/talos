@@ -35,11 +35,15 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
         - [ ] Flags to enable mouse reporting in `TerminalIO`
             - Needs to be configurable
     - [x] Frontend
+- [ ] Image renderer
+	- needs a `png` and `jpeg` reader util, then I could average adjoining pixels until I reach a target resolution (area passed into render?)
 - [ ] Widgets
     - [ ] Simple Widgets
         - [ ] Key hints
             - E.g "F1 -> Help | ESC -> Exit"
     - [ ] Stateful Widgets
+        - [ ] Context Menu
+            - Really just a menu button drawn at a specific set of coords (wherever the mouse clicked
         - [ ] *Tree View*
             - It handles expanding/collapsing nodes (e.g., ▼ Folder, ▶ Subfolder).
         - [ ] *Notification*
