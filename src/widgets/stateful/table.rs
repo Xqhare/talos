@@ -48,7 +48,8 @@ use crate::{
 ///     ];
 ///
 ///     let mut table = Table::new(&mut table_state)
-///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()));
+///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()))
+///         .with_row_height(2);
 ///
 ///     let rect = Rect::new(0, 0, 40, 10);
 ///     table.render(canvas, rect, codex);
@@ -71,6 +72,7 @@ pub struct Table<'a> {
     header_style: Style,
     header_row: Option<usize>,
     col_layout: Option<Layout>,
+    row_height: Option<u16>,
     draw_outer_border: bool,
     draw_inner_border: InnerBorder,
 }
@@ -155,6 +157,7 @@ impl<'a> Table<'a> {
             header_style: Style::default(),
             header_row: None,
             col_layout: None,
+            row_height: None,
             draw_outer_border: false,
             draw_inner_border: InnerBorder::default(),
         }
@@ -169,6 +172,14 @@ impl<'a> Table<'a> {
         let mut layout = layout;
         layout.direction = Direction::Horizontal;
         self.col_layout = Some(layout);
+        self
+    }
+
+    /// Sets the height of each row in the table
+    ///
+    /// If not set, the table will try and fit all rows into the available space
+    pub fn with_row_height(mut self, height: u16) -> Self {
+        self.row_height = Some(height);
         self
     }
 
@@ -459,8 +470,20 @@ impl Widget for Table<'_> {
             return;
         }
 
-        for _ in 0..row_amount {
-            row_layout = row_layout.add_constraint(Constraint::Min(1));
+        let has_inner_row_border =
+            matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows);
+
+        for i in 0..row_amount {
+            let constraint = if let Some(h) = self.row_height {
+                if has_inner_row_border && i > 0 {
+                    Constraint::Length(h.saturating_add(1))
+                } else {
+                    Constraint::Length(h)
+                }
+            } else {
+                Constraint::Min(1)
+            };
+            row_layout = row_layout.add_constraint(constraint);
         }
         let row_layout = row_layout.build();
         let row_areas = row_layout.split(table_area);
@@ -762,5 +785,41 @@ mod tests {
         assert_eq!(canvas.get_ccell(19, 0).char, codex.lookup('╗'));
         assert_eq!(canvas.get_ccell(0, 9).char, codex.lookup('╚'));
         assert_eq!(canvas.get_ccell(19, 9).char, codex.lookup('╝'));
+    }
+
+    #[test]
+    fn test_table_custom_row_height() {
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
+        let codex = Codex::new();
+        let mut canvas = Canvas::new(20, 10);
+        let mut r1 = vec![Text::new("R1", &codex)];
+        let mut r2 = vec![Text::new("R2", &codex)];
+        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+
+        let mut table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .with_row_height(2)
+            .draw_inner_border(InnerBorder::Rows);
+
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+
+        // Row 0: height 2 (y=0, y=1)
+        // Row 1: border at y=2, height 2 (y=3, y=4)
+        let h_in = codex.lookup('─');
+        assert_eq!(canvas.get_ccell(0, 2).char, h_in);
+
+        // R1 should be in y=0 or y=1
+        // R2 should be in y=3 or y=4
+        // Text::new("R1") will render "R1" starting at (0,0)
+        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('R'));
+        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('1'));
+
+        assert_eq!(canvas.get_ccell(0, 3).char, codex.lookup('R'));
+        assert_eq!(canvas.get_ccell(1, 3).char, codex.lookup('2'));
     }
 }
