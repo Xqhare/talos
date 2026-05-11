@@ -53,6 +53,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
             - Persistant vs temporary -> Both would be nice
         - [ ] *Separator*
             - horizontal or vertical
+            - custom symbol
         - [ ] Slider
         - [ ] Radio Button
         - [ ] Multi-line text box
