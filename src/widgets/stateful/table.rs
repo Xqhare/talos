@@ -341,6 +341,133 @@ impl<'a> Table<'a> {
     pub fn get_state(&mut self) -> &mut TableState {
         &mut self.state
     }
+
+    /// Returns a grid of `Rect`s representing the individual cells of the table.
+    ///
+    /// This method follows the same layout logic as [`Table::render`] but does not perform any drawing.
+    pub fn inner(&self, area: Rect) -> Vec<Vec<Rect>> {
+        let table_area = if self.draw_outer_border {
+            Rect {
+                x: area.x + 1,
+                y: area.y + 1,
+                width: area.width.saturating_sub(2),
+                height: area.height.saturating_sub(2),
+            }
+        } else {
+            area
+        };
+
+        if table_area.width == 0 || table_area.height == 0 {
+            return Vec::new();
+        }
+
+        let mut tmp = LayoutBuilder::new();
+        let mut row_layout_builder = tmp.direction(Direction::Vertical);
+        let row_amount = if let Some(max_rows) = self.state.max_rows {
+            max_rows
+        } else {
+            std::cmp::min(self.rows.len(), table_area.height as usize)
+        };
+
+        if row_amount == 0 {
+            return Vec::new();
+        }
+
+        let has_inner_row_border =
+            matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows);
+
+        for i in 0..row_amount {
+            let constraint = if let Some(h) = self.row_height {
+                if has_inner_row_border && i > 0 {
+                    Constraint::Length(h.saturating_add(1))
+                } else {
+                    Constraint::Length(h)
+                }
+            } else {
+                Constraint::Min(1)
+            };
+            row_layout_builder = row_layout_builder.add_constraint(constraint);
+        }
+        let row_layout = row_layout_builder.build();
+        let row_areas = row_layout.split(table_area);
+
+        let mut result = Vec::with_capacity(row_amount);
+
+        for (rendered_rows, (_i, row)) in self
+            .rows
+            .iter()
+            .enumerate()
+            .skip(self.state.y_offset)
+            .enumerate()
+        {
+            if rendered_rows >= row_amount || rendered_rows >= row_areas.len() {
+                break;
+            }
+
+            let row_area = row_areas[rendered_rows];
+            if row_area.top() >= table_area.bottom() {
+                break;
+            }
+
+            let (col_amount, col_layout) = {
+                let col_amount = if let Some(max_columns) = self.state.max_columns {
+                    max_columns
+                } else {
+                    row.len()
+                };
+                if let Some(col_layout) = &self.col_layout {
+                    (col_amount, col_layout.clone())
+                } else {
+                    let mut tmp = LayoutBuilder::new();
+                    let mut col_layout_builder = tmp.direction(Direction::Horizontal);
+                    let col_percentage = 100usize.saturating_div(col_amount);
+                    #[allow(clippy::cast_possible_truncation)]
+                    for _ in 0..col_amount {
+                        col_layout_builder = col_layout_builder
+                            .add_constraint(Constraint::Percentage(col_percentage as u16));
+                    }
+                    (col_amount, col_layout_builder.build())
+                }
+            };
+
+            let col_areas = col_layout.split(row_area);
+            let mut row_results = Vec::with_capacity(col_amount);
+
+            for (rendered_cols, (_j, _col)) in row
+                .iter()
+                .enumerate()
+                .skip(self.state.x_offset)
+                .enumerate()
+            {
+                if rendered_cols >= col_amount {
+                    break;
+                }
+
+                let mut cell_area = col_areas[rendered_cols];
+
+                if matches!(self.draw_inner_border, InnerBorder::All | InnerBorder::Rows)
+                    && rendered_rows > 0
+                {
+                    cell_area.y = cell_area.y.saturating_add(1);
+                    cell_area.height = cell_area.height.saturating_sub(1);
+                }
+
+                if matches!(
+                    self.draw_inner_border,
+                    InnerBorder::All | InnerBorder::Columns
+                ) && rendered_cols > 0
+                {
+                    cell_area.x = cell_area.x.saturating_add(1);
+                    cell_area.width = cell_area.width.saturating_sub(1);
+                }
+
+                row_results.push(cell_area);
+            }
+            result.push(row_results);
+        }
+
+        result
+    }
 }
 
 impl Widget for Table<'_> {
@@ -821,5 +948,51 @@ mod tests {
 
         assert_eq!(canvas.get_ccell(0, 3).char, codex.lookup('R'));
         assert_eq!(canvas.get_ccell(1, 3).char, codex.lookup('2'));
+    }
+
+    #[test]
+    fn test_table_inner() {
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
+        let codex = Codex::new();
+        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
+        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
+        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+
+        let table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_inner_border(InnerBorder::All)
+            .draw_outer_border();
+
+        let area = Rect::new(0, 0, 21, 11);
+        let inner_areas = table.inner(area);
+
+        // Outer border takes 1 pixel on each side.
+        // Table area is (1, 1, 19, 9)
+        // 2 rows in 9 lines: 9 / 2 = 4. [0..5, 5..9] relative to table_area.
+        // Relative to absolute: Row 0 is y=1..6, Row 1 is y=6..10
+        // Row 1 starts with a border at y=6.
+        
+        // Col layout: 100 / 2 = 50%. 19 * 0.5 = 9. [0..9, 9..19] relative to table_area.
+        // Relative to absolute: Col 0 is x=1..10, Col 1 is x=10..20
+        // Col 1 starts with a border at x=10.
+
+        assert_eq!(inner_areas.len(), 2);
+        assert_eq!(inner_areas[0].len(), 2);
+        assert_eq!(inner_areas[1].len(), 2);
+
+        // Row 0, Col 0: x=1, y=1, w=9, h=5
+        assert_eq!(inner_areas[0][0], Rect::new(1, 1, 9, 5));
+        // Row 0, Col 1: x=10+1=11, y=1, w=9-1=8, h=5
+        assert_eq!(inner_areas[0][1], Rect::new(11, 1, 8, 5));
+
+        // Row 1, Col 0: x=1, y=6+1=7, w=9, h=4-1=3
+        assert_eq!(inner_areas[1][0], Rect::new(1, 7, 9, 3));
+        // Row 1, Col 1: x=10+1=11, y=6+1=7, w=9-1=8, h=4-1=3
+        assert_eq!(inner_areas[1][1], Rect::new(11, 7, 8, 3));
     }
 }
