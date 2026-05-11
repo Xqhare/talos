@@ -26,6 +26,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
     - [ ] Cursor of TextBoxes is not always correct (for a large box, the cursor will be at the bottom left corner, no matter the text layout)
     - [ ] Some way for `printf` debugging
         - Lightweight logger basically, to write the output to disk, instead of relying on stdout
+    - [ ] All `States` need better doc and a `new` function
 - [ ] ~~Windows support - If I ever feel the desire to work with the windows kernel again~~ 
 - [ ] ~~Add 16 Code pages for double wide characters (with 16 already reserved for default single width == 32 Code pages out of 256 reserved => 224 free)~~
     - ~~With support for rendering them~~
