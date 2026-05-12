@@ -23,7 +23,9 @@ Items marked in *italic* are priority items.\
 Items marked in ~~strikethrough~~ are probably not happening, but might. 
 
 - [ ] Bug fixes / improvements
+	- [ ] Sometimes cells are not rendered with the correct styling / symbols are drawn at the wrong coords (always left top in row 0) when scrolling a table
     - [ ] Cursor of TextBoxes is not always correct (for a large box, the cursor will be at the bottom left corner, no matter the text layout)
+    - [ ] Secondary styles (like clicked style for button) need to be optional and default to the set style using `style()`, not default to terminal default
     - [ ] Some way for `printf` debugging
         - Lightweight logger basically, to write the output to disk, instead of relying on stdout
     - [ ] All `States` need better doc and a `new` function

@@ -150,15 +150,23 @@ impl Widget for InternalText {
         if let Some(highlight_glyph_num) = self.highlight_glyph_num
             && glyphs_rendered == highlight_glyph_num
         {
-            if last_x < area.right() && last_y < area.bottom() && last_y >= area.top() {
+            let mut cursor_x = last_x;
+            let mut cursor_y = last_y;
+
+            if cursor_x >= area.right() {
+                cursor_x = area.left();
+                cursor_y = cursor_y.saturating_add(1);
+            }
+
+            if cursor_x < area.right() && cursor_y < area.bottom() && cursor_y >= area.top() {
                 let style = if let Some(highlight_style) = self.highlight_style {
                     highlight_style.new_from_self().set_blink(true).build()
                 } else {
                     self.style.new_from_self().set_blink(true).build()
                 };
                 canvas.set_ccell(
-                    last_x,
-                    last_y,
+                    cursor_x,
+                    cursor_y,
                     CCell {
                         char: SPACE_GLYPH,
                         style,

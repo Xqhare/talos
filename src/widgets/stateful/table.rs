@@ -784,7 +784,7 @@ impl Widget for Table<'_> {
                     row_style
                 };
                 if let Some(header_row) = self.header_row
-                    && rendered_rows == header_row
+                    && i == header_row
                 {
                     col_style = self.header_style;
                 }

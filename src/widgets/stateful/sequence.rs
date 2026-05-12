@@ -170,7 +170,9 @@ impl Widget for Sequence<'_> {
         let layout = self.make_layout(area);
         for (index, rect) in layout.iter().enumerate() {
             if index + self.state.scroll_offset < self.items.len() {
-                self.items[index + self.state.scroll_offset].render(canvas, *rect, codex);
+                let item = &mut self.items[index + self.state.scroll_offset];
+                item.style(self.style);
+                item.render(canvas, *rect, codex);
             }
         }
     }
