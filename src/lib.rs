@@ -7,7 +7,7 @@ use std::io::Write;
 use codex::Codex;
 use input::Parser;
 use input::poll_input_bytes;
-use ui::render::{CCell, Style, InteractionMap};
+use ui::render::{CCell, Style};
 use utils::constants::ansi::CLEAR_ALL;
 use utils::constants::ansi::TO_TOP_LEFT;
 use utils::constants::ansi::{BEGIN_SYNC_UPDATE, END_SYNC_UPDATE};
@@ -46,11 +46,20 @@ type Width = u16;
 type Height = u16;
 
 /// The main struct of the library
+///
+/// # Example
+/// ```rust,no_run
+/// use talos::Talos;
+///
+/// let talos = Talos::builder().build();
+/// assert!(talos.is_ok());
+/// ```
+///
+/// For more information on building the struct, see [`TalosBuilder`](struct.TalosBuilder.html).
 pub struct Talos {
     terminal: TerminalIO,
     canvas: Canvas,
     codex: Codex,
-    interactions: InteractionMap,
     // Terminal Size
     /// Width, Height
     size: (Width, Height),
@@ -70,38 +79,91 @@ pub enum Present {
 
 impl Talos {
     /// Returns a new `TalosBuilder`
+    ///
+    /// This builder can be used to configure `Talos`.
+    ///
+    /// For an exhaustive list of options, see the [`TalosBuilder`](struct.TalosBuilder.html) struct.
+    /// Most options are shown in the example below.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let talos = Talos::builder()
+    /// .with_cursor() // Show the Terminal cursor
+    /// .with_alternate_screen() // Use the alternate screen
+    /// .without_panic_handler() // Disable the panic handler
+    /// .build();
+    /// assert!(talos.is_ok());
+    /// ```
     pub fn builder() -> TalosBuilder {
         TalosBuilder::default()
     }
 
     /// Returns a mutable reference to the canvas
+    ///
+    /// Consider using `Talos::render_ctx` instead
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let canvas = talos.canvas_mut();
+    /// # assert!(true);
+    /// ```
     pub fn canvas_mut(&mut self) -> &mut Canvas {
         &mut self.canvas
     }
 
-    /// Returns a RenderContext containing the canvas and the codex.
-    pub fn render_ctx(&mut self) -> ui::render::RenderContext<'_> {
-        ui::render::RenderContext::new(&mut self.canvas, &self.codex, &mut self.interactions)
+    /// Returns a tuple containing the canvas and the codex in the form `(canvas, codex)`.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (canvas, codex) = talos.render_ctx();
+    /// # assert!(true);
+    /// ```
+    pub fn render_ctx(&mut self) -> (&mut Canvas, &Codex) {
+        (&mut self.canvas, &self.codex)
     }
 
-    /// Returns the interaction map.
-    pub fn interactions(&self) -> &InteractionMap {
-        &self.interactions
-    }
-
-    /// Returns the interaction map mutably.
-    pub fn interactions_mut(&mut self) -> &mut InteractionMap {
-        &mut self.interactions
-    }
-
-    /// Clear the canvas and interaction map.
+    /// Clear the canvas.
     /// Call at the beginning of every frame.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// talos.begin_frame();
+    /// # assert!(true);
+    /// ```
     pub fn begin_frame(&mut self) {
         self.canvas.clear();
-        self.interactions.clear();
     }
 
     /// Present the canvas to the terminal
+    /// The new size is stored in `self.size`.
+    ///
+    /// # Returns
+    /// Returns whether the terminal was resized.
+    /// If the terminal was resized, `present` will not draw anything to the terminal.
+    /// Returns `Ok(Present::Resized)` if the terminal was resized.
+    /// Returns `Ok(Present::Presented)` if the terminal was not resized.
+    ///
+    /// # Errors
+    /// Returns an error if the terminal was terminated.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// assert!(talos.present().is_ok());
+    /// ```
     pub fn present(&mut self) -> TalosResult<Present> {
         let resized = self.handle_signals()?;
         if resized {
@@ -109,7 +171,12 @@ impl Talos {
         }
 
         self.output_buffer.clear();
+
         write_all_bytes(&mut self.output_buffer, TO_TOP_LEFT.as_bytes())?;
+
+        // Removing the next line will cause some weird side effects (Bleeding the `selected` style of
+        // `List` to previous elements for example);
+        // Doing this is not ideal (performance-wise) but it works
         Style::default().generate(&mut self.output_buffer);
 
         let mut prev_x_cell: u16 = u16::MAX;
@@ -144,6 +211,7 @@ impl Talos {
         }
 
         if self.handle_signals()? {
+            // Resized! - Just show one blank frame - should be imperceivable anyways
             self.output_buffer.clear();
             return Ok(Present::Presented);
         }
@@ -157,24 +225,84 @@ impl Talos {
             .write_all(END_SYNC_UPDATE.as_bytes())?;
         self.terminal.stdout().flush()?;
 
+        // Pointer swapping of the buffers
         std::mem::swap(&mut self.previous_buffer, &mut self.canvas.buffer);
 
         Ok(Present::Presented)
     }
 
     /// Returns a mutable reference to the codex
+    ///
+    /// Consider using `Talos::render_ctx` instead
+    /// A mutable reference is only needed to add more pages to the codex.
+    ///
+    /// For more on adding pages to the codex, see the documentation of `Codex`.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let codex = talos.codex_mut();
+    /// # assert!(true);
+    /// ```
     pub fn codex_mut(&mut self) -> &mut Codex {
         &mut self.codex
     }
 
     /// Returns the codex
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let codex = talos.codex();
+    /// # assert!(true);
+    /// ```
     pub fn codex(&self) -> &Codex {
         &self.codex
     }
 
     /// Returns all input events since the last call.
+    /// If there is no input, returns None.
+    ///
+    /// Eagerly evaluates all bytes read, and returns an `Event::Unknown` if
+    /// the bytes cannot be parsed.
+    ///
+    /// # Errors
+    /// Returns an error if the terminal was terminated.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::Talos;
+    /// use talos::input::{Event, KeyEvent, KeyCode};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// # let mut c = 0;
+    /// let mut run = true;
+    /// while run {
+    ///     if let Ok(Some(events)) = talos.poll_input() {
+    ///         for event in events {
+    ///             match event {
+    ///                 Event::KeyEvent(KeyEvent {
+    ///                     code: KeyCode::Char('q'),
+    ///                     ..
+    ///                 }) => {
+    ///                     run = false;
+    ///                 }
+    ///                 _ => {}
+    ///             }
+    ///         }
+    ///     }
+    ///     # c += 1;
+    ///     # if c > 10 { break; }
+    /// }
+    /// # assert!(true);
+    /// ```
     pub fn poll_input(&mut self) -> TalosResult<Option<&[Event]>> {
         let _ = self.handle_signals()?;
+
         self.parser.event_buffer.clear();
 
         if let Some(bytes) = poll_input_bytes(
@@ -194,8 +322,18 @@ impl Talos {
     }
 
     /// Handles signals from the OS
+    ///
+    /// Returns `true` whether the terminal was resized
+    /// Returns `false` if the terminal was not resized
+    /// ENDS THE PROCESS if the terminate signal was received
+    ///
+    /// If the terminal was terminated, the terminal is restored and the process exits.
+    ///
+    /// # Errors
+    /// Returns an error if internal I/O errors occur
     fn handle_signals(&mut self) -> TalosResult<bool> {
         if check_terminate() {
+            // We need to shut down now - No state will be saved, just restore the terminal
             self.terminal.restore()?;
             std::process::exit(0);
         }

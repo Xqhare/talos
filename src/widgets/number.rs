@@ -7,7 +7,7 @@ use crate::{
     codex::Codex,
     content::text::TextContent,
     layout::Rect,
-    render::{CCell, Style},
+    render::{CCell, Canvas, Style},
     widgets::traits::Widget,
 };
 
@@ -71,10 +71,7 @@ impl Widget for Number {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        let canvas = &mut ctx.canvas;
-        let codex = ctx.codex;
-
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         self.content.set_wrap_limit(area.width, codex);
         for (i, seq) in self.content.get_sequences().iter().enumerate() {
             #[allow(clippy::cast_possible_truncation)]

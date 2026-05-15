@@ -2,11 +2,12 @@ use std::cmp::min;
 
 use crate::{
     LayoutBuilder,
+    codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
-    render::Style,
+    render::{Canvas, Style},
     widgets::{
         Area, Block,
-        traits::Widget,
+        traits::{Widget, make_dyn_iter},
     },
 };
 
@@ -41,7 +42,7 @@ pub struct SequenceState {
 /// # assert!(true);
 /// ```
 pub struct Sequence<'a> {
-    items: Vec<Box<dyn Widget + 'a>>,
+    items: Vec<&'a mut dyn Widget>,
     state: SequenceState,
     style: Style,
     horizontal: bool,
@@ -52,9 +53,27 @@ pub struct Sequence<'a> {
 
 impl<'a> Sequence<'a> {
     /// Creates a sequence of widgets
-    pub fn new(state: SequenceState) -> Self {
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::{Talos, widgets::{traits::Widget, stateful::{Sequence, SequenceState}}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut sequence_state = SequenceState {
+    ///     scroll_offset: 0,
+    /// };
+    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
+    /// let sequence = Sequence::new(sequence_state, items.iter_mut());
+    /// # assert!(true);
+    /// ```
+    pub fn new<I, W>(state: SequenceState, items: I) -> Self
+    where
+        I: Iterator<Item = &'a mut W>,
+        W: Widget + 'a,
+    {
         Self {
-            items: Vec::new(),
+            items: make_dyn_iter(items),
             state,
             style: Style::default(),
             horizontal: true,
@@ -63,19 +82,6 @@ impl<'a> Sequence<'a> {
             draw_fat_border: false,
         }
     }
-
-    /// Adds a widget to the sequence
-    pub fn add<W: Widget + 'a>(mut self, widget: W) -> Self {
-        self.items.push(Box::new(widget));
-        self
-    }
-
-    /// Adds a boxed widget to the sequence
-    pub fn add_boxed(mut self, widget: Box<dyn Widget + 'a>) -> Self {
-        self.items.push(widget);
-        self
-    }
-
 
     /// Sets the direction of the `Sequence`
     ///
@@ -149,33 +155,22 @@ impl Widget for Sequence<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-
-    fn inner(&self, area: Rect) -> Rect {
-        if self.draw_border {
-            let mut block = Block::new();
-            block.set_fat_border(self.draw_fat_border);
-            block.inner(area)
-        } else {
-            area
-        }
-    }
-
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         let mut area = area;
         if self.draw_border {
             let mut block = Block::new().with_bg_fill().with_style(self.style);
             block.set_fat_border(self.draw_fat_border);
-            block.render(ctx, area);
+            block.render(canvas, area, codex);
             area = block.inner(area);
         } else {
             Area::new()
                 .with_style(self.style)
-                .render(ctx, area);
+                .render(canvas, area, codex);
         }
         let layout = self.make_layout(area);
         for (index, rect) in layout.iter().enumerate() {
             if index + self.state.scroll_offset < self.items.len() {
-                self.items[index + self.state.scroll_offset].render(ctx, *rect);
+                self.items[index + self.state.scroll_offset].render(canvas, *rect, codex);
             }
         }
     }

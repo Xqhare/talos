@@ -1,7 +1,8 @@
 use crate::{
     LayoutBuilder,
+    codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
-    render::{CCell, Style},
+    render::{CCell, Canvas, Style},
     widgets::traits::Widget,
 };
 
@@ -62,7 +63,7 @@ use crate::{
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
     state: &'a mut TableState,
-    rows: Vec<Vec<Box<dyn Widget + 'a>>>,
+    rows: Vec<Vec<&'a mut dyn Widget>>,
     alternate_colour_vertically: bool,
     alternate_colour_horizontally: bool,
     style: Style,
@@ -231,20 +232,57 @@ impl<'a> Table<'a> {
     }
 
     /// Adds a row to the table
-    pub fn add_row(mut self, row: Vec<Box<dyn Widget + 'a>>) -> Self {
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text, traits::Widget}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut table_state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let mut rows = vec![Text::new("Hello", codex)];
+    /// let table = Table::new(&mut table_state)
+    ///     .add_row(rows.iter_mut().map(|w| w as &mut dyn Widget).collect());
+    /// # assert!(true);
+    /// ```
+    pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
         self.rows.push(row);
         self
     }
 
     /// Sets the rows of the table
-    pub fn with_rows<I, R>(mut self, rows: I) -> Self
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    ///
+    /// let mut talos = Talos::builder().build().unwrap();
+    /// let (_, codex) = talos.render_ctx();
+    /// let mut table_state = TableState {
+    ///     x_offset: 0,
+    ///     y_offset: 0,
+    ///     max_rows: None,
+    ///     max_columns: None,
+    /// };
+    /// let mut rows = vec![vec![Text::new("Hello", codex)], vec![Text::new("World", codex)]];
+    /// let table = Table::new(&mut table_state)
+    ///     .with_rows(rows.iter_mut().map(|r| r.iter_mut()));
+    /// # assert!(true);
+    /// ```
+    pub fn with_rows<I, R, W>(mut self, rows: I) -> Self
     where
         I: IntoIterator<Item = R>,
-        R: IntoIterator<Item = Box<dyn Widget + 'a>>,
+        R: IntoIterator<Item = &'a mut W>,
+        W: Widget + 'a,
     {
         self.rows = rows
             .into_iter()
-            .map(|r| r.into_iter().collect())
+            .map(|r| r.into_iter().map(|w| w as &'a mut dyn Widget).collect())
             .collect();
         self
     }
@@ -307,8 +345,17 @@ impl<'a> Table<'a> {
     /// Returns a grid of `Rect`s representing the individual cells of the table.
     ///
     /// This method follows the same layout logic as [`Table::render`] but does not perform any drawing.
-    pub fn get_cell_areas(&self, area: Rect) -> Vec<Vec<Rect>> {
-        let table_area = self.inner(area);
+    pub fn inner(&self, area: Rect) -> Vec<Vec<Rect>> {
+        let table_area = if self.draw_outer_border {
+            Rect {
+                x: area.x + 1,
+                y: area.y + 1,
+                width: area.width.saturating_sub(2),
+                height: area.height.saturating_sub(2),
+            }
+        } else {
+            area
+        };
 
         if table_area.width == 0 || table_area.height == 0 {
             return Vec::new();
@@ -427,37 +474,23 @@ impl Widget for Table<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-
-    fn inner(&self, area: Rect) -> Rect {
-        if self.draw_outer_border {
-            Rect {
-                x: area.x + 1,
-                y: area.y + 1,
-                width: area.width.saturating_sub(2),
-                height: area.height.saturating_sub(2),
-            }
-        } else {
-            area
-        }
-    }
-
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        let tl = ctx.codex.lookup('╔');
-        let tr = ctx.codex.lookup('╗');
-        let bl = ctx.codex.lookup('╚');
-        let br = ctx.codex.lookup('╝');
-        let h_out = ctx.codex.lookup('═');
-        let v_out = ctx.codex.lookup('║');
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+        let tl = codex.lookup('╔');
+        let tr = codex.lookup('╗');
+        let bl = codex.lookup('╚');
+        let br = codex.lookup('╝');
+        let h_out = codex.lookup('═');
+        let v_out = codex.lookup('║');
 
-        let h_in = ctx.codex.lookup('─');
-        let v_in = ctx.codex.lookup('│');
-        let cross = ctx.codex.lookup('┼');
+        let h_in = codex.lookup('─');
+        let v_in = codex.lookup('│');
+        let cross = codex.lookup('┼');
 
-        let left_tee = ctx.codex.lookup('╟');
-        let right_tee = ctx.codex.lookup('╢');
-        let top_tee = ctx.codex.lookup('╤');
-        let bottom_tee = ctx.codex.lookup('╧');
+        let left_tee = codex.lookup('╟');
+        let right_tee = codex.lookup('╢');
+        let top_tee = codex.lookup('╤');
+        let bottom_tee = codex.lookup('╧');
 
         if self.draw_outer_border {
             let left = area.left();
@@ -465,7 +498,7 @@ impl Widget for Table<'_> {
             let top = area.top();
             let bottom = area.bottom().saturating_sub(1);
 
-            ctx.canvas.set_ccell(
+            canvas.set_ccell(
                 left,
                 top,
                 CCell {
@@ -473,7 +506,7 @@ impl Widget for Table<'_> {
                     style: self.border_style,
                 },
             );
-            ctx.canvas.set_ccell(
+            canvas.set_ccell(
                 right,
                 top,
                 CCell {
@@ -481,7 +514,7 @@ impl Widget for Table<'_> {
                     style: self.border_style,
                 },
             );
-            ctx.canvas.set_ccell(
+            canvas.set_ccell(
                 left,
                 bottom,
                 CCell {
@@ -489,7 +522,7 @@ impl Widget for Table<'_> {
                     style: self.border_style,
                 },
             );
-            ctx.canvas.set_ccell(
+            canvas.set_ccell(
                 right,
                 bottom,
                 CCell {
@@ -499,7 +532,7 @@ impl Widget for Table<'_> {
             );
 
             for x in (left + 1)..right {
-                ctx.canvas.set_ccell(
+                canvas.set_ccell(
                     x,
                     top,
                     CCell {
@@ -507,7 +540,7 @@ impl Widget for Table<'_> {
                         style: self.border_style,
                     },
                 );
-                ctx.canvas.set_ccell(
+                canvas.set_ccell(
                     x,
                     bottom,
                     CCell {
@@ -517,7 +550,7 @@ impl Widget for Table<'_> {
                 );
             }
             for y in (top + 1)..bottom {
-                ctx.canvas.set_ccell(
+                canvas.set_ccell(
                     left,
                     y,
                     CCell {
@@ -525,7 +558,7 @@ impl Widget for Table<'_> {
                         style: self.border_style,
                     },
                 );
-                ctx.canvas.set_ccell(
+                canvas.set_ccell(
                     right,
                     y,
                     CCell {
@@ -536,7 +569,16 @@ impl Widget for Table<'_> {
             }
         }
 
-        let table_area = self.inner(area);
+        let table_area = if self.draw_outer_border {
+            Rect {
+                x: area.x + 1,
+                y: area.y + 1,
+                width: area.width.saturating_sub(2),
+                height: area.height.saturating_sub(2),
+            }
+        } else {
+            area
+        };
 
         if table_area.width == 0 || table_area.height == 0 {
             return;
@@ -595,7 +637,7 @@ impl Widget for Table<'_> {
                 let y = row_area.y;
 
                 for x in table_area.left()..table_area.right() {
-                    ctx.canvas.set_ccell(
+                    canvas.set_ccell(
                         x,
                         y,
                         CCell {
@@ -606,7 +648,7 @@ impl Widget for Table<'_> {
                 }
 
                 if self.draw_outer_border {
-                    ctx.canvas.set_ccell(
+                    canvas.set_ccell(
                         area.left(),
                         y,
                         CCell {
@@ -614,7 +656,7 @@ impl Widget for Table<'_> {
                             style: self.border_style,
                         },
                     );
-                    ctx.canvas.set_ccell(
+                    canvas.set_ccell(
                         area.right().saturating_sub(1),
                         y,
                         CCell {
@@ -684,7 +726,7 @@ impl Widget for Table<'_> {
                     let y_end = row_area.bottom();
 
                     for y in y_start..y_end {
-                        ctx.canvas.set_ccell(
+                        canvas.set_ccell(
                             x,
                             y,
                             CCell {
@@ -695,7 +737,7 @@ impl Widget for Table<'_> {
                     }
 
                     if matches!(self.draw_inner_border, InnerBorder::All) && rendered_rows > 0 {
-                        ctx.canvas.set_ccell(
+                        canvas.set_ccell(
                             x,
                             y_start,
                             CCell {
@@ -707,7 +749,7 @@ impl Widget for Table<'_> {
 
                     if self.draw_outer_border {
                         if rendered_rows == 0 {
-                            ctx.canvas.set_ccell(
+                            canvas.set_ccell(
                                 x,
                                 area.top(),
                                 CCell {
@@ -717,7 +759,7 @@ impl Widget for Table<'_> {
                             );
                         }
                         if rendered_rows == row_amount - 1 {
-                            ctx.canvas.set_ccell(
+                            canvas.set_ccell(
                                 x,
                                 area.bottom().saturating_sub(1),
                                 CCell {
@@ -748,7 +790,7 @@ impl Widget for Table<'_> {
                 }
                 col.style(col_style);
 
-                col.render(ctx, cell_area);
+                col.render(canvas, cell_area, codex);
             }
         }
     }

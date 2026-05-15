@@ -77,14 +77,14 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let mut ctx = talos.render_ctx();
+        let (canvas, codex) = talos.render_ctx();
 
         let chunks = LayoutBuilder::new()
             .direction(Direction::Horizontal)
             .add_constraint(Constraint::Percentage(50))
             .add_constraint(Constraint::Percentage(50))
             .build()
-            .split(ctx.canvas.size_rect());
+            .split(canvas.size_rect());
 
         let left_style = Style::builder()
             .set_bg(Colour::Normal(Normal::White))
@@ -98,13 +98,13 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut left_block: Block = Block::new()
-            .title("Left Block", ctx.codex, false)
+            .title("Left Block", codex, false)
             .with_beautify_border_breaks()
             .with_fat_border()
             .with_bg_fill();
 
         left_block.style(left_style);
-        left_block.render(&mut ctx, chunks[0]);
+        left_block.render(canvas, chunks[0], codex);
         let inner_left = left_block.inner(chunks[0]);
 
         let left_chunks = LayoutBuilder::new()
@@ -116,14 +116,14 @@ fn main() -> Result<(), talos::TalosError> {
 
         let mut signal_box = SignalBox::new(&mut signal_box_state);
         signal_box.style(left_style);
-        signal_box.render(&mut ctx, left_chunks[1]);
+        signal_box.render(canvas, left_chunks[1], codex);
 
-        let mut text = Text::new("Press 'c' to toggle signal!", ctx.codex);
+        let mut text = Text::new("Press 'c' to toggle signal!", codex);
         text.style(left_style);
-        text.render(&mut ctx, left_chunks[0]);
+        text.render(canvas, left_chunks[0], codex);
 
         let mut right_block: Block = Block::new()
-            .title("Right Block", ctx.codex, false)
+            .title("Right Block", codex, false)
             .with_beautify_border_breaks()
             .with_fat_border()
             .with_bg_fill();
@@ -137,7 +137,7 @@ fn main() -> Result<(), talos::TalosError> {
             .split(right_block.inner(chunks[1]));
 
         right_block.style(right_style);
-        right_block.render(&mut ctx, chunks[1]);
+        right_block.render(canvas, chunks[1], codex);
 
         let fill_style = Style::builder()
             .set_bg(Colour::Normal(Normal::Yellow))
@@ -148,21 +148,21 @@ fn main() -> Result<(), talos::TalosError> {
             .show_percentage()
             .glow();
         fillable_bar.style(fill_style);
-        fillable_bar.render(&mut ctx, right_chunks[0]);
+        fillable_bar.render(canvas, right_chunks[0], codex);
 
         let mut text = Text::new(
             "Press 'up/down' or 'left/right' to change fill percentage!",
-            ctx.codex,
+            codex,
         );
         text.style(right_style);
-        text.render(&mut ctx, right_chunks[1]);
+        text.render(canvas, right_chunks[1], codex);
 
         let mut fillable_vertical_bar = FillableBar::new(&mut fillable_vertical_bar_state)
             .vertical()
             .glow()
             .show_percentage();
         fillable_vertical_bar.style(fill_style);
-        fillable_vertical_bar.render(&mut ctx, right_chunks[2]);
+        fillable_vertical_bar.render(canvas, right_chunks[2], codex);
 
         // 4. Present to Terminal
         talos.present()?;

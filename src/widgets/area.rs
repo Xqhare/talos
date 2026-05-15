@@ -1,6 +1,7 @@
+use crate::codex::Codex;
 use crate::codex::pages::SPACE_GLYPH;
 use crate::layout::Rect;
-use crate::render::{CCell, Style};
+use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
 /// An area widget
@@ -63,9 +64,7 @@ impl Widget for Area {
         self.style = style;
     }
 
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        let canvas = &mut ctx.canvas;
-
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
         let left = area.left();
         let right = area.right();
         let top = area.top();

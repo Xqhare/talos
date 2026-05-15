@@ -1,6 +1,6 @@
 use crate::codex::Codex;
 use crate::layout::Rect;
-use crate::render::Style;
+use crate::render::{Canvas, Style};
 use crate::widgets::internal_text::InternalText;
 use crate::widgets::traits::Widget;
 
@@ -23,10 +23,10 @@ use crate::widgets::traits::Widget;
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let mut ctx = talos.render_ctx();
+///     let (canvas, codex) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     let mut text = Text::new("Hello, world!", ctx.codex())
+///     let mut text = Text::new("Hello, world!", codex)
 ///         .align_center()
 ///         .align_vertically();
 ///
@@ -36,7 +36,7 @@ use crate::widgets::traits::Widget;
 ///         .build();
 ///
 ///     text.style(style);
-///     text.render(&mut ctx, rect);
+///     text.render(canvas, rect, codex);
 ///
 ///     talos.present()?;
 ///
@@ -69,8 +69,8 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let mut ctx = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", ctx.codex());
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex);
     /// # assert!(true);
     /// ```
     pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
@@ -104,8 +104,8 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let mut ctx = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", ctx.codex()).align_center();
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex).align_center();
     /// # assert!(true);
     /// ```
     pub fn align_center(mut self) -> Self {
@@ -120,8 +120,8 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let mut ctx = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", ctx.codex()).align_vertically();
+    /// let (_, codex) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &codex).align_vertically();
     /// # assert!(true);
     /// ```
     pub fn align_vertically(mut self) -> Self {
@@ -152,8 +152,8 @@ impl Widget for Text {
     fn style(&mut self, style: Style) {
         self.content.style(style);
     }
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        self.content.render(ctx, area);
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+        self.content.render(canvas, area, codex);
     }
 }
 
@@ -169,8 +169,7 @@ mod tests {
         let mut text = Text::new("Hello", &codex);
         let area = Rect::new(0, 0, 20, 5);
 
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        text.render(&mut ctx, area);
+        text.render(&mut canvas, area, &codex);
 
         // Check first 5 characters
         let h = codex.lookup('H');
@@ -197,8 +196,7 @@ mod tests {
         let mut text = Text::new("ABC", &codex).align_center();
         let area = Rect::new(0, 0, 10, 1);
 
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        text.render(&mut ctx, area);
+        text.render(&mut canvas, area, &codex);
 
         assert_eq!(canvas.get_ccell(4, 0).char, codex.lookup('A'));
         assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('B'));
@@ -216,8 +214,7 @@ mod tests {
         let mut text = Text::new("A", &codex).align_vertically();
         let area = Rect::new(0, 0, 1, 5);
 
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        text.render(&mut ctx, area);
+        text.render(&mut canvas, area, &codex);
 
         assert_eq!(canvas.get_ccell(0, 2).char, codex.lookup('A'));
     }
