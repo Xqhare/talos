@@ -16,7 +16,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut talos = Talos::builder().build()?;
     let mut running = true;
 
-    let (_, codex) = talos.render_ctx();
+    let codex = talos.codex();
 
     let mut button_state = ButtonState { clicked: false };
     let mut text_box_state = TextBoxState {
@@ -79,9 +79,9 @@ fn main() -> Result<(), talos::TalosError> {
         }
 
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
+        let mut ctx = talos.render_ctx();
 
-        let root_rect = canvas.size_rect();
+        let root_rect = ctx.canvas.size_rect();
 
         let chunks = LayoutBuilder::new()
             .direction(Direction::Vertical)
@@ -113,14 +113,14 @@ fn main() -> Result<(), talos::TalosError> {
                 "FOCUS TEXT BOX"
             },
             &mut button_state,
-            codex,
+            ctx.codex,
         )
         .with_style(button_style);
 
-        button.render(canvas, button_rect, codex);
+        button.render(&mut ctx, button_rect);
 
         let mut text_box_block = Block::new()
-            .title("Input", codex, false)
+            .title("Input", ctx.codex, false)
             .with_beautify_border_breaks()
             .with_bg_fill();
 
@@ -132,11 +132,11 @@ fn main() -> Result<(), talos::TalosError> {
             Style::default()
         };
         text_box_block.style(text_box_style);
-        text_box_block.render(canvas, chunks[2], codex);
+        text_box_block.render(&mut ctx, chunks[2]);
 
         let inner_text_box = text_box_block.inner(chunks[2]);
         let mut text_box = TextBox::new(&mut text_box_state);
-        text_box.render(canvas, inner_text_box, codex);
+        text_box.render(&mut ctx, inner_text_box);
 
         let mut help_text = Text::new(
             if text_box_state.active {
@@ -144,9 +144,9 @@ fn main() -> Result<(), talos::TalosError> {
             } else {
                 "Click the button to focus. Press 'q' or Esc to quit."
             },
-            codex,
+            ctx.codex,
         );
-        help_text.render(canvas, chunks[3], codex);
+        help_text.render(&mut ctx, chunks[3]);
 
         talos.present()?;
         thread::sleep(Duration::from_millis(16));

@@ -1,7 +1,7 @@
 use crate::{
-    codex::{Codex, pages::SPACE_GLYPH},
+    codex::pages::SPACE_GLYPH,
     layout::Rect,
-    render::{CCell, Canvas, Style},
+    render::{CCell, Style},
     widgets::{Number, traits::Widget},
 };
 
@@ -111,7 +111,7 @@ impl Widget for FillableBar<'_> {
         self.style = style;
     }
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
         let fill = self.state.fill;
         // BODGE: flip bg and fg
         let fg = self.style.get_fg();
@@ -137,19 +137,19 @@ impl Widget for FillableBar<'_> {
                     let depth = y_off - empty_height;
                     // Glow Logic
                     if self.glow && depth == 0 && fill_height > 0 && fill < 1.0 {
-                        (codex.lookup('░'), self.style)
+                        (ctx.codex.lookup('░'), self.style)
                     } else if self.glow && depth == 1 && fill_height > 1 && fill < 1.0 {
-                        (codex.lookup('▒'), self.style)
+                        (ctx.codex.lookup('▒'), self.style)
                     } else if self.glow && depth == 2 && fill_height > 2 && fill < 1.0 {
-                        (codex.lookup('▓'), self.style)
+                        (ctx.codex.lookup('▓'), self.style)
                     } else {
-                        (codex.lookup('█'), self.style)
+                        (ctx.codex.lookup('█'), self.style)
                     }
                 };
 
                 // 2. Iterate over the Width (This allows the bar to be 2, 3, or N cells wide)
                 for x_off in 0..area.width {
-                    canvas.set_ccell(
+                    ctx.canvas.set_ccell(
                         area.x + x_off,
                         y,
                         CCell {
@@ -163,7 +163,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(&percentage, codex);
+                let mut number = Number::new(&percentage, ctx.codex);
 
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
@@ -182,17 +182,17 @@ impl Widget for FillableBar<'_> {
                     height: 1,
                 };
 
-                number.render(canvas, number_area, codex);
+                number.render(ctx, number_area);
 
                 // Add '%' sign if it fits
-                if let Some((last_x, last_y)) = canvas.last_cell()
+                if let Some((last_x, last_y)) = ctx.canvas.last_cell()
                     && last_x + 1 < area.right()
                 {
-                    canvas.set_ccell(
+                    ctx.canvas.set_ccell(
                         last_x + 1,
                         last_y,
                         CCell {
-                            char: codex.lookup('%'),
+                            char: ctx.codex.lookup('%'),
                             style: number_style,
                         },
                     );
@@ -209,20 +209,20 @@ impl Widget for FillableBar<'_> {
                     let depth = fill_width.saturating_sub(1).saturating_sub(x_off);
 
                     if self.glow && depth == 0 && fill < 1.0 {
-                        (codex.lookup('░'), self.style)
+                        (ctx.codex.lookup('░'), self.style)
                     } else if self.glow && depth == 1 && fill < 1.0 {
-                        (codex.lookup('▒'), self.style)
+                        (ctx.codex.lookup('▒'), self.style)
                     } else if self.glow && depth == 2 && fill < 1.0 {
-                        (codex.lookup('▓'), self.style)
+                        (ctx.codex.lookup('▓'), self.style)
                     } else {
-                        (codex.lookup('█'), self.style)
+                        (ctx.codex.lookup('█'), self.style)
                     }
                 } else {
                     (SPACE_GLYPH, self.style)
                 };
 
                 for y_off in 0..area.height {
-                    canvas.set_ccell(
+                    ctx.canvas.set_ccell(
                         x,
                         area.y + y_off,
                         CCell {
@@ -236,7 +236,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(&percentage, codex);
+                let mut number = Number::new(&percentage, ctx.codex);
 
                 let mut number_style = self.style;
                 if fill_width > area.width / 2 {
@@ -253,15 +253,15 @@ impl Widget for FillableBar<'_> {
                     height: 1,
                 };
 
-                number.render(canvas, number_area, codex);
-                if let Some((last_x, last_y)) = canvas.last_cell()
+                number.render(ctx, number_area);
+                if let Some((last_x, last_y)) = ctx.canvas.last_cell()
                     && last_x + 1 < area.right()
                 {
-                    canvas.set_ccell(
+                    ctx.canvas.set_ccell(
                         last_x + 1,
                         last_y,
                         CCell {
-                            char: codex.lookup('%'),
+                            char: ctx.codex.lookup('%'),
                             style: number_style,
                         },
                     );

@@ -138,6 +138,7 @@ impl TalosBuilder {
             canvas: Canvas::new(cols, rows),
             size: (cols, rows),
             codex,
+            interactions: crate::render::InteractionMap::new(),
             previous_buffer,
             output_buffer,
             parser: self.input_parser,

@@ -1,8 +1,7 @@
 use crate::{
     LayoutBuilder,
-    codex::Codex,
     layout::{Constraint, Direction, Rect},
-    render::{Canvas, Style},
+    render::Style,
     widgets::{
         Block,
         stateful::{Button, SignalBox, SignalBoxState},
@@ -98,11 +97,11 @@ impl Widget for CheckBox<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
         let mut outer_block = Block::new().with_bg_fill();
         outer_block.style(self.style);
         outer_block.set_fat_border(self.fat_border);
-        outer_block.render(canvas, area, codex);
+        outer_block.render(ctx, area);
 
         let inner_rect = outer_block.inner(area);
         let layout = LayoutBuilder::new()
@@ -117,9 +116,9 @@ impl Widget for CheckBox<'_> {
         };
         let mut signal_box = SignalBox::new(&mut signal_state).use_classical_symbols();
         signal_box.style(self.style);
-        signal_box.render(canvas, layout[0], codex);
+        signal_box.render(ctx, layout[0]);
 
-        self.state.button.render(canvas, layout[1], codex);
+        self.state.button.render(ctx, layout[1]);
     }
 }
 

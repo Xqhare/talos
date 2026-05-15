@@ -86,155 +86,17 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
-        let size = canvas.size_rect();
+        let mut ctx = talos.render_ctx();
+        let size = ctx.canvas.size_rect();
 
-        let mut large_list: Vec<Text> = vec![
-            Text::new("Item 1", &codex),
-            Text::new("Item 2", &codex),
-            Text::new("Item 3", &codex),
-            Text::new("Item 4", &codex),
-            Text::new("Item 5", &codex),
-            Text::new("Item 6", &codex),
-            Text::new("Item 7", &codex),
-            Text::new("Item 8", &codex),
-            Text::new("Item 9", &codex),
-            Text::new("Item 10", &codex),
-            Text::new("Item 11", &codex),
-            Text::new("Item 12", &codex),
-            Text::new("Item 13", &codex),
-            Text::new("Item 14", &codex),
-            Text::new("Item 15", &codex),
-            Text::new("Item 16", &codex),
-            Text::new("Item 17", &codex),
-            Text::new("Item 18", &codex),
-            Text::new("Item 19", &codex),
-            Text::new("Item 20", &codex),
-            Text::new("Item 31", &codex),
-            Text::new("Item 32", &codex),
-            Text::new("Item 33", &codex),
-            Text::new("Item 34", &codex),
-            Text::new("Item 35", &codex),
-            Text::new("Item 36", &codex),
-            Text::new("Item 37", &codex),
-            Text::new("Item 38", &codex),
-            Text::new("Item 39", &codex),
-            Text::new("Item 40", &codex),
-            Text::new("Item 51", &codex),
-            Text::new("Item 52", &codex),
-            Text::new("Item 53", &codex),
-            Text::new("Item 54", &codex),
-            Text::new("Item 55", &codex),
-            Text::new("Item 56", &codex),
-            Text::new("Item 57", &codex),
-            Text::new("Item 58", &codex),
-            Text::new("Item 59", &codex),
-            Text::new("Item 60", &codex),
-            Text::new("Item 70", &codex),
-            Text::new("Item 71", &codex),
-            Text::new("Item 72", &codex),
-            Text::new("Item 73", &codex),
-            Text::new("Item 74", &codex),
-            Text::new("Item 75", &codex),
-            Text::new("Item 76", &codex),
-            Text::new("Item 77", &codex),
-            Text::new("Item 78", &codex),
-            Text::new("Item 79", &codex),
-            Text::new("Item 80", &codex),
-            Text::new("Item 81", &codex),
-            Text::new("Item 82", &codex),
-            Text::new("Item 83", &codex),
-            Text::new("Item 84", &codex),
-            Text::new("Item 85", &codex),
-            Text::new("Item 86", &codex),
-            Text::new("Item 87", &codex),
-            Text::new("Item 88", &codex),
-            Text::new("Item 89", &codex),
-            Text::new("Item 90", &codex),
-            Text::new("Item 91", &codex),
-            Text::new("Item 92", &codex),
-            Text::new("Item 93", &codex),
-            Text::new("Item 94", &codex),
-            Text::new("Item 95", &codex),
-            Text::new("Item 96", &codex),
-            Text::new("Item 97", &codex),
-            Text::new("Item 98", &codex),
-            Text::new("Item 99", &codex),
-            Text::new("Item 100", &codex),
-        ];
-        let mut large_list2: Vec<Text> = vec![
-            Text::new("Item 1", &codex),
-            Text::new("Item 2", &codex),
-            Text::new("Item 3", &codex),
-            Text::new("Item 4", &codex),
-            Text::new("Item 5", &codex),
-            Text::new("Item 6", &codex),
-            Text::new("Item 7", &codex),
-            Text::new("Item 8", &codex),
-            Text::new("Item 9", &codex),
-            Text::new("Item 10", &codex),
-            Text::new("Item 11", &codex),
-            Text::new("Item 12", &codex),
-            Text::new("Item 13", &codex),
-            Text::new("Item 14", &codex),
-            Text::new("Item 15", &codex),
-            Text::new("Item 16", &codex),
-            Text::new("Item 17", &codex),
-            Text::new("Item 18", &codex),
-            Text::new("Item 19", &codex),
-            Text::new("Item 20", &codex),
-            Text::new("Item 31", &codex),
-            Text::new("Item 32", &codex),
-            Text::new("Item 33", &codex),
-            Text::new("Item 34", &codex),
-            Text::new("Item 35", &codex),
-            Text::new("Item 36", &codex),
-            Text::new("Item 37", &codex),
-            Text::new("Item 38", &codex),
-            Text::new("Item 39", &codex),
-            Text::new("Item 40", &codex),
-            Text::new("Item 51", &codex),
-            Text::new("Item 52", &codex),
-            Text::new("Item 53", &codex),
-            Text::new("Item 54", &codex),
-            Text::new("Item 55", &codex),
-            Text::new("Item 56", &codex),
-            Text::new("Item 57", &codex),
-            Text::new("Item 58", &codex),
-            Text::new("Item 59", &codex),
-            Text::new("Item 60", &codex),
-            Text::new("Item 70", &codex),
-            Text::new("Item 71", &codex),
-            Text::new("Item 72", &codex),
-            Text::new("Item 73", &codex),
-            Text::new("Item 74", &codex),
-            Text::new("Item 75", &codex),
-            Text::new("Item 76", &codex),
-            Text::new("Item 77", &codex),
-            Text::new("Item 78", &codex),
-            Text::new("Item 79", &codex),
-            Text::new("Item 80", &codex),
-            Text::new("Item 81", &codex),
-            Text::new("Item 82", &codex),
-            Text::new("Item 83", &codex),
-            Text::new("Item 84", &codex),
-            Text::new("Item 85", &codex),
-            Text::new("Item 86", &codex),
-            Text::new("Item 87", &codex),
-            Text::new("Item 88", &codex),
-            Text::new("Item 89", &codex),
-            Text::new("Item 90", &codex),
-            Text::new("Item 91", &codex),
-            Text::new("Item 92", &codex),
-            Text::new("Item 93", &codex),
-            Text::new("Item 94", &codex),
-            Text::new("Item 95", &codex),
-            Text::new("Item 96", &codex),
-            Text::new("Item 97", &codex),
-            Text::new("Item 98", &codex),
-            Text::new("Item 99", &codex),
-            Text::new("Item 100", &codex),
-        ];
+        let mut large_list = Vec::new();
+        for i in 1..=100 {
+            large_list.push(Text::new(format!("Item {}", i), ctx.codex));
+        }
+        let mut large_list2 = Vec::new();
+        for i in 1..=100 {
+            large_list2.push(Text::new(format!("Item {}", i), ctx.codex));
+        }
 
         // 1. Create a Layout
         // "Split the screen vertically. Top 16% for header, rest (Min 0) for content"
@@ -247,18 +109,18 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 2. Draw
         // Header
-        let mut head = Block::new().title("Header", codex, false);
-        head.render(canvas, chunks[0], codex);
+        let mut head = Block::new().title("Header", ctx.codex, false);
+        head.render(&mut ctx, chunks[0]);
 
         let head_inner = head.inner(chunks[0]);
 
-        let _header_text = Text::new("To move the lists, use the arrow keys!", &codex)
-            .render(canvas, head_inner, codex);
+        Text::new("To move the lists, use the arrow keys!", ctx.codex)
+            .render(&mut ctx, head_inner);
 
         // Content
-        let mut content_block = Block::new().title("Content", codex, true);
+        let mut content_block = Block::new().title("Content", ctx.codex, true);
 
-        content_block.render(canvas, chunks[1], codex);
+        content_block.render(&mut ctx, chunks[1]);
 
         let content_size = content_block.inner(chunks[1]);
 
@@ -276,16 +138,23 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let _list = List::new(&mut horizontal_list_state, large_list.iter_mut())
+        let mut list = List::new(&mut horizontal_list_state)
             .with_selected_style(selected_style)
-            .with_selected_symbol('→', codex)
-            .horizontal()
-            .render(canvas, inner_chunks[0], codex);
+            .with_selected_symbol('→', ctx.codex)
+            .horizontal();
+        for item in large_list {
+            list = list.add(item);
+        }
+        list.render(&mut ctx, inner_chunks[0]);
 
-        let _list2 = List::new(&mut vertical_list_state, large_list2.iter_mut())
+        let mut list2 = List::new(&mut vertical_list_state)
             .with_selected_style(selected_style)
-            .with_selected_symbol('→', codex)
-            .render(canvas, inner_chunks[1], codex);
+            .with_selected_symbol('→', ctx.codex);
+        for item in large_list2 {
+            list2 = list2.add(item);
+        }
+        list2.render(&mut ctx, inner_chunks[1]);
+        
         // 4. Present to Terminal
         talos.present()?;
 

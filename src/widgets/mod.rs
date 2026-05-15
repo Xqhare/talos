@@ -44,9 +44,8 @@ pub mod stateful;
 /// Widget traits for creating custom widgets
 pub mod traits {
     use crate::{
-        codex::Codex,
         layout::Rect,
-        render::{Canvas, Style},
+        render::{RenderContext, Style},
     };
 
     /// Widget trait
@@ -62,12 +61,20 @@ pub mod traits {
         /// The area is relative to the top left corner of the canvas (1,1)
         ///
         // # Arguments
-        /// * `canvas` - The canvas to render into
+        /// * `ctx` - The rendering context
         /// * `area` - The area to render into. Only this area is available for the widget to draw
         ///   into.
-        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex);
+        fn render(&mut self, ctx: &mut RenderContext, area: Rect);
         /// Sets the primary style of the widget
         fn style(&mut self, style: Style);
+
+        /// Returns the inner area of the widget given a bounding area.
+        ///
+        /// For most widgets, this is the same as the input area.
+        /// For widgets with borders (like [Block]), this is the area inside the borders.
+        fn inner(&self, area: Rect) -> Rect {
+            area
+        }
 
         /// Returns the widget with the specified style set
         ///
@@ -83,11 +90,26 @@ pub mod traits {
     }
 
     impl Widget for &mut dyn Widget {
-        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-            (**self).render(canvas, area, codex);
+        fn render(&mut self, ctx: &mut RenderContext, area: Rect) {
+            (**self).render(ctx, area);
         }
         fn style(&mut self, style: Style) {
             (**self).style(style);
+        }
+        fn inner(&self, area: Rect) -> Rect {
+            (**self).inner(area)
+        }
+    }
+
+    impl<W: Widget + ?Sized> Widget for Box<W> {
+        fn render(&mut self, ctx: &mut RenderContext, area: Rect) {
+            (**self).render(ctx, area);
+        }
+        fn style(&mut self, style: Style) {
+            (**self).style(style);
+        }
+        fn inner(&self, area: Rect) -> Rect {
+            (**self).inner(area)
         }
     }
 
