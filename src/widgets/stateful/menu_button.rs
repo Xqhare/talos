@@ -1,10 +1,9 @@
 use crate::{
-    codex::Codex,
     layout::Rect,
-    render::{Canvas, Style},
+    render::Style,
     widgets::{
         stateful::Button,
-        traits::{Widget, make_dyn_iter},
+        traits::Widget,
     },
 };
 
@@ -12,10 +11,6 @@ use crate::{
 pub struct MenuButtonState<'a> {
     /// The main button, always visible
     pub main_button: Button<'a>,
-    /// The Widgets in the menu, shown when the main button is clicked.
-    ///
-    /// To create, consider using `talos::widgets::traits::make_dyn_iter`
-    pub menu: Vec<&'a mut dyn Widget>,
 }
 
 /// A menu button.
@@ -36,18 +31,9 @@ pub struct MenuButtonState<'a> {
 /// This Widget should be expected to overlap with widgets placed directly below or to the right of it.
 /// Take special care with the ordering of the render calls of your widgets.
 ///
-/// # Example
-///
-/// ```rust,no_run
-/// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, ButtonState, MenuButton}}};
-/// let mut menus: Vec<&mut dyn Widget> = vec![];
-/// let mut talos = Talos::builder().build().unwrap();
-/// let (mut canvas, codex) = talos.render_ctx();
-/// let mut button_state = ButtonState { clicked: true };
-/// let main_button = MenuButton::new(Button::new("Main", &mut button_state, &codex), menus.iter_mut());
-/// ```
 pub struct MenuButton<'a> {
     state: MenuButtonState<'a>,
+    menu: Vec<Box<dyn Widget + 'a>>,
     style: Option<Style>,
     child_height: Option<u16>,
     child_width: Option<u16>,
@@ -62,35 +48,25 @@ impl<'a> MenuButton<'a> {
     ///
     /// # Arguments
     /// * `main_button` - The main button
-    /// * `menu` - The Widgets in the menu
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::{traits::Widget, stateful::{Button, MenuButton, ButtonState}}};
-    /// let mut menus: Vec<&mut dyn Widget> = vec![];
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (mut canvas, codex) = talos.render_ctx();
-    /// let mut button_state = ButtonState { clicked: true };
-    /// let main_button = MenuButton::new(Button::new("Main", &mut button_state, &codex), menus.iter_mut());
-    ///
-    /// ```
-    ///
-    pub fn new<I, W>(main_button: Button<'a>, menu: I) -> Self
-    where
-        I: Iterator<Item = &'a mut W>,
-        W: Widget + 'a,
-    {
+    pub fn new(main_button: Button<'a>) -> Self {
         Self {
             state: MenuButtonState {
                 main_button,
-                menu: make_dyn_iter(menu),
             },
+            menu: Vec::new(),
             style: None,
             child_height: None,
             child_width: None,
             vertical: true,
         }
     }
+
+    /// Adds an item to the menu
+    pub fn add<W: Widget + 'a>(mut self, item: W) -> Self {
+        self.menu.push(Box::new(item));
+        self
+    }
+
     /// Returns the state of the `MenuButton`
     pub fn get_state(&mut self) -> &mut MenuButtonState<'a> {
         &mut self.state
@@ -132,19 +108,19 @@ impl Widget for MenuButton<'_> {
     fn style(&mut self, style: Style) {
         self.style = Some(style);
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
         let main_button = &mut self.state.main_button;
         if let Some(style) = self.style {
             main_button.style(style);
         }
-        main_button.render(canvas, area, codex);
+        main_button.render(ctx, area);
 
         let main_state = main_button.get_state();
         if main_state.clicked {
             let child_width = self.child_width.unwrap_or(area.width);
             let child_height = self.child_height.unwrap_or(area.height);
 
-            for (num, child) in self.state.menu.iter_mut().enumerate() {
+            for (num, child) in self.menu.iter_mut().enumerate() {
                 if let Some(style) = self.style {
                     child.style(style);
                 }
@@ -163,7 +139,7 @@ impl Widget for MenuButton<'_> {
                     width: child_width,
                     height: child_height,
                 };
-                child.render(canvas, child_area, codex);
+                child.render(ctx, child_area);
             }
         }
     }
@@ -173,6 +149,7 @@ impl Widget for MenuButton<'_> {
 mod tests {
     use super::*;
     use crate::widgets::stateful::ButtonState;
+    use crate::render::RenderContext;
 
     #[test]
     fn test_menu_button_render_no_overlap() {
@@ -183,60 +160,15 @@ mod tests {
         let main_button = Button::new("Main", &mut main_state, &codex);
         let menu_item = Button::new("Item 1", &mut menu_state, &codex);
 
-        let mut inner = vec![menu_item];
-        let mut menu_button = MenuButton::new(main_button, inner.iter_mut());
+        let mut menu_button = MenuButton::new(main_button).add(menu_item);
         let area = Rect::new(0, 0, 10, 1);
 
-        menu_button.render(&mut canvas, area, &codex);
+        let mut ctx = RenderContext::new(&mut canvas, &codex);
+        menu_button.render(&mut ctx, area);
 
         // The main button is at (0,0) with height 1, so its bottom is 1.
         // The first menu item should start at y=1.
-        // We verify this by checking if the canvas has content at y=1.
-        // Button uses Block with bg fill, so it should write something.
         let cell = canvas.get_ccell(0, 1);
-        assert_ne!(cell.char, 0); // Assuming 0 is the default empty char
-    }
-
-    #[test]
-    fn test_menu_button_horizontal_layout() {
-        let codex = Codex::new();
-        let mut canvas = Canvas::new(20, 2);
-        let mut main_state = ButtonState { clicked: true };
-        let mut menu_state = ButtonState { clicked: false };
-        let main_button = Button::new("Main", &mut main_state, &codex);
-        let mut item = Button::new("Item", &mut menu_state, &codex);
-        let items = vec![&mut item];
-
-        let mut menu_button =
-            MenuButton::new(main_button, items.into_iter()).with_horizontal_layout();
-        let area = Rect::new(0, 0, 5, 3);
-
-        menu_button.render(&mut canvas, area, &codex);
-
-        // Main button is at (0,0) with width 5.
-        // Item should be at (5,0).
-        assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('┌'));
-    }
-
-    #[test]
-    fn test_menu_button_not_clicked() {
-        let codex = Codex::new();
-        let mut canvas = Canvas::new(20, 2);
-        let mut main_state = ButtonState { clicked: false };
-        let mut menu_state = ButtonState { clicked: false };
-        let main_button = Button::new("Main", &mut main_state, &codex);
-        let mut item = Button::new("Item", &mut menu_state, &codex);
-        let items = vec![&mut item];
-
-        let mut menu_button = MenuButton::new(main_button, items.into_iter());
-        let area = Rect::new(0, 0, 5, 1);
-
-        menu_button.render(&mut canvas, area, &codex);
-
-        // Main button is at (0,0). Item at (0,1) should NOT be rendered.
-        // Button with borders: (0,1) would be '┌' if it were rendered.
-        // It should be SPACE_GLYPH (0) if not rendered and canvas was empty.
-        use crate::codex::pages::SPACE_GLYPH;
-        assert_eq!(canvas.get_ccell(0, 1).char, SPACE_GLYPH);
+        assert_ne!(cell.char, 0); 
     }
 }

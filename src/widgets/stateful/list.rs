@@ -4,7 +4,7 @@ use crate::{
     render::{CCell, Glyph, Style},
     widgets::{
         Block,
-        traits::{Widget, make_dyn_iter},
+        traits::Widget,
     },
 };
 
@@ -58,7 +58,7 @@ use crate::{
 
 #[must_use]
 pub struct List<'a> {
-    items: Vec<&'a mut dyn Widget>,
+    items: Vec<Box<dyn Widget + 'a>>,
     state: &'a mut ListState,
     style: Style,
     selected_style: Style,
@@ -92,25 +92,9 @@ impl AsMut<ListState> for ListState {
 
 impl<'a> List<'a> {
     /// Creates a new, empty list
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use talos::{Talos, widgets::{traits::Widget, stateful::{List, ListState}}};
-    ///
-    /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let mut list_state = ListState::default();
-    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
-    /// let list = List::new(&mut list_state, items.iter_mut());
-    /// # assert!(true);
-    /// ```
-    pub fn new<I, W>(state: &'a mut ListState, items: I) -> Self
-    where
-        I: Iterator<Item = &'a mut W>,
-        W: Widget + 'a,
-    {
+    pub fn new(state: &'a mut ListState) -> Self {
         Self {
-            items: make_dyn_iter(items),
+            items: Vec::new(),
             state,
             style: Style::default(),
             selected_style: Style::default(),
@@ -120,6 +104,21 @@ impl<'a> List<'a> {
             as_buttons: false,
             fat_border: false,
         }
+    }
+
+    /// Adds an item to the list
+    pub fn add<W: Widget + 'a>(mut self, item: W) -> Self {
+        self.items.push(Box::new(item));
+        self
+    }
+
+    /// Sets the items of the list
+    pub fn with_items<I>(mut self, items: I) -> Self
+    where
+        I: IntoIterator<Item = Box<dyn Widget + 'a>>,
+    {
+        self.items = items.into_iter().collect();
+        self
     }
 
     /// Gets the state of the list
@@ -172,9 +171,8 @@ impl Widget for List<'_> {
     #[allow(clippy::too_many_lines)]
     fn render(
         &mut self,
-        canvas: &mut crate::render::Canvas,
+        ctx: &mut crate::render::RenderContext,
         area: crate::layout::Rect,
-        codex: &crate::codex::Codex,
     ) {
         if self.items.is_empty() {
             return;
@@ -192,7 +190,7 @@ impl Widget for List<'_> {
                 let current_x = if relative_idx == 0 {
                     area.x
                 } else {
-                    canvas.last_cell().map_or(area.x, |(lx, _)| lx + 1)
+                    ctx.canvas.last_cell().map_or(area.x, |(lx, _)| lx + 1)
                 };
 
                 if current_x >= area.right() {
@@ -205,7 +203,7 @@ impl Widget for List<'_> {
                     item.style(self.selected_style);
 
                     if let Some(symbol) = self.selected_symbol {
-                        canvas.set_ccell(
+                        ctx.canvas.set_ccell(
                             current_x.saturating_add(1),
                             area.y,
                             CCell {
@@ -213,7 +211,7 @@ impl Widget for List<'_> {
                                 style: self.selected_style,
                             },
                         );
-                        canvas.set_ccell(
+                        ctx.canvas.set_ccell(
                             current_x.saturating_add(2),
                             area.y,
                             CCell {
@@ -250,15 +248,15 @@ impl Widget for List<'_> {
                     if is_selected {
                         block.style(self.selected_style);
                     }
-                    block.render(canvas, item_area, codex);
+                    block.render(ctx, item_area);
                     item_area = block.inner(item_area);
                 }
 
-                item.render(canvas, item_area, codex);
+                item.render(ctx, item_area);
 
                 // Scrolling the list if needed
                 if is_selected {
-                    let pos = canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
+                    let pos = ctx.canvas.last_cell().map_or_else(|| current_x, |(lx, _)| lx);
                     if pos >= area.right().saturating_sub(5) {
                         self.state.as_mut().scroll_offset += 3;
                     }
@@ -269,9 +267,9 @@ impl Widget for List<'_> {
                     }
                 }
                 // Add a space between horizontal items
-                let space_x = canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
+                let space_x = ctx.canvas.last_cell().map_or(current_x, |(lx, _)| lx + 1);
                 if space_x < area.right() {
-                    canvas.set_ccell(
+                    ctx.canvas.set_ccell(
                         space_x,
                         area.y,
                         CCell {
@@ -312,7 +310,7 @@ impl Widget for List<'_> {
                     item.style(self.selected_style);
 
                     if let Some(symbol) = self.selected_symbol {
-                        canvas.set_ccell(
+                        ctx.canvas.set_ccell(
                             area.x.saturating_add(1),
                             y,
                             CCell {
@@ -320,7 +318,7 @@ impl Widget for List<'_> {
                                 style: self.selected_style,
                             },
                         );
-                        canvas.set_ccell(
+                        ctx.canvas.set_ccell(
                             area.x.saturating_add(2),
                             y,
                             CCell {
@@ -346,11 +344,11 @@ impl Widget for List<'_> {
                     if is_selected {
                         block.style(self.selected_style);
                     }
-                    block.render(canvas, item_area, codex);
+                    block.render(ctx, item_area);
                     item_area = block.inner(item_area);
                 }
 
-                item.render(canvas, item_area, codex);
+                item.render(ctx, item_area);
             }
         }
     }

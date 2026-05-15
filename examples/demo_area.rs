@@ -35,44 +35,44 @@ fn main() -> Result<(), talos::error::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
+        let mut ctx = talos.render_ctx();
 
         // Background area (fills entire screen)
-        let screen_rect = Rect::new(0, 0, canvas.max_width() + 1, canvas.max_height() + 1);
+        let screen_rect = Rect::new(0, 0, ctx.canvas.max_width() + 1, ctx.canvas.max_height() + 1);
         let mut bg_area = Area::new();
         bg_area.style(
             Style::builder()
                 .set_bg(Colour::Normal(Normal::Blue))
                 .build(),
         );
-        bg_area.render(canvas, screen_rect, codex);
+        bg_area.render(&mut ctx, screen_rect);
 
         // A centered red area
         let center_rect = Rect::new(
-            (canvas.max_width() / 2).saturating_sub(15),
-            (canvas.max_height() / 2).saturating_sub(5),
+            (ctx.canvas.max_width() / 2).saturating_sub(15),
+            (ctx.canvas.max_height() / 2).saturating_sub(5),
             30,
             10,
         );
         let mut red_area = Area::new();
         red_area.style(Style::builder().set_bg(Colour::Normal(Normal::Red)).build());
-        red_area.render(canvas, center_rect, codex);
+        red_area.render(&mut ctx, center_rect);
 
         // A block on top to show contrast
         let block_rect = Rect::new(
-            (canvas.max_width() / 2).saturating_sub(10),
-            (canvas.max_height() / 2).saturating_sub(3),
+            (ctx.canvas.max_width() / 2).saturating_sub(10),
+            (ctx.canvas.max_height() / 2).saturating_sub(3),
             20,
             6,
         );
-        let mut block = Block::new().title("Area Demo", codex, true).with_bg_fill();
+        let mut block = Block::new().title("Area Demo", ctx.codex, true).with_bg_fill();
         block.style(
             Style::builder()
                 .set_fg(Colour::Normal(Normal::White))
                 .set_bg(Colour::Normal(Normal::Green))
                 .build(),
         );
-        block.render(canvas, block_rect, codex);
+        block.render(&mut ctx, block_rect);
 
         // 4. Present to Terminal
         talos.present()?;

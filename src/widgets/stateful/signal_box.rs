@@ -1,7 +1,7 @@
 use crate::{
     codex::Codex,
     layout::Rect,
-    render::{CCell, Canvas, Glyph, Style},
+    render::{CCell, Glyph, Style},
     widgets::traits::Widget,
 };
 
@@ -108,7 +108,8 @@ impl Widget for SignalBox<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
+    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
+        let canvas = &mut ctx.canvas;
         let state = &self.state;
         let symbol = if state.signal {
             self.signal_on_symbol

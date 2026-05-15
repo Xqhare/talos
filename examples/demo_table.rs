@@ -72,131 +72,18 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
-        let size = canvas.size_rect();
+        let mut ctx = talos.render_ctx();
+        let size = ctx.canvas.size_rect();
 
-        let mut table_vec: Vec<Vec<Text>> = vec![
-            vec![
-                Text::new("Row 1, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 2, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 3, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 4, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 5, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 6, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 7, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 8, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 9, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-            vec![
-                Text::new("Row 10, Column 1", &codex),
-                Text::new("Column 2", &codex),
-                Text::new("Column 3", &codex),
-                Text::new("Column 4", &codex),
-                Text::new("Column 5", &codex),
-                Text::new("Column 6", &codex),
-                Text::new("Column 7", &codex),
-                Text::new("Column 8", &codex),
-                Text::new("Column 9", &codex),
-                Text::new("Column 10", &codex),
-            ],
-        ];
+        let mut rows = Vec::new();
+        for r in 1..=10 {
+            let mut row = Vec::new();
+            for c in 1..=10 {
+                row.push(Box::new(Text::new(format!("R{} C{}", r, c), ctx.codex)) as Box<dyn Widget>);
+            }
+            rows.push(row);
+        }
+
         // 1. Create a Layout
         // "Split the screen vertically. Top 16% for header, rest (Min 0) for content"
         let chunks = LayoutBuilder::new()
@@ -208,18 +95,18 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 2. Draw
         // Header
-        let mut head = Block::new().title("Header", codex, false);
-        head.render(canvas, chunks[0], codex);
+        let mut head = Block::new().title("Header", ctx.codex, false);
+        head.render(&mut ctx, chunks[0]);
 
         let head_inner = head.inner(chunks[0]);
 
-        let _header_text = Text::new("To move the table, use the arrow keys!", &codex)
-            .render(canvas, head_inner, codex);
+        Text::new("To move the table, use the arrow keys!", ctx.codex)
+            .render(&mut ctx, head_inner);
 
         // Content
-        let mut content_block = Block::new().title("Content", codex, true);
+        let mut content_block = Block::new().title("Content", ctx.codex, true);
 
-        content_block.render(canvas, chunks[1], codex);
+        content_block.render(&mut ctx, chunks[1]);
 
         let content_size = content_block.inner(chunks[1]);
 
@@ -234,7 +121,7 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut table = Table::new(&mut table_state)
-            .with_rows(table_vec.iter_mut())
+            .with_rows(rows)
             .with_alternate_style(table_alternate_style)
             .alternate_colour_vertically()
             .alternate_colour_horizontally()
@@ -242,7 +129,7 @@ fn main() -> Result<(), talos::TalosError> {
             .draw_outer_border();
 
         table.style(table_style);
-        table.render(canvas, content_size, codex);
+        table.render(&mut ctx, content_size);
 
         // 4. Present to Terminal
         talos.present()?;
