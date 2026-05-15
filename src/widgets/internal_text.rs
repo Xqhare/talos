@@ -1,7 +1,7 @@
 use crate::codex::{Codex, pages::SPACE_GLYPH};
 use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;
-use crate::render::{CCell, Style};
+use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
 #[derive(Debug, Default, Clone)]
@@ -64,10 +64,7 @@ impl Widget for InternalText {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        let canvas = &mut ctx.canvas;
-        let codex = ctx.codex;
-
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         // Update wrap limit
         if let Some(wrap_limit) = self.content.get_wrap_limit() {
             if wrap_limit > area.width {

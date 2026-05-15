@@ -38,7 +38,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let mut ctx = talos.render_ctx();
+        let (canvas, codex) = talos.render_ctx();
 
         // Let's draw a white & black block in the middle
         let area = Rect::new(15, 15, 90, 10);
@@ -49,16 +49,16 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block: Block = Block::new()
-            .title(" Hello Talos ", ctx.codex, false)
-            .top_subtitle("Top Subtitle", ctx.codex)
-            .bottom_left_subtitle("Bottom Left Subtitle", ctx.codex)
-            .bottom_right_subtitle("Bottom Right Subtitle", ctx.codex)
-            .bottom_center_subtitle("Bottom Subtitle", ctx.codex)
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
             .with_beautify_border_breaks()
             .with_bg_fill();
         block.style(style);
 
-        block.render(&mut ctx, area);
+        block.render(canvas, area, codex);
         let area2 = Rect::new(2, 2, 100, 10);
 
         let style2 = Style::builder()
@@ -67,18 +67,18 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block2: Block = Block::new()
-            .title(" Hello Talos ", ctx.codex, false)
-            .top_subtitle("Top Subtitle", ctx.codex)
-            .bottom_left_subtitle("Bottom Left Subtitle", ctx.codex)
-            .bottom_right_subtitle("Bottom Right Subtitle", ctx.codex)
-            .bottom_center_subtitle("Bottom Subtitle", ctx.codex)
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
             .with_beautify_border_breaks()
             .with_fat_border()
             .with_bg_fill();
 
         block2.style(style2);
 
-        block2.render(&mut ctx, area2);
+        block2.render(canvas, area2, codex);
         let area3 = Rect::new(10, 30, 80, 10);
 
         let style3 = Style::builder()
@@ -87,16 +87,16 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut block3: Block = Block::new()
-            .title(" Hello Talos ", ctx.codex, false)
-            .top_subtitle("Top Subtitle", ctx.codex)
-            .bottom_left_subtitle("Bottom Left Subtitle", ctx.codex)
-            .bottom_right_subtitle("Bottom Right Subtitle", ctx.codex)
-            .bottom_center_subtitle("Bottom Subtitle", ctx.codex)
+            .title(" Hello Talos ", codex, false)
+            .top_subtitle("Top Subtitle", codex)
+            .bottom_left_subtitle("Bottom Left Subtitle", codex)
+            .bottom_right_subtitle("Bottom Right Subtitle", codex)
+            .bottom_center_subtitle("Bottom Subtitle", codex)
             .with_bg_fill();
 
         block3.style(style3);
 
-        block3.render(&mut ctx, area3);
+        block3.render(canvas, area3, codex);
         // Lets add some styled text to the block
         let block_inner = block.inner(area);
 
@@ -106,12 +106,12 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let mut text = Text::new("Look mom! Text inside a block!", ctx.codex)
+        let mut text = Text::new("Look mom! Text inside a block!", codex)
             .align_center()
             .align_vertically();
 
         text.style(text_style);
-        text.render(&mut ctx, block_inner);
+        text.render(canvas, block_inner, codex);
 
         // 4. Present to Terminal
         talos.present()?;

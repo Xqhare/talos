@@ -1,7 +1,7 @@
 use crate::codex::Codex;
 use crate::content::title::{TitleContents, TitlePosition};
 use crate::layout::Rect;
-use crate::render::{CCell, Style};
+use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
 
 /// A block widget
@@ -23,11 +23,11 @@ use crate::widgets::traits::Widget;
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let mut ctx = talos.render_ctx();
+///     let (canvas, codex) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     let mut block = Block::new()
-///         .title("My Block", ctx.codex(), true)
+///         .title("My Block", codex, true)
 ///         .with_fat_border()
 ///         .with_bg_fill();
 ///
@@ -37,7 +37,7 @@ use crate::widgets::traits::Widget;
 ///         .build();
 ///
 ///     block.style(style);
-///     block.render(&mut ctx, rect);
+///     block.render(canvas, rect, codex);
 ///
 ///     talos.present()?;
 ///
@@ -186,24 +186,8 @@ impl Widget for Block {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-
-    fn inner(&self, area: Rect) -> Rect {
-        if area.width < 2 || area.height < 2 {
-            return Rect::default();
-        }
-        Rect {
-            x: area.x + 1,
-            y: area.y + 1,
-            width: area.width.saturating_sub(2),
-            height: area.height.saturating_sub(2),
-        }
-    }
-
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, ctx: &mut crate::render::RenderContext, area: Rect) {
-        let canvas = &mut ctx.canvas;
-        let codex = ctx.codex;
-
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
         if area.width < 2 || area.height < 2 {
             return;
         }
@@ -626,8 +610,7 @@ mod tests {
         // 3. Render (No terminal needed!)
         // Note: We need to import the Widget trait in the test module or parent to call .render()
         use crate::widgets::traits::Widget;
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        block.render(&mut ctx, area);
+        block.render(&mut canvas, area, &codex);
 
         // 4. Verification
         // We expect the top-left corner (0,0) to be '┌'
@@ -686,8 +669,7 @@ mod tests {
         // It covers (2,2) to (4,4)
         let area = Rect::new(2, 2, 3, 3);
         let mut block = Block::new();
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        block.render(&mut ctx, area);
+        block.render(&mut canvas, area, &codex);
 
         // Check a point OUTSIDE the rect (e.g., 0,0)
         assert_eq!(
@@ -716,8 +698,7 @@ mod tests {
         let area = Rect::new(0, 0, 20, 5);
         let mut block = Block::new().title("Test", &codex, false);
 
-        let mut ctx = crate::render::RenderContext::new(&mut canvas, &codex);
-        block.render(&mut ctx, area);
+        block.render(&mut canvas, area, &codex);
 
         // Title starts at x+1 (index 1)
         // "Test" -> 'T' at 1, 'e' at 2, 's' at 3, 't' at 4

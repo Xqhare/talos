@@ -89,9 +89,9 @@ fn main() -> Result<(), talos::TalosError> {
         }
 
         talos.begin_frame();
-        let mut ctx = talos.render_ctx();
+        let (canvas, codex) = talos.render_ctx();
 
-        let root_rect = ctx.canvas.size_rect();
+        let root_rect = canvas.size_rect();
 
         let chunks = LayoutBuilder::new()
             .direction(Direction::Vertical)
@@ -103,21 +103,20 @@ fn main() -> Result<(), talos::TalosError> {
         // Render the help text first, so that the dropdown can be rendered on top of it when expanded
         let mut help_text = Text::new(
             "Click the dropdown to expand. Click an option to select. 'f' to toggle fat border. 'q' to quit.",
-            ctx.codex,
+            codex,
         );
-        help_text.render(&mut ctx, chunks[1]);
+        help_text.render(canvas, chunks[1], codex);
 
         dropdown_rect = chunks[0];
 
-        let items: Vec<Text> = options.iter().map(|opt| Text::new(opt, ctx.codex)).collect();
+        let mut items: Vec<Text> = options.iter().map(|opt| Text::new(opt, codex)).collect();
 
         let selected_label = dropdown_state
             .list_state
             .selected
             .map(|i| options[i].clone());
 
-        let mut dropdown = Dropdown::new(&mut dropdown_state)
-            .with_items(items.into_iter().map(|i| Box::new(i) as Box<dyn Widget>))
+        let mut dropdown = Dropdown::new(&mut dropdown_state, items.iter_mut())
             .with_placeholder("Pick an option...")
             .with_style(
                 Style::builder()
@@ -134,7 +133,7 @@ fn main() -> Result<(), talos::TalosError> {
             dropdown = dropdown.with_label(label);
         }
 
-        dropdown.render(&mut ctx, dropdown_rect);
+        dropdown.render(canvas, dropdown_rect, codex);
 
         talos.present()?;
         thread::sleep(Duration::from_millis(16));

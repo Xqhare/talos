@@ -1,6 +1,8 @@
+use std::thread;
+use std::time::Duration;
 use talos::{
     LayoutBuilder, Talos,
-    input::{Event, KeyCode, KeyEvent, MouseButton, MouseEventKind},
+    input::{Event, KeyCode, MouseButton, MouseEvent, MouseEventKind},
     layout::{Constraint, Direction, Rect},
     render::{Colour, Normal, Style},
     widgets::{
@@ -10,104 +12,105 @@ use talos::{
     },
 };
 
-// A simple helper to make the loop cleaner
-use std::thread;
-use std::time::Duration;
-
 fn main() -> Result<(), talos::TalosError> {
-    // 1. Initialize Talos
     let mut talos = Talos::builder().build()?;
-
     let mut running = true;
 
-    // --- State for the MenuButton Demo ---
+    let codex = talos.codex();
+
+    // The main button state
     let mut menu_open = ButtonState { clicked: false };
+    // The sub-menu state (for "Load")
     let mut sub_menu_open = ButtonState { clicked: false };
 
-    let mut path_text_state = TextBoxState::default();
-    path_text_state.text = Text::new("talos/examples/demo_menu_button.rs", talos.codex());
+    // TextBox state
+    let mut path_text = String::from("some/path");
+    let mut path_text_state = TextBoxState {
+        active: false,
+        cursor: Some(0),
+        text: Text::new(&path_text, codex),
+    };
 
+    // Track which menu item was last clicked
     let mut last_action = String::from("None");
 
-    // Clickable areas for basic mouse hit testing (since this demo is simple)
     let mut menu_rect = Rect::default();
+    let mut item_rects: Vec<Rect> = Vec::new();
     let mut sub_menu_rect = Rect::default();
 
     while running {
-        // 2. Handle Input
-        let events = talos.poll_input().ok().flatten().map(|e| e.to_vec());
-        if let Some(events) = events {
+        if let Some(events) = talos.poll_input()? {
             for event in events {
                 match event {
-                    // Quit on 'q' or Esc
-                    Event::KeyEvent(KeyEvent {
-                        code: KeyCode::Char('q'),
+                    Event::MouseEvent(MouseEvent {
+                        kind: MouseEventKind::Down(MouseButton::Left),
+                        column,
+                        row,
                         ..
-                    })
-                    | Event::KeyEvent(KeyEvent {
-                        code: KeyCode::Esc, ..
                     }) => {
-                        running = false;
-                    }
-                    Event::MouseEvent(mouse_event) => {
-                        if let MouseEventKind::Up(MouseButton::Left) = mouse_event.kind {
-                            // Check if the main File menu was clicked
-                            if menu_rect.contains(mouse_event.column, mouse_event.row) {
-                                menu_open.clicked = !menu_open.clicked;
-                                last_action = String::from("Toggled Main Menu");
-                            } else if menu_open.clicked {
-                                // Define the areas of the sub-items for hit testing
-                                // Main menu is vertical, sub-items are below it
-                                let item_rects = LayoutBuilder::new()
-                                    .direction(Direction::Vertical)
-                                    .add_constraint(Constraint::Length(3))
-                                    .add_constraint(Constraint::Length(3))
-                                    .add_constraint(Constraint::Length(3))
-                                    .build()
-                                    .split(Rect {
-                                        x: menu_rect.x,
-                                        y: menu_rect.bottom(),
-                                        width: menu_rect.width,
-                                        height: 9,
-                                    });
-
-                                if item_rects[0].contains(mouse_event.column, mouse_event.row) {
-                                    last_action = String::from("Save Clicked");
-                                    menu_open.clicked = false;
-                                } else if item_rects[1].contains(mouse_event.column, mouse_event.row)
-                                {
-                                    sub_menu_open.clicked = !sub_menu_open.clicked;
-                                    last_action = String::from("Toggled Load Sub-Menu");
-                                } else if item_rects[2].contains(mouse_event.column, mouse_event.row)
-                                {
-                                    running = false;
-                                } else if sub_menu_open.clicked
-                                    && sub_menu_rect.contains(mouse_event.column, mouse_event.row)
-                                {
-                                    last_action = String::from("Sub-Menu path clicked");
-                                    sub_menu_open.clicked = false;
-                                    menu_open.clicked = false;
-                                } else {
-                                    menu_open.clicked = false;
-                                    sub_menu_open.clicked = false;
+                        // Check if the main button was clicked
+                        if menu_rect.contains(*column, *row) {
+                            menu_open.clicked = !menu_open.clicked;
+                            sub_menu_open.clicked = false;
+                            path_text_state.active = false;
+                        }
+                        // If menu is open, check if any menu items were clicked
+                        else if menu_open.clicked {
+                            let mut handled = false;
+                            for (i, rect) in item_rects.iter().enumerate() {
+                                if rect.contains(*column, *row) {
+                                    if i == 1 {
+                                        // "Load"
+                                        sub_menu_open.clicked = !sub_menu_open.clicked;
+                                        path_text_state.active = sub_menu_open.clicked;
+                                        path_text_state.cursor = Some(path_text.len());
+                                    } else {
+                                        last_action = format!("Item {}", i + 1);
+                                        menu_open.clicked = false;
+                                        sub_menu_open.clicked = false;
+                                        path_text_state.active = false;
+                                    }
+                                    handled = true;
+                                    break;
                                 }
+                            }
+
+                            if !handled
+                                && sub_menu_open.clicked
+                                && sub_menu_rect.contains(*column, *row)
+                            {
+                                path_text_state.active = true;
+                                path_text_state.cursor = Some(path_text.len());
+                            } else if !handled {
+                                // Clicked outside the menu and sub-menu
+                                // (Simplification for the demo)
                             }
                         }
                     }
-                    Event::KeyEvent(key_event) => {
-                        if sub_menu_open.clicked {
-                            let path_text = path_text_state.text.get_content().to_string();
-                            let mut new_path = path_text.clone();
-                            match key_event.code {
-                                KeyCode::Char(c) => new_path.push(c),
+                    Event::KeyEvent(ev) => {
+                        if path_text_state.active {
+                            match ev.code {
+                                KeyCode::Char(c) => {
+                                    path_text.push(c);
+                                }
                                 KeyCode::Backspace => {
-                                    new_path.pop();
+                                    path_text.pop();
+                                }
+                                KeyCode::Enter => {
+                                    last_action = format!("Loaded: {}", path_text);
+                                    path_text.clear();
+                                    path_text_state.active = false;
+                                    sub_menu_open.clicked = false;
+                                    menu_open.clicked = false;
+                                }
+                                KeyCode::Esc => {
+                                    path_text_state.active = false;
+                                    sub_menu_open.clicked = false;
                                 }
                                 _ => {}
                             }
-                            if new_path != path_text {
-                                path_text_state.text.set_content(&new_path, talos.codex());
-                            }
+                        } else if ev.code == KeyCode::Char('q') || ev.code == KeyCode::Esc {
+                            running = false;
                         }
                     }
                     _ => {}
@@ -115,83 +118,117 @@ fn main() -> Result<(), talos::TalosError> {
             }
         }
 
-        // 3. Render Frame
         talos.begin_frame();
-        let mut ctx = talos.render_ctx();
-        let size = ctx.canvas.size_rect();
+        let (canvas, codex) = talos.render_ctx();
 
-        // Layout the screen
-        let chunks = LayoutBuilder::new()
-            .direction(Direction::Vertical)
-            .add_constraint(Constraint::Length(1))
-            .add_constraint(Constraint::Min(10))
-            .add_constraint(Constraint::Length(1))
-            .build()
-            .split(size);
-
-        menu_rect = Rect {
-            x: 0,
-            y: 0,
-            width: 10,
-            height: 1,
+        // Update TextBox text
+        path_text_state.text.set_content(&path_text, codex);
+        path_text_state.cursor = if path_text_state.active {
+            Some(path_text.len())
+        } else {
+            None
         };
 
-        // Styles
+        let chunks = LayoutBuilder::new()
+            .direction(Direction::Vertical)
+            .add_constraint(Constraint::Length(3)) // Header
+            .add_constraint(Constraint::Length(3)) // Menu Button Row
+            .add_constraint(Constraint::Min(0)) // Content
+            .build()
+            .split(canvas.size_rect());
+
+        let mut header =
+            Text::new("MenuButton Demo - Click File -> Load for sub-menu", codex).align_center();
+        header.render(canvas, chunks[0], codex);
+
+        // Center the menu button horizontally
+        let button_row = LayoutBuilder::new()
+            .direction(Direction::Horizontal)
+            .add_constraint(Constraint::Percentage(40))
+            .add_constraint(Constraint::Length(20))
+            .add_constraint(Constraint::Percentage(40))
+            .build()
+            .split(chunks[1]);
+
+        menu_rect = button_row[1];
+
+        // Calculate item rects for hit testing in the next frame
+        item_rects.clear();
+        if menu_open.clicked {
+            for i in 0..3 {
+                item_rects.push(Rect {
+                    x: menu_rect.x,
+                    y: menu_rect
+                        .bottom()
+                        .saturating_add(i as u16 * menu_rect.height),
+                    width: menu_rect.width,
+                    height: menu_rect.height,
+                });
+            }
+        }
+
         let main_style = Style::builder()
-            .set_fg(Colour::Normal(Normal::White))
             .set_bg(Colour::Normal(Normal::Blue))
+            .set_fg(Colour::Normal(Normal::White))
             .build();
+
         let menu_style = Style::builder()
+            .set_bg(Colour::Normal(Normal::Cyan))
             .set_fg(Colour::Normal(Normal::Black))
-            .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        // 1. Create the sub-menu for the "Load" button
-        let text_box = TextBox::new(&mut path_text_state).with_style(menu_style);
-        let mut block = Block::new().with_style(menu_style).with_fat_border();
-        block = block.title("enter a path", ctx.codex, true);
-        let block_box = BlockBox::new(block, text_box).with_style(menu_style);
+        let sub_menu_style = Style::builder()
+            .set_bg(Colour::Normal(Normal::Green))
+            .set_fg(Colour::Normal(Normal::Black))
+            .build();
 
-        let load_menu = MenuButton::new(
-            Button::new("Load", &mut sub_menu_open, ctx.codex).with_style(menu_style),
+        let highlight_style = Style::builder()
+            .set_bg(Colour::Normal(Normal::White))
+            .set_fg(Colour::Normal(Normal::Black))
+            .build();
+
+        // Create the nested menu for "Load"
+        let mut path_block = Block::new()
+            .title("enter a path", codex, true)
+            .with_bg_fill();
+        let mut path_text_box =
+            TextBox::new(&mut path_text_state).with_highlight_style(highlight_style);
+
+        let mut block_box = BlockBox::new(&mut path_block, &mut path_text_box);
+        block_box.style(sub_menu_style);
+
+        let mut load_items: Vec<&mut dyn Widget> = vec![&mut block_box];
+        let mut load_menu = MenuButton::new(
+            Button::new("Load", &mut sub_menu_open, codex).with_style(menu_style),
+            load_items.iter_mut(),
         )
-        .add(block_box)
         .with_horizontal_layout()
         .with_child_width(30)
         .with_child_height(3);
 
         // Define menu buttons for the main File menu
+        // These also need a state even though they're not interactive in this demo
         let mut sub_menu_save = ButtonState { clicked: false };
         let mut sub_menu_exit = ButtonState { clicked: false };
-        let save_btn = Button::new("Save", &mut sub_menu_save, ctx.codex).with_style(menu_style);
-        let exit_btn = Button::new("Exit", &mut sub_menu_exit, ctx.codex).with_style(menu_style);
+        let mut save_btn = Button::new("Save", &mut sub_menu_save, codex).with_style(menu_style);
+        let mut exit_btn = Button::new("Exit", &mut sub_menu_exit, codex).with_style(menu_style);
 
-        let is_menu_open = menu_open.clicked;
+        let mut file_items: Vec<&mut dyn Widget> =
+            vec![&mut save_btn, &mut load_menu, &mut exit_btn];
+
         let mut menu = MenuButton::new(
-            Button::new("File", &mut menu_open, ctx.codex).with_style(main_style),
-        )
-        .add(save_btn)
-        .add(load_menu)
-        .add(exit_btn);
+            Button::new("File", &mut menu_open, codex).with_style(main_style),
+            file_items.iter_mut(),
+        );
 
-        let mut footer = Text::new(format!("Last Action: {}", last_action), ctx.codex).align_center();
-        footer.render(&mut ctx, chunks[2]);
+        let mut footer = Text::new(format!("Last Action: {}", last_action), codex).align_center();
+        footer.render(canvas, chunks[2], codex);
 
-        menu.render(&mut ctx, menu_rect);
+        // Rendering last to show the menu button overdrawing the footer
+        menu.render(canvas, menu_rect, codex);
 
-        if is_menu_open {
-            let item_rects = LayoutBuilder::new()
-                .direction(Direction::Vertical)
-                .add_constraint(Constraint::Length(3))
-                .add_constraint(Constraint::Length(3))
-                .add_constraint(Constraint::Length(3))
-                .build()
-                .split(Rect {
-                    x: menu_rect.x,
-                    y: menu_rect.bottom(),
-                    width: menu_rect.width,
-                    height: 9,
-                });
+        // Position of the sub-menu for hit testing
+        if menu_open.clicked {
             sub_menu_rect = Rect {
                 x: item_rects[1].right(),
                 y: item_rects[1].y,

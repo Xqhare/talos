@@ -37,8 +37,8 @@ fn main() -> Result<(), talos::TalosError> {
 
         // 3. Render Frame
         talos.begin_frame();
-        let mut ctx = talos.render_ctx();
-        let size = ctx.canvas.size_rect();
+        let (canvas, codex) = talos.render_ctx();
+        let size = canvas.size_rect();
 
         // 1. Create a Layout
         // "Split the screen vertically. Top 16% for header, rest (Min 0) for content"
@@ -52,12 +52,12 @@ fn main() -> Result<(), talos::TalosError> {
         // 2. Draw
         // Header
         Block::new()
-            .title("Header", ctx.codex, false)
-            .render(&mut ctx, chunks[0]);
+            .title("Header", codex, false)
+            .render(canvas, chunks[0], codex);
 
         // Content
-        let mut content_block = Block::new().title("Content", ctx.codex, true);
-        content_block.render(&mut ctx, chunks[1]);
+        let mut content_block = Block::new().title("Content", codex, true);
+        content_block.render(canvas, chunks[1], codex);
         let inner_content = content_block.inner(chunks[1]);
 
         let inner_chunks = LayoutBuilder::new()
@@ -71,9 +71,9 @@ fn main() -> Result<(), talos::TalosError> {
         let u8 = 1;
         let i8 = -2;
         let float = 3.5;
-        Number::new(&u8, ctx.codex).render(&mut ctx, inner_chunks[0]);
-        Number::new(&i8, ctx.codex).render(&mut ctx, inner_chunks[1]);
-        Number::new(&float, ctx.codex).render(&mut ctx, inner_chunks[2]);
+        Number::new(&u8, codex).render(canvas, inner_chunks[0], codex);
+        Number::new(&i8, codex).render(canvas, inner_chunks[1], codex);
+        Number::new(&float, codex).render(canvas, inner_chunks[2], codex);
         // 4. Present to Terminal
         talos.present()?;
 
