@@ -3,17 +3,3 @@ pub use raw_mode::{disable_rawmode, enable_rawmode};
 
 mod flags;
 pub use flags::{check_resize, check_terminate, register_signal_handlers};
-
-use std::{io, mem, os::fd};
-
-use crate::error::TalosResult;
-
-pub fn terminal_size(fd_stdout: fd::RawFd) -> TalosResult<(u16, u16)> {
-    unsafe {
-        let mut winsize: libc::winsize = mem::zeroed();
-        if libc::ioctl(fd_stdout, libc::TIOCGWINSZ, &mut winsize) == -1 {
-            return Err(io::Error::last_os_error().into());
-        }
-        Ok((winsize.ws_row, winsize.ws_col))
-    }
-}

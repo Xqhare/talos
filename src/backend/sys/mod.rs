@@ -1,4 +1,4 @@
-use std::os::fd;
+use std::{io, os::fd};
 
 #[cfg(unix)]
 mod unix;
@@ -6,14 +6,23 @@ mod unix;
 #[cfg(unix)]
 use unix as os;
 
-use crate::error::TalosResult;
+use crate::{TalosError, error::TalosResult};
 
 pub fn enable_raw_mode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)> {
     os::enable_rawmode(fd_stdin)
 }
 
 pub fn terminal_size(fd_stdout: fd::RawFd) -> TalosResult<(u16, u16)> {
-    os::terminal_size(fd_stdout)
+    match athena::system::terminal_size(fd_stdout) {
+        Ok((w, h)) => Ok((w as u16, h as u16)),
+        Err(e) => {
+            let io_err = TryInto::<io::Error>::try_into(e);
+            match io_err {
+                Ok(io_err) => Err(TalosError::from(io_err)),
+                Err(e) => Err(TalosError::GenericError(e.to_string())), // Should never happen
+            }
+        }
+    }
 }
 
 pub fn disable_raw_mode(fd_stdin: fd::RawFd, original_termios: &libc::termios) {
