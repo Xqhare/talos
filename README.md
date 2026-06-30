@@ -21,6 +21,7 @@ I have limited the scope of the project at some points to make it easier on myse
 `Talos` uses my [nomos](https://github.com/xqhare/nomos) project management system.
 
 The roadmap for this project can be found in the [nomos.md](nomos.md) file.
+Widgets are tracked in the [widgets.md](widgets.md) file.
 
 In addition to the nomos file syntax defined [here](https://github.com/Xqhare/nomos/blob/master/spec/v0.md), `Talos` also marks items in a special way:
 
