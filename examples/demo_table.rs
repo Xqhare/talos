@@ -75,7 +75,7 @@ fn main() -> Result<(), talos::TalosError> {
         let (canvas, codex) = talos.render_ctx();
         let size = canvas.size_rect();
 
-        let mut table_vec: Vec<Vec<Text>> = vec![
+        let table_vec: Vec<Vec<Text>> = vec![
             vec![
                 Text::new("Row 1, Column 1", &codex),
                 Text::new("Column 2", &codex),
@@ -234,7 +234,7 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         let mut table = Table::new(&mut table_state)
-            .with_rows(table_vec.iter_mut())
+            .with_rows(table_vec.into_iter().map(|row| row.into_iter().map(|item| Box::new(item) as Box<dyn Widget>)))
             .with_alternate_style(table_alternate_style)
             .alternate_colour_vertically()
             .alternate_colour_horizontally()

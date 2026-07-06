@@ -36,19 +36,19 @@ use crate::{
 ///         max_columns: None,
 ///     };
 ///
-///     let mut rows = vec![
+///     let rows = vec![
 ///         vec![
-///             Text::new("Row 1, Col 1", codex),
-///             Text::new("Row 1, Col 2", codex),
+///             Box::new(Text::new("Row 1, Col 1", codex)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 1, Col 2", codex)) as Box<dyn Widget>,
 ///         ],
 ///         vec![
-///             Text::new("Row 2, Col 1", codex),
-///             Text::new("Row 2, Col 2", codex),
+///             Box::new(Text::new("Row 2, Col 1", codex)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 2, Col 2", codex)) as Box<dyn Widget>,
 ///         ],
 ///     ];
 ///
 ///     let mut table = Table::new(&mut table_state)
-///         .with_rows(rows.iter_mut().map(|row| row.iter_mut()))
+///         .with_rows(rows)
 ///         .with_row_height(2);
 ///
 ///     let rect = Rect::new(0, 0, 40, 10);
@@ -63,7 +63,7 @@ use crate::{
 #[allow(clippy::struct_excessive_bools)]
 pub struct Table<'a> {
     state: &'a mut TableState,
-    rows: Vec<Vec<&'a mut dyn Widget>>,
+    rows: Vec<Vec<Box<dyn Widget + 'a>>>,
     alternate_colour_vertically: bool,
     alternate_colour_horizontally: bool,
     style: Style,
@@ -245,12 +245,12 @@ impl<'a> Table<'a> {
     ///     max_rows: None,
     ///     max_columns: None,
     /// };
-    /// let mut rows = vec![Text::new("Hello", codex)];
+    /// let row = vec![Box::new(Text::new("Hello", codex)) as Box<dyn Widget>];
     /// let table = Table::new(&mut table_state)
-    ///     .add_row(rows.iter_mut().map(|w| w as &mut dyn Widget).collect());
+    ///     .add_row(row);
     /// # assert!(true);
     /// ```
-    pub fn add_row(mut self, row: Vec<&'a mut dyn Widget>) -> Self {
+    pub fn add_row(mut self, row: Vec<Box<dyn Widget + 'a>>) -> Self {
         self.rows.push(row);
         self
     }
@@ -259,7 +259,7 @@ impl<'a> Table<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
+    /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
@@ -269,20 +269,22 @@ impl<'a> Table<'a> {
     ///     max_rows: None,
     ///     max_columns: None,
     /// };
-    /// let mut rows = vec![vec![Text::new("Hello", codex)], vec![Text::new("World", codex)]];
+    /// let rows = vec![
+    ///     vec![Box::new(Text::new("Hello", codex)) as Box<dyn Widget>],
+    ///     vec![Box::new(Text::new("World", codex)) as Box<dyn Widget>],
+    /// ];
     /// let table = Table::new(&mut table_state)
-    ///     .with_rows(rows.iter_mut().map(|r| r.iter_mut()));
+    ///     .with_rows(rows);
     /// # assert!(true);
     /// ```
-    pub fn with_rows<I, R, W>(mut self, rows: I) -> Self
+    pub fn with_rows<I, R>(mut self, rows: I) -> Self
     where
         I: IntoIterator<Item = R>,
-        R: IntoIterator<Item = &'a mut W>,
-        W: Widget + 'a,
+        R: IntoIterator<Item = Box<dyn Widget + 'a>>,
     {
         self.rows = rows
             .into_iter()
-            .map(|r| r.into_iter().map(|w| w as &'a mut dyn Widget).collect())
+            .map(|r| r.into_iter().collect())
             .collect();
         self
     }
@@ -811,9 +813,15 @@ mod tests {
         };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
-        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
-        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
-        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R1C1", &codex)),
+            Box::new(Text::new("R1C2", &codex)),
+        ];
+        let r2: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R2C1", &codex)),
+            Box::new(Text::new("R2C2", &codex)),
+        ];
+        let rows = vec![r1, r2];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
@@ -841,8 +849,11 @@ mod tests {
         };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
-        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
-        let rows = vec![r1.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R1C1", &codex)),
+            Box::new(Text::new("R1C2", &codex)),
+        ];
+        let rows = vec![r1];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
@@ -869,9 +880,15 @@ mod tests {
         };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
-        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
-        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
-        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R1C1", &codex)),
+            Box::new(Text::new("R1C2", &codex)),
+        ];
+        let r2: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R2C1", &codex)),
+            Box::new(Text::new("R2C2", &codex)),
+        ];
+        let rows = vec![r1, r2];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
@@ -898,8 +915,8 @@ mod tests {
         };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
-        let mut r1 = vec![Text::new("R1C1", &codex)];
-        let rows = vec![r1.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1C1", &codex))];
+        let rows = vec![r1];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
@@ -924,9 +941,9 @@ mod tests {
         };
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
-        let mut r1 = vec![Text::new("R1", &codex)];
-        let mut r2 = vec![Text::new("R2", &codex)];
-        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1", &codex))];
+        let r2: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R2", &codex))];
+        let rows = vec![r1, r2];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
@@ -959,9 +976,15 @@ mod tests {
             max_columns: None,
         };
         let codex = Codex::new();
-        let mut r1 = vec![Text::new("R1C1", &codex), Text::new("R1C2", &codex)];
-        let mut r2 = vec![Text::new("R2C1", &codex), Text::new("R2C2", &codex)];
-        let rows = vec![r1.iter_mut(), r2.iter_mut()];
+        let r1: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R1C1", &codex)),
+            Box::new(Text::new("R1C2", &codex)),
+        ];
+        let r2: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R2C1", &codex)),
+            Box::new(Text::new("R2C2", &codex)),
+        ];
+        let rows = vec![r1, r2];
 
         let table = Table::new(&mut table_state)
             .with_rows(rows)
