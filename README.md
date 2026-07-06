@@ -124,7 +124,7 @@ You can find `Nyx` [here](https://github.com/xqhare/nyx).
 ---
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/ananke.png" alt="A simple todo app, implementing the todo.txt standard" width="750" height="400"/>
+    <img src="https://raw.githubusercontent.com/Xqhare/talos/refs/heads/master/pics/ananke.png" alt="A simple todo app, implementing the todo.txt standard" width="750" height="auto"/>
 </p>
 
 `Ananke` is a simple todo app. It's sister library, `Anansi` implements the todo.txt standard as the backend.
