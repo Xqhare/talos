@@ -4,7 +4,7 @@ use crate::{
     render::{CCell, Glyph, Style},
     widgets::{
         Block,
-        traits::{Widget, make_dyn_iter},
+        traits::Widget,
     },
 };
 
@@ -39,13 +39,13 @@ use crate::{
 ///     let mut list_state = ListState::default();
 ///     list_state.selected = Some(0);
 ///
-///     let mut items = vec![
-///         Text::new("Item 1", codex),
-///         Text::new("Item 2", codex),
-///         Text::new("Item 3", codex),
+///     let items: Vec<Box<dyn Widget>> = vec![
+///         Box::new(Text::new("Item 1", codex)) as Box<dyn Widget>,
+///         Box::new(Text::new("Item 2", codex)) as Box<dyn Widget>,
+///         Box::new(Text::new("Item 3", codex)) as Box<dyn Widget>,
 ///     ];
 ///
-///     let mut list = List::new(&mut list_state, items.iter_mut());
+///     let mut list = List::new(&mut list_state, items);
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     list.render(canvas, rect, codex);
@@ -58,7 +58,7 @@ use crate::{
 
 #[must_use]
 pub struct List<'a> {
-    items: Vec<&'a mut dyn Widget>,
+    items: Vec<Box<dyn Widget + 'a>>,
     state: &'a mut ListState,
     style: Style,
     selected_style: Style,
@@ -100,17 +100,16 @@ impl<'a> List<'a> {
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (_, codex) = talos.render_ctx();
     /// let mut list_state = ListState::default();
-    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
-    /// let list = List::new(&mut list_state, items.iter_mut());
+    /// let items: Vec<Box<dyn Widget>> = Vec::new();
+    /// let list = List::new(&mut list_state, items);
     /// # assert!(true);
     /// ```
-    pub fn new<I, W>(state: &'a mut ListState, items: I) -> Self
+    pub fn new<I>(state: &'a mut ListState, items: I) -> Self
     where
-        I: Iterator<Item = &'a mut W>,
-        W: Widget + 'a,
+        I: IntoIterator<Item = Box<dyn Widget + 'a>>,
     {
         Self {
-            items: make_dyn_iter(items),
+            items: items.into_iter().collect(),
             state,
             style: Style::default(),
             selected_style: Style::default(),
@@ -366,12 +365,12 @@ mod tests {
         let codex = Codex::new();
         let mut canvas = crate::render::Canvas::new(10, 5);
         let mut state = ListState::default();
-        let mut items = vec![
-            Text::new("Item 1", &codex),
-            Text::new("Item 2", &codex),
-            Text::new("Item 3", &codex),
+        let items: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 3", &codex)) as Box<dyn Widget>,
         ];
-        let mut list = List::new(&mut state, items.iter_mut());
+        let mut list = List::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 5);
 
         list.render(&mut canvas, area, &codex);
@@ -388,8 +387,11 @@ mod tests {
         let mut canvas = crate::render::Canvas::new(10, 5);
         let mut state = ListState::default();
         state.selected = Some(1);
-        let mut items = vec![Text::new("Item 1", &codex), Text::new("Item 2", &codex)];
-        let mut list = List::new(&mut state, items.iter_mut()).with_selected_symbol('>', &codex);
+        let items: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
+        ];
+        let mut list = List::new(&mut state, items).with_selected_symbol('>', &codex);
         let area = Rect::new(0, 0, 10, 5);
 
         list.render(&mut canvas, area, &codex);
@@ -406,15 +408,16 @@ mod tests {
         let mut canvas = crate::render::Canvas::new(10, 2); // Only 2 lines high
         let mut state = ListState::default();
         state.selected = Some(2); // Third item selected
-        let mut items = vec![
-            Text::new("Item 1", &codex),
-            Text::new("Item 2", &codex),
-            Text::new("Item 3", &codex),
+        let items: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 3", &codex)) as Box<dyn Widget>,
         ];
-        let mut list = List::new(&mut state, items.iter_mut());
+        let mut list = List::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 2);
 
         list.render(&mut canvas, area, &codex);
+        drop(list);
 
         // Should have scrolled to show Item 3 at some position.
         // If height is 2, and selected is 2 (index 2), scroll_offset becomes 1.
