@@ -56,6 +56,16 @@ pub struct ButtonState {
     pub clicked: bool,
 }
 
+impl ButtonState {
+    /// Create a new button state
+    ///
+    /// # Fields
+    /// * `clicked` - Whether the button is currently in a clicked/active state; Initalised to `false`
+    pub fn new() -> Self {
+        Self { clicked: false }
+    }
+}
+
 impl<'a> Button<'a> {
     /// Create a new button
     ///

@@ -59,6 +59,31 @@ pub struct FillableBarState {
     pub fill: f32,
 }
 
+impl FillableBarState {
+    /// Creates a new fillable bar state
+    ///
+    /// # Fields
+    /// * `fill` - The fill value; Initalised to `0.0`
+    pub fn new() -> Self {
+        Self { fill: 0.0 }
+    }
+    /// Increments the fill value
+    ///
+    /// The fill value is clamped between 0.0 and 1.0
+    ///
+    /// # Safety
+    /// Value is guaranteed to be between 0.0 and 1.0 and to never panic
+    ///
+    /// # Arguments
+    /// * `increment` - The increment to add to the fill value.
+    ///
+    /// # Note
+    /// To decrement the fill value, use a negative increment
+    pub fn save_increment(&mut self, increment: f32) {
+        self.fill = (self.fill + increment).clamp(0.0, 1.0);
+    }
+}
+
 impl<'a> FillableBar<'a> {
     /// Creates a new, empty fillable bar
     ///

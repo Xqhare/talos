@@ -54,6 +54,24 @@ pub struct SignalBoxState {
     pub signal: bool,
 }
 
+impl SignalBoxState {
+    /// Creates a new signal box state
+    ///
+    /// # Fields
+    /// * `signal` - Whether the signal is on or off; Initalised to `false`
+    pub fn new() -> Self {
+        Self { signal: false }
+    }
+    /// Sets the state of the signal box
+    pub fn set_signal(&mut self, signal: bool) {
+        self.signal = signal;
+    }
+    /// Toggles the state of the signal box
+    pub fn toggle_signal(&mut self) {
+        self.signal = !self.signal;
+    }
+}
+
 impl<'a> SignalBox<'a> {
     /// Creates a new, empty signal box
     ///

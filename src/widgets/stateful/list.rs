@@ -2,10 +2,7 @@ use crate::{
     codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Glyph, Style},
-    widgets::{
-        Block,
-        traits::Widget,
-    },
+    widgets::{Block, traits::Widget},
 };
 
 // 1. The shown selected item, if going backwards, is always the second from the start, as
@@ -78,6 +75,19 @@ pub struct ListState {
     pub scroll_offset: usize,
 }
 
+impl ListState {
+    /// Creates a new, empty list state
+    ///
+    /// # Fields
+    /// * `selected` - The index of the currently selected item; Initalised to `None`
+    /// * `scroll_offset` - The offset of the list - used for scrolling; Initalised to `0`
+    pub fn new() -> Self {
+        Self {
+            selected: None,
+            scroll_offset: 0,
+        }
+    }
+}
 impl AsRef<ListState> for ListState {
     fn as_ref(&self) -> &ListState {
         self

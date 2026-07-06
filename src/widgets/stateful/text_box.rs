@@ -15,6 +15,22 @@ pub struct TextBoxState {
     pub text: Text,
 }
 
+impl TextBoxState {
+    /// Create a new `TextBoxState`.
+    ///
+    /// # Fields
+    /// * `active` - Whether the text box is currently focused/active; Initalised to `false`
+    /// * `cursor` - The current position of the cursor within the text; Initalised to `None`
+    /// * `text` - The text content of the text box; Initalised to `Text::default()`
+    pub fn new() -> Self {
+        Self {
+            active: false,
+            cursor: None,
+            text: Text::default(),
+        }
+    }
+}
+
 /// A widget for text input.
 pub struct TextBox<'a> {
     state: &'a mut TextBoxState,

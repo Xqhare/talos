@@ -5,10 +5,7 @@ use crate::{
     codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
     render::{Canvas, Style},
-    widgets::{
-        Area, Block,
-        traits::Widget,
-    },
+    widgets::{Area, Block, traits::Widget},
 };
 
 /// The state for the `Sequence` widget
@@ -16,6 +13,16 @@ use crate::{
 pub struct SequenceState {
     /// The current scroll offset
     pub scroll_offset: usize,
+}
+
+impl SequenceState {
+    /// Creates a new `SequenceState`
+    ///
+    /// # Fields
+    /// * `scroll_offset` - The current scroll offset; Initalised to `0`
+    pub fn new() -> Self {
+        Self { scroll_offset: 0 }
+    }
 }
 
 /// A sequence of widgets

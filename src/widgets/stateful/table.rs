@@ -109,6 +109,24 @@ pub struct TableState {
     pub max_columns: Option<usize>,
 }
 
+impl TableState {
+    /// Creates a new TableState
+    ///
+    /// # Fields
+    /// * `x_offset` - The x offset of the table - used for scrolling; Initalised to `0`.
+    /// * `y_offset` - The y offset of the table - used for scrolling; Initalised to `0`
+    /// * `max_rows` - The maximum number of rows to display at once; Initalised to `None`
+    /// * `max_columns` - The maximum number of columns to display at once; Initalised to `None`
+    pub fn new() -> Self {
+        Self {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        }
+    }
+}
+
 /// The inner border of the table
 pub enum InnerBorder {
     /// All borders, between rows and columns
@@ -282,10 +300,7 @@ impl<'a> Table<'a> {
         I: IntoIterator<Item = R>,
         R: IntoIterator<Item = Box<dyn Widget + 'a>>,
     {
-        self.rows = rows
-            .into_iter()
-            .map(|r| r.into_iter().collect())
-            .collect();
+        self.rows = rows.into_iter().map(|r| r.into_iter().collect()).collect();
         self
     }
 
@@ -435,11 +450,8 @@ impl<'a> Table<'a> {
             let col_areas = col_layout.split(row_area);
             let mut row_results = Vec::with_capacity(col_amount);
 
-            for (rendered_cols, (_j, _col)) in row
-                .iter()
-                .enumerate()
-                .skip(self.state.x_offset)
-                .enumerate()
+            for (rendered_cols, (_j, _col)) in
+                row.iter().enumerate().skip(self.state.x_offset).enumerate()
             {
                 if rendered_cols >= col_amount {
                     break;
@@ -999,7 +1011,7 @@ mod tests {
         // 2 rows in 9 lines: 9 / 2 = 4. [0..5, 5..9] relative to table_area.
         // Relative to absolute: Row 0 is y=1..6, Row 1 is y=6..10
         // Row 1 starts with a border at y=6.
-        
+
         // Col layout: 100 / 2 = 50%. 19 * 0.5 = 9. [0..9, 9..19] relative to table_area.
         // Relative to absolute: Col 0 is x=1..10, Col 1 is x=10..20
         // Col 1 starts with a border at x=10.

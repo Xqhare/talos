@@ -1,6 +1,6 @@
-- [ ] (A) State rework :: While writing ananke, I found the current state system to be lacking in ergonomics especially. (Looking at the recursive state management needed for displaying the table)
+- [x] (A) State rework :: While writing ananke, I found the current state system to be lacking in ergonomics especially. (Looking at the recursive state management needed for displaying the table)
     * Just `Box` them and be done with it I think
-    - [ ] State doc :: All `States` need better doc and a `new` function
+    - [x] State doc :: All `States` need better doc and a `new` function
 - [ ] (A) Update Readme :: Add screenshot of ananke @README.md
 - [ ] Bug fixes & improvements ::
     - [ ] Incorrectly rendered styling :: Sometimes cells are not rendered with the correct styling / symbols are drawn at the wrong coords (always left top in row 0) when scrolling a table

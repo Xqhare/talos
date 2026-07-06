@@ -17,6 +17,25 @@ pub struct DropdownState {
     pub list_state: ListState,
 }
 
+impl DropdownState {
+    /// Creates a new `DropdownState`
+    ///
+    /// # Fields
+    /// * `expanded` - Whether the dropdown is expanded; Initalised to `false`
+    /// * `list_state` - The state of the internal list; Initalised to `ListState::new()`
+    pub fn new() -> Self {
+        Self {
+            expanded: false,
+            list_state: ListState::new(),
+        }
+    }
+
+    /// Toggles the expanded state
+    pub fn toggle(&mut self) {
+        self.expanded = !self.expanded;
+    }
+}
+
 /// A dropdown selection widget
 ///
 /// The `Dropdown` widget allows selecting an item from a list.
