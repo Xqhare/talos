@@ -1,4 +1,4 @@
-use std::{io, os::fd};
+use std::os::fd;
 
 #[cfg(unix)]
 mod unix;
@@ -15,13 +15,7 @@ pub fn enable_raw_mode(fd_stdin: fd::RawFd) -> TalosResult<(libc::termios, i32)>
 pub fn terminal_size(fd_stdout: fd::RawFd) -> TalosResult<(u16, u16)> {
     match athena::system::terminal_size(fd_stdout) {
         Ok((w, h)) => Ok((w as u16, h as u16)),
-        Err(e) => {
-            let io_err = TryInto::<io::Error>::try_into(e);
-            match io_err {
-                Ok(io_err) => Err(TalosError::from(io_err)),
-                Err(e) => Err(TalosError::GenericError(e.to_string())), // Should never happen
-            }
-        }
+        Err(e) => Err(TalosError::GenericError(e.to_string())),
     }
 }
 
