@@ -91,6 +91,15 @@ pub mod traits {
         }
     }
 
+    impl<'a> Widget for Box<dyn Widget + 'a> {
+        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+            (**self).render(canvas, area, codex);
+        }
+        fn style(&mut self, style: Style) {
+            (**self).style(style);
+        }
+    }
+
     /// Convenience method for converting an iterator of widgets to a vector of dynamic widgets
     ///
     /// Useful for passing a vector of widgets to a widget that expects a vector of dynamic

@@ -89,7 +89,7 @@ fn main() -> Result<(), talos::TalosError> {
         let (canvas, codex) = talos.render_ctx();
         let size = canvas.size_rect();
 
-        let mut large_list: Vec<Text> = vec![
+        let large_list: Vec<Text> = vec![
             Text::new("Item 1", &codex),
             Text::new("Item 2", &codex),
             Text::new("Item 3", &codex),
@@ -162,7 +162,7 @@ fn main() -> Result<(), talos::TalosError> {
             Text::new("Item 99", &codex),
             Text::new("Item 100", &codex),
         ];
-        let mut large_list2: Vec<Text> = vec![
+        let large_list2: Vec<Text> = vec![
             Text::new("Item 1", &codex),
             Text::new("Item 2", &codex),
             Text::new("Item 3", &codex),
@@ -276,13 +276,19 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
 
-        let _list = List::new(&mut horizontal_list_state, large_list.iter_mut())
+        let list_items = large_list
+            .into_iter()
+            .map(|t| Box::new(t) as Box<dyn Widget>);
+        let _list = List::new(&mut horizontal_list_state, list_items)
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
             .horizontal()
             .render(canvas, inner_chunks[0], codex);
 
-        let _list2 = List::new(&mut vertical_list_state, large_list2.iter_mut())
+        let list_items2 = large_list2
+            .into_iter()
+            .map(|t| Box::new(t) as Box<dyn Widget>);
+        let _list2 = List::new(&mut vertical_list_state, list_items2)
             .with_selected_style(selected_style)
             .with_selected_symbol('→', codex)
             .render(canvas, inner_chunks[1], codex);

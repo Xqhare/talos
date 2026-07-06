@@ -4,7 +4,7 @@ use crate::{
     render::{Canvas, Style},
     widgets::{
         stateful::{Button, ButtonState, List, ListState},
-        traits::{Widget, make_dyn_iter},
+        traits::Widget,
     },
 };
 
@@ -24,7 +24,7 @@ pub struct DropdownState {
 ///
 /// Clicks and state changes must be handled by the user.
 pub struct Dropdown<'a> {
-    items: Vec<&'a mut dyn Widget>,
+    items: Vec<Box<dyn Widget + 'a>>,
     state: &'a mut DropdownState,
     style: Style,
     active_style: Style,
@@ -41,13 +41,12 @@ impl<'a> Dropdown<'a> {
     /// # Arguments
     /// * `state` - The state of the dropdown
     /// * `items` - The items in the dropdown
-    pub fn new<I, W>(state: &'a mut DropdownState, items: I) -> Self
+    pub fn new<I>(state: &'a mut DropdownState, items: I) -> Self
     where
-        I: Iterator<Item = &'a mut W>,
-        W: Widget + 'a,
+        I: IntoIterator<Item = Box<dyn Widget + 'a>>,
     {
         Self {
-            items: make_dyn_iter(items),
+            items: items.into_iter().collect(),
             state,
             style: Style::default(),
             active_style: Style::default(),
@@ -98,7 +97,7 @@ impl<'a> Dropdown<'a> {
     }
 }
 
-impl Widget for Dropdown<'_> {
+impl<'a> Widget for Dropdown<'a> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
@@ -134,7 +133,12 @@ impl Widget for Dropdown<'_> {
             });
             let list_area = Rect::new(area.x, area.bottom(), area.width, list_height);
 
-            let mut list = List::new(&mut self.state.list_state, self.items.iter_mut())
+            let list_items = self.items.iter_mut().map(|w| {
+                let r: &mut dyn Widget = w.as_mut();
+                Box::new(r) as Box<dyn Widget + '_>
+            });
+
+            let mut list = List::new(&mut self.state.list_state, list_items)
                 .with_style(self.style)
                 .with_selected_style(self.selected_style)
                 .with_as_buttons()
@@ -159,10 +163,10 @@ mod tests {
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 10);
         let mut state = DropdownState::default();
-        let mut item1 = Text::new("Item 1", &codex);
-        let items = vec![&mut item1];
+        let items: Vec<Box<dyn Widget>> =
+            vec![Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>];
 
-        let mut dropdown = Dropdown::new(&mut state, items.into_iter());
+        let mut dropdown = Dropdown::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 3);
 
         dropdown.render(&mut canvas, area, &codex);
@@ -187,10 +191,10 @@ mod tests {
             expanded: true,
             list_state: ListState::default(),
         };
-        let mut item1 = Text::new("Option 1", &codex);
-        let items = vec![&mut item1];
+        let items: Vec<Box<dyn Widget>> =
+            vec![Box::new(Text::new("Option 1", &codex)) as Box<dyn Widget>];
 
-        let mut dropdown = Dropdown::new(&mut state, items.into_iter());
+        let mut dropdown = Dropdown::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 3); // 3 height button
 
         dropdown.render(&mut canvas, area, &codex);

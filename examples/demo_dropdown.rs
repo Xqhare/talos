@@ -109,14 +109,17 @@ fn main() -> Result<(), talos::TalosError> {
 
         dropdown_rect = chunks[0];
 
-        let mut items: Vec<Text> = options.iter().map(|opt| Text::new(opt, codex)).collect();
+        let items: Vec<Box<dyn Widget>> = options
+            .iter()
+            .map(|opt| Box::new(Text::new(opt, codex)) as Box<dyn Widget>)
+            .collect();
 
         let selected_label = dropdown_state
             .list_state
             .selected
             .map(|i| options[i].clone());
 
-        let mut dropdown = Dropdown::new(&mut dropdown_state, items.iter_mut())
+        let mut dropdown = Dropdown::new(&mut dropdown_state, items)
             .with_placeholder("Pick an option...")
             .with_style(
                 Style::builder()
