@@ -7,7 +7,7 @@ use crate::{
     render::{Canvas, Style},
     widgets::{
         Area, Block,
-        traits::{Widget, make_dyn_iter},
+        traits::Widget,
     },
 };
 
@@ -37,12 +37,12 @@ pub struct SequenceState {
 /// let mut sequence_state = SequenceState {
 ///     scroll_offset: 0,
 /// };
-/// let mut items: Vec<&mut dyn Widget> = Vec::new();
-/// let sequence = Sequence::new(sequence_state, items.iter_mut());
+/// let mut items: Vec<Box<dyn Widget>> = Vec::new();
+/// let sequence = Sequence::new(sequence_state, items);
 /// # assert!(true);
 /// ```
 pub struct Sequence<'a> {
-    items: Vec<&'a mut dyn Widget>,
+    items: Vec<Box<dyn Widget + 'a>>,
     state: SequenceState,
     style: Style,
     horizontal: bool,
@@ -63,17 +63,16 @@ impl<'a> Sequence<'a> {
     /// let mut sequence_state = SequenceState {
     ///     scroll_offset: 0,
     /// };
-    /// let mut items: Vec<&mut dyn Widget> = Vec::new();
-    /// let sequence = Sequence::new(sequence_state, items.iter_mut());
+    /// let mut items: Vec<Box<dyn Widget>> = Vec::new();
+    /// let sequence = Sequence::new(sequence_state, items);
     /// # assert!(true);
     /// ```
-    pub fn new<I, W>(state: SequenceState, items: I) -> Self
+    pub fn new<I>(state: SequenceState, items: I) -> Self
     where
-        I: Iterator<Item = &'a mut W>,
-        W: Widget + 'a,
+        I: IntoIterator<Item = Box<dyn Widget + 'a>>,
     {
         Self {
-            items: make_dyn_iter(items),
+            items: items.into_iter().collect(),
             state,
             style: Style::default(),
             horizontal: true,
@@ -186,10 +185,13 @@ mod tests {
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 1);
         let state = SequenceState { scroll_offset: 0 };
-        let mut t1 = Text::new("A", &codex);
-        let mut t2 = Text::new("B", &codex);
-        let items = vec![&mut t1, &mut t2];
-        let mut sequence = Sequence::new(state, items.into_iter());
+        let t1 = Text::new("A", &codex);
+        let t2 = Text::new("B", &codex);
+        let items = vec![
+            Box::new(t1) as Box<dyn Widget>,
+            Box::new(t2) as Box<dyn Widget>,
+        ];
+        let mut sequence = Sequence::new(state, items);
         let area = Rect::new(0, 0, 20, 1);
 
         sequence.render(&mut canvas, area, &codex);
@@ -205,10 +207,13 @@ mod tests {
         let codex = Codex::new();
         let mut canvas = Canvas::new(10, 1);
         let state = SequenceState { scroll_offset: 1 };
-        let mut t1 = Text::new("A", &codex);
-        let mut t2 = Text::new("B", &codex);
-        let items = vec![&mut t1, &mut t2];
-        let mut sequence = Sequence::new(state, items.into_iter());
+        let t1 = Text::new("A", &codex);
+        let t2 = Text::new("B", &codex);
+        let items = vec![
+            Box::new(t1) as Box<dyn Widget>,
+            Box::new(t2) as Box<dyn Widget>,
+        ];
+        let mut sequence = Sequence::new(state, items);
         let area = Rect::new(0, 0, 10, 1);
 
         sequence.render(&mut canvas, area, &codex);
