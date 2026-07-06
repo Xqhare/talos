@@ -17,7 +17,7 @@ mod text_box;
 pub use text_box::{TextBox, TextBoxState};
 
 mod menu_button;
-pub use menu_button::{MenuButton, MenuButtonState};
+pub use menu_button::MenuButton;
 
 mod dropdown;
 pub use dropdown::{Dropdown, DropdownState};
