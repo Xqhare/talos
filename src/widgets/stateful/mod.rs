@@ -23,7 +23,7 @@ mod dropdown;
 pub use dropdown::{Dropdown, DropdownState};
 
 mod block_box;
-pub use block_box::{BlockBox, BlockBoxState};
+pub use block_box::BlockBox;
 
 mod check_box;
 pub use check_box::{CheckBox, CheckBoxState};

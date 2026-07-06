@@ -3,18 +3,6 @@ use crate::{
     widgets::{Block, traits::Widget},
 };
 
-/// The state of a `BlockBox`
-///
-/// A `BlockBox` is a block that contains another widget
-///
-/// Use `BlockBox::new` to create a new `BlockBox`
-pub struct BlockBoxState<'a> {
-    /// The block that contains or surrounds the widget
-    pub block: &'a mut Block,
-    /// The widget that is contained or surrounded by the block
-    pub content: &'a mut dyn Widget,
-}
-
 /// A block that contains or surrounds another widget
 ///
 /// Use `BlockBox::new` to create a new `BlockBox`
@@ -40,12 +28,12 @@ pub struct BlockBoxState<'a> {
 ///     let (canvas, codex) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     let mut block = Block::new()
+///     let block = Block::new()
 ///         .title("My Block", codex, true)
 ///         .with_fat_border()
 ///         .with_bg_fill();
-///     let mut text = Text::new("Hello World!", codex);
-///     let mut block_box = BlockBox::new(&mut block, &mut text);
+///     let text = Text::new("Hello World!", codex);
+///     let mut block_box = BlockBox::new(block, Box::new(text));
 ///
 ///     block_box.render(canvas, rect, &codex);
 ///
@@ -55,7 +43,10 @@ pub struct BlockBoxState<'a> {
 /// }
 /// ```
 pub struct BlockBox<'a> {
-    state: BlockBoxState<'a>,
+    /// The block that contains or surrounds the widget
+    pub block: Block,
+    /// The widget that is contained or surrounded by the block
+    pub content: Box<dyn Widget + 'a>,
     style: Style,
 }
 
@@ -74,19 +65,16 @@ impl<'a> BlockBox<'a> {
     /// use talos::widgets::{Block, stateful::BlockBox, Text};
     ///
     /// let codex = talos::codex::Codex::new();
-    /// let mut block = Block::new();
-    /// let mut text = Text::new("Hello World!", &codex);
-    /// let block_box = BlockBox::new(&mut block, &mut text);
+    /// let block = Block::new();
+    /// let text = Text::new("Hello World!", &codex);
+    /// let block_box = BlockBox::new(block, Box::new(text));
     /// ```
-    pub fn new(block: &'a mut Block, content: &'a mut dyn Widget) -> Self {
+    pub fn new(block: Block, content: Box<dyn Widget + 'a>) -> Self {
         Self {
-            state: BlockBoxState { block, content },
+            block,
+            content,
             style: Style::default(),
         }
-    }
-    /// Get the state of the `BlockBox`
-    pub fn get_state(&self) -> &BlockBoxState<'a> {
-        &self.state
     }
 }
 
@@ -101,13 +89,12 @@ impl Widget for BlockBox<'_> {
         codex: &crate::codex::Codex,
     ) {
         if self.style != Style::default() {
-            self.state.block.style(self.style);
-            self.state.content.style(self.style);
+            self.block.style(self.style);
+            self.content.style(self.style);
         }
-        self.state.block.render(canvas, area, codex);
-        self.state
-            .content
-            .render(canvas, self.state.block.inner(area), codex);
+        self.block.render(canvas, area, codex);
+        self.content
+            .render(canvas, self.block.inner(area), codex);
     }
 }
 
@@ -123,9 +110,9 @@ mod tests {
     fn test_block_box_render() {
         let codex = Codex::new();
         let mut canvas = Canvas::new(10, 3);
-        let mut block = Block::new(); // Default has borders
-        let mut text = Text::new("OK", &codex);
-        let mut block_box = BlockBox::new(&mut block, &mut text);
+        let block = Block::new(); // Default has borders
+        let text = Text::new("OK", &codex);
+        let mut block_box = BlockBox::new(block, Box::new(text));
         let area = Rect::new(0, 0, 10, 3);
 
         block_box.render(&mut canvas, area, &codex);

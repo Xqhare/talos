@@ -188,13 +188,13 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
 
         // Create the nested menu for "Load"
-        let mut path_block = Block::new()
+        let path_block = Block::new()
             .title("enter a path", codex, true)
             .with_bg_fill();
-        let mut path_text_box =
+        let path_text_box =
             TextBox::new(&mut path_text_state).with_highlight_style(highlight_style);
 
-        let mut block_box = BlockBox::new(&mut path_block, &mut path_text_box);
+        let mut block_box = BlockBox::new(path_block, Box::new(path_text_box));
         block_box.style(sub_menu_style);
 
         let mut load_items: Vec<&mut dyn Widget> = vec![&mut block_box];
