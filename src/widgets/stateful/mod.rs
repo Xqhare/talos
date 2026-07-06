@@ -34,27 +34,15 @@ pub use sequence::{Sequence, SequenceState};
 /// Generic widget state
 ///
 /// Useful for constructing generic stores of States
-pub enum States<'a> {
-    /// Block Box State
-    ///
-    /// Do not use for long term storage; Construct a new BlockBoxState on each render
-    BlockBox(BlockBoxState<'a>),
+pub enum States {
     /// Button State
     Button(ButtonState),
-    /// Check Box State
-    ///
-    /// Do not use for long term storage; Construct a new CheckBoxState on each render
-    CheckBox(CheckBoxState<'a>),
     /// Fillable Bar State
     FillableBar(FillableBarState),
     /// List State
     List(ListState),
     /// Dropdown State
     Dropdown(DropdownState),
-    /// Menu Button State
-    ///
-    /// Do not use for long term storage; Construct a new MenuButtonState on each render
-    MenuButton(MenuButtonState<'a>),
     /// Sequence State
     Sequence(SequenceState),
     /// Signal Box State
@@ -65,23 +53,7 @@ pub enum States<'a> {
     TextBox(TextBoxState),
 }
 
-impl<'a> States<'a> {
-    /// Gets the state of the block box
-    pub fn as_block_box(&self) -> Option<&BlockBoxState<'a>> {
-        match self {
-            States::BlockBox(state) => Some(state),
-            _ => None,
-        }
-    }
-
-    /// Gets the mutable state of the block box
-    pub fn as_block_box_mut(&mut self) -> Option<&mut BlockBoxState<'a>> {
-        match self {
-            States::BlockBox(state) => Some(state),
-            _ => None,
-        }
-    }
-
+impl States {
     /// Gets the state of the button
     pub fn as_button(&self) -> Option<&ButtonState> {
         match self {
@@ -94,22 +66,6 @@ impl<'a> States<'a> {
     pub fn as_button_mut(&mut self) -> Option<&mut ButtonState> {
         match self {
             States::Button(state) => Some(state),
-            _ => None,
-        }
-    }
-
-    /// Gets the state of the checkbox
-    pub fn as_check_box(&self) -> Option<&CheckBoxState<'a>> {
-        match self {
-            States::CheckBox(state) => Some(state),
-            _ => None,
-        }
-    }
-
-    /// Gets the mutable state of the checkbox
-    pub fn as_check_box_mut(&mut self) -> Option<&mut CheckBoxState<'a>> {
-        match self {
-            States::CheckBox(state) => Some(state),
             _ => None,
         }
     }
@@ -158,22 +114,6 @@ impl<'a> States<'a> {
     pub fn as_dropdown_mut(&mut self) -> Option<&mut DropdownState> {
         match self {
             States::Dropdown(state) => Some(state),
-            _ => None,
-        }
-    }
-
-    /// Gets the state of the menu button
-    pub fn as_menu_button(&self) -> Option<&MenuButtonState<'a>> {
-        match self {
-            States::MenuButton(state) => Some(state),
-            _ => None,
-        }
-    }
-
-    /// Gets the mutable state of the menu button
-    pub fn as_menu_button_mut(&mut self) -> Option<&mut MenuButtonState<'a>> {
-        match self {
-            States::MenuButton(state) => Some(state),
             _ => None,
         }
     }
@@ -243,67 +183,49 @@ impl<'a> States<'a> {
     }
 }
 
-impl<'a> From<BlockBoxState<'a>> for States<'a> {
-    fn from(state: BlockBoxState<'a>) -> Self {
-        States::BlockBox(state)
-    }
-}
-
-impl From<ButtonState> for States<'_> {
+impl From<ButtonState> for States {
     fn from(state: ButtonState) -> Self {
         States::Button(state)
     }
 }
 
-impl<'a> From<CheckBoxState<'a>> for States<'a> {
-    fn from(state: CheckBoxState<'a>) -> Self {
-        States::CheckBox(state)
-    }
-}
-
-impl From<FillableBarState> for States<'_> {
+impl From<FillableBarState> for States {
     fn from(state: FillableBarState) -> Self {
         States::FillableBar(state)
     }
 }
 
-impl From<ListState> for States<'_> {
+impl From<ListState> for States {
     fn from(state: ListState) -> Self {
         States::List(state)
     }
 }
 
-impl From<DropdownState> for States<'_> {
+impl From<DropdownState> for States {
     fn from(state: DropdownState) -> Self {
         States::Dropdown(state)
     }
 }
 
-impl<'a> From<MenuButtonState<'a>> for States<'a> {
-    fn from(state: MenuButtonState<'a>) -> Self {
-        States::MenuButton(state)
-    }
-}
-
-impl From<SequenceState> for States<'_> {
+impl From<SequenceState> for States {
     fn from(state: SequenceState) -> Self {
         States::Sequence(state)
     }
 }
 
-impl From<SignalBoxState> for States<'_> {
+impl From<SignalBoxState> for States {
     fn from(state: SignalBoxState) -> Self {
         States::SignalBox(state)
     }
 }
 
-impl From<TableState> for States<'_> {
+impl From<TableState> for States {
     fn from(state: TableState) -> Self {
         States::Table(state)
     }
 }
 
-impl From<TextBoxState> for States<'_> {
+impl From<TextBoxState> for States {
     fn from(state: TextBoxState) -> Self {
         States::TextBox(state)
     }
