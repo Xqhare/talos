@@ -5,19 +5,10 @@ use crate::{
     render::{Canvas, Style},
     widgets::{
         Block,
-        stateful::{Button, SignalBox, SignalBoxState},
+        stateful::{Button, ButtonState, SignalBox, SignalBoxState},
         traits::Widget,
     },
 };
-
-/// The state or contents of a `CheckBox`
-pub struct CheckBoxState<'a> {
-    /// The state of the `SignalBox`
-    /// Set the desired Text and clicked state of the `CheckBox` here
-    ///
-    /// The styling of the `Button` will not be overwritten
-    pub button: Button<'a>,
-}
 
 /// A widget for a checkbox
 ///
@@ -30,7 +21,7 @@ pub struct CheckBoxState<'a> {
 ///     Talos,
 ///     layout::Rect,
 ///     render::{Colour, Normal, Style},
-///     widgets::{stateful::{CheckBox, CheckBoxState, Button, ButtonState}, traits::Widget},
+///     widgets::{stateful::{CheckBox, Button, ButtonState}, traits::Widget},
 /// };
 ///
 /// fn main() -> Result<(), talos::TalosError> {
@@ -39,15 +30,15 @@ pub struct CheckBoxState<'a> {
 ///     let (mut canvas, codex) = talos.render_ctx();
 ///
 ///     let mut button_state = ButtonState { clicked: true };
-///     let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &codex) };
-///     let mut checkbox = CheckBox::new(&mut state);
+///     let mut checkbox = CheckBox::new("Hello, world!", &mut button_state);
 ///     checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
 ///     # assert!(true);
 ///     Ok(())
 /// }
 /// ```
 pub struct CheckBox<'a> {
-    state: &'a mut CheckBoxState<'a>,
+    label: String,
+    state: &'a mut ButtonState,
     style: Style,
     fat_border: bool,
 }
@@ -57,18 +48,18 @@ impl<'a> CheckBox<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use talos::{Talos, layout::Rect, widgets::{stateful::{CheckBox, CheckBoxState, Button, ButtonState}, traits::Widget}};
+    /// use talos::{Talos, layout::Rect, widgets::{stateful::{CheckBox, Button, ButtonState}, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
     /// let (mut canvas, codex) = talos.render_ctx();
     /// let mut button_state = ButtonState { clicked: true };
-    /// let mut state = CheckBoxState { button: Button::new("Hello, world!", &mut button_state, &codex) };
-    /// let mut checkbox = CheckBox::new(&mut state);
+    /// let mut checkbox = CheckBox::new("Hello, world!", &mut button_state);
     /// checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
     /// # assert!(true);
     /// ```
-    pub fn new(state: &'a mut CheckBoxState<'a>) -> Self {
+    pub fn new(label: impl Into<String>, state: &'a mut ButtonState) -> Self {
         Self {
+            label: label.into(),
             state,
             style: Style::default(),
             fat_border: false,
@@ -76,8 +67,8 @@ impl<'a> CheckBox<'a> {
     }
 
     /// Gets the state of the checkbox
-    pub fn get_state(&self) -> &CheckBoxState<'a> {
-        &self.state
+    pub fn get_state(&self) -> &ButtonState {
+        self.state
     }
 
     /// Sets the border of the checkbox to be fat or double lined
@@ -113,30 +104,27 @@ impl Widget for CheckBox<'_> {
             .split(inner_rect);
 
         let mut signal_state = SignalBoxState {
-            signal: self.state.button.get_state().clicked,
+            signal: self.state.clicked,
         };
         let mut signal_box = SignalBox::new(&mut signal_state).use_classical_symbols();
         signal_box.style(self.style);
         signal_box.render(canvas, layout[0], codex);
 
-        self.state.button.render(canvas, layout[1], codex);
+        let mut button = Button::new(&self.label, self.state, codex).with_style(self.style);
+        button.render(canvas, layout[1], codex);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::widgets::stateful::ButtonState;
 
     #[test]
     fn test_checkbox_render() {
         let codex = Codex::new();
         let mut canvas = Canvas::new(20, 5);
         let mut button_state = ButtonState { clicked: true };
-        let mut state = CheckBoxState {
-            button: Button::new("Test", &mut button_state, &codex),
-        };
-        let mut checkbox = CheckBox::new(&mut state);
+        let mut checkbox = CheckBox::new("Test", &mut button_state);
         let area = Rect::new(0, 0, 20, 5);
 
         checkbox.render(&mut canvas, area, &codex);

@@ -26,7 +26,7 @@ mod block_box;
 pub use block_box::BlockBox;
 
 mod check_box;
-pub use check_box::{CheckBox, CheckBoxState};
+pub use check_box::CheckBox;
 
 mod sequence;
 pub use sequence::{Sequence, SequenceState};
