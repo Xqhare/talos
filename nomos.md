@@ -19,3 +19,6 @@
     - [x] Frontend :: 
 - [ ] (Z) Image renderer :: 
     * needs a `png` and `jpeg` reader util, then I could average adjoining pixels until I reach a target resolution (area passed into render?)
+- [ ] New Codepage :: Unicode block General punctuation (U+2000-206F) https://www.compart.com/en/unicode/block/U+2000
+- [ ] Text seqences leading whitespace in new lines :: Found in github issues from feb 17 2026; Dont know if already fixed or not
+    * Text sequences that start on a new line currently keep leading whitespace. Example "Top line\n Bottom line" Will result in: " bottom line" not "bottom line".
