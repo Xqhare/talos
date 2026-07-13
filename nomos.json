@@ -1,6 +1,1 @@
-  {
-    "task_files": [
-      "nomos.md",
-      "widgets.md"
-    ]
-  }
+{"task_files":["nomos.nomos","widgets.nomos"],"version":1}
