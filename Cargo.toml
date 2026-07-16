@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 athena = { git = "https://github.com/xqhare/athena.git", features = ["system"] }
 libc = "0.2"
+thoth = { path = "../thoth" }
+
