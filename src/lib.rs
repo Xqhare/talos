@@ -4,7 +4,6 @@
 #![warn(clippy::all)]
 use std::io::Write;
 
-use codex::Codex;
 use input::Parser;
 use input::poll_input_bytes;
 use ui::render::{CCell, Style};
@@ -29,8 +28,6 @@ use crate::ui::render::Canvas;
 use crate::utils::move_render_cursor;
 
 mod backend;
-/// Codex
-pub mod codex;
 mod content;
 mod ui;
 
@@ -59,7 +56,7 @@ type Height = u16;
 pub struct Talos {
     terminal: TerminalIO,
     canvas: Canvas,
-    codex: Codex,
+    thoth: thoth::Thoth,
     // Terminal Size
     /// Width, Height
     size: (Width, Height),
@@ -116,18 +113,18 @@ impl Talos {
         &mut self.canvas
     }
 
-    /// Returns a tuple containing the canvas and the codex in the form `(canvas, codex)`.
+    /// Returns a tuple containing the canvas and the thoth engine in the form `(canvas, thoth)`.
     ///
     /// # Example
     /// ```rust,no_run
     /// use talos::Talos;
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (canvas, codex) = talos.render_ctx();
+    /// let (canvas, thoth) = talos.render_ctx();
     /// # assert!(true);
     /// ```
-    pub fn render_ctx(&mut self) -> (&mut Canvas, &Codex) {
-        (&mut self.canvas, &self.codex)
+    pub fn render_ctx(&mut self) -> (&mut Canvas, &thoth::Thoth) {
+        (&mut self.canvas, &self.thoth)
     }
 
     /// Clear the canvas.
@@ -203,7 +200,7 @@ impl Talos {
 
                     write_all_bytes(
                         &mut self.output_buffer,
-                        self.codex.resolve(ccell.char).as_bytes(),
+                        ccell.char.as_str().as_bytes(),
                     )?;
                     prev_x_cell = x;
                 }
@@ -231,37 +228,32 @@ impl Talos {
         Ok(Present::Presented)
     }
 
-    /// Returns a mutable reference to the codex
-    ///
-    /// Consider using `Talos::render_ctx` instead
-    /// A mutable reference is only needed to add more pages to the codex.
-    ///
-    /// For more on adding pages to the codex, see the documentation of `Codex`.
+    /// Returns the thoth engine
     ///
     /// # Example
     /// ```rust,no_run
     /// use talos::Talos;
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let codex = talos.codex_mut();
+    /// let thoth = talos.thoth();
     /// # assert!(true);
     /// ```
-    pub fn codex_mut(&mut self) -> &mut Codex {
-        &mut self.codex
+    pub fn thoth(&self) -> &thoth::Thoth {
+        &self.thoth
     }
 
-    /// Returns the codex
+    /// Returns a mutable reference to the thoth engine
     ///
     /// # Example
     /// ```rust,no_run
     /// use talos::Talos;
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let codex = talos.codex();
+    /// let thoth = talos.thoth_mut();
     /// # assert!(true);
     /// ```
-    pub fn codex(&self) -> &Codex {
-        &self.codex
+    pub fn thoth_mut(&mut self) -> &mut thoth::Thoth {
+        &mut self.thoth
     }
 
     /// Returns all input events since the last call.
