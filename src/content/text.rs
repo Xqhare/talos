@@ -1,4 +1,4 @@
-use crate::{codex::Codex, render::Glyph};
+use crate::render::Grapheme;
 
 /// The content is parsed into glyph sequences no wider than `max_width`
 ///
@@ -12,9 +12,9 @@ pub struct TextContent {
 }
 
 impl TextContent {
-    pub fn new(content: impl Into<String>, codex: &Codex, max_width: Option<u16>) -> Self {
+    pub fn new(content: impl Into<String>, thoth: &thoth::Thoth, max_width: Option<u16>) -> Self {
         let raw = content.into();
-        let buffer = Self::parse_content_to_glyphs(&raw, codex, max_width);
+        let buffer = Self::parse_content_to_glyphs(&raw, thoth, max_width);
         Self {
             raw,
             buffer,
@@ -22,17 +22,17 @@ impl TextContent {
         }
     }
 
-    pub fn set_wrap_limit(&mut self, max_width: u16, codex: &Codex) {
+    pub fn set_wrap_limit(&mut self, max_width: u16, thoth: &thoth::Thoth) {
         if self.max_width == Some(max_width) {
             return;
         }
         self.max_width = Some(max_width);
-        self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, Some(max_width));
+        self.buffer = Self::parse_content_to_glyphs(&self.raw, thoth, Some(max_width));
     }
 
-    pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
+    pub fn set_content(&mut self, content: impl Into<String>, thoth: &thoth::Thoth) {
         self.raw = content.into();
-        self.buffer = Self::parse_content_to_glyphs(&self.raw, codex, self.max_width);
+        self.buffer = Self::parse_content_to_glyphs(&self.raw, thoth, self.max_width);
     }
 
     pub fn get_wrap_limit(&self) -> Option<u16> {
@@ -58,7 +58,7 @@ impl TextContent {
     // TODO: Cleanup of nested ifs
     fn parse_content_to_glyphs(
         content: &str,
-        codex: &Codex,
+        thoth: &thoth::Thoth,
         max_width: Option<u16>,
     ) -> Vec<Sequence> {
         // Overallocates a fair bit
@@ -77,10 +77,17 @@ impl TextContent {
                 if word.ends_with('\n') && word != "\n" {
                     // Remove the trailing newline, push the word and start a new line
                     let word = &word[..word.len() - 1];
-                    current_line.extend(word.chars().map(|ch| codex.lookup(ch)));
+                    let word_graphemes = thoth.segment(word).unwrap_or_else(|_| {
+                        word.chars().map(|ch| ch.to_string()).collect()
+                    });
+                    let word_glyphs: Vec<Grapheme> =
+                        word_graphemes.iter().map(|g| Grapheme::new(g)).collect();
+                    #[allow(clippy::cast_possible_truncation)]
+                    let word_len = word_glyphs.len() as u16;
+                    current_line.extend(word_glyphs);
                     out.push(Sequence::new(
                         std::mem::take(&mut current_line),
-                        current_width,
+                        current_width + word_len,
                     ));
                     current_width = 0;
                     continue;
@@ -94,7 +101,11 @@ impl TextContent {
                     continue;
                 }
 
-                let word_glyphs: Vec<Glyph> = word.chars().map(|ch| codex.lookup(ch)).collect();
+                let word_graphemes = thoth.segment(word).unwrap_or_else(|_| {
+                    word.chars().map(|ch| ch.to_string()).collect()
+                });
+                let word_glyphs: Vec<Grapheme> =
+                    word_graphemes.iter().map(|g| Grapheme::new(g)).collect();
                 #[allow(clippy::cast_possible_truncation)]
                 let word_len = word_glyphs.len() as u16;
 
@@ -106,7 +117,7 @@ impl TextContent {
                     current_line.extend(word_glyphs);
                     out.push(Sequence::new(
                         std::mem::take(&mut current_line),
-                        current_width,
+                        current_width + word_len,
                     ));
                     current_width = 0;
                 } else {
@@ -140,14 +151,16 @@ impl TextContent {
             }
         } else {
             let split_input: Vec<&str> = content.split_inclusive('\n').collect();
-            // if no max width is set, just assume that it'll fit
             for line in split_input {
-                let mut buffer = Vec::with_capacity(line.len());
-                for ch in line.chars() {
-                    buffer.push(codex.lookup(ch));
+                let line_graphemes = thoth.segment(line).unwrap_or_else(|_| {
+                    line.chars().map(|ch| ch.to_string()).collect()
+                });
+                let mut buffer = Vec::with_capacity(line_graphemes.len());
+                for g in &line_graphemes {
+                    buffer.push(Grapheme::new(g));
                 }
-                #[allow(clippy::cast_possible_truncation)] // Coords are also truncated
-                out.push(Sequence::new(buffer, line.len() as u16));
+                #[allow(clippy::cast_possible_truncation)]
+                out.push(Sequence::new(buffer, line_graphemes.len() as u16));
             }
         }
 
@@ -157,12 +170,12 @@ impl TextContent {
 
 #[derive(Debug, Clone)]
 pub struct Sequence {
-    buffer: Vec<Glyph>,
+    buffer: Vec<Grapheme>,
     width: u16,
 }
 
 impl Sequence {
-    pub fn new(buffer: Vec<Glyph>, width: u16) -> Self {
+    pub fn new(buffer: Vec<Grapheme>, width: u16) -> Self {
         Self { buffer, width }
     }
 
@@ -170,7 +183,7 @@ impl Sequence {
         self.width
     }
 
-    pub fn glyphs(&self) -> &[Glyph] {
+    pub fn glyphs(&self) -> &[Grapheme] {
         &self.buffer
     }
 }
