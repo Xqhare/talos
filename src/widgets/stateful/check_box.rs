@@ -1,6 +1,5 @@
 use crate::{
     LayoutBuilder,
-    codex::Codex,
     layout::{Constraint, Direction, Rect},
     render::{Canvas, Style},
     widgets::{
@@ -27,11 +26,11 @@ use crate::{
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
 ///     talos.begin_frame();
-///     let (mut canvas, codex) = talos.render_ctx();
+///     let (mut canvas, thoth) = talos.render_ctx();
 ///
 ///     let mut button_state = ButtonState { clicked: true };
 ///     let mut checkbox = CheckBox::new("Hello, world!", &mut button_state);
-///     checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
+///     checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &thoth);
 ///     # assert!(true);
 ///     Ok(())
 /// }
@@ -51,10 +50,10 @@ impl<'a> CheckBox<'a> {
     /// use talos::{Talos, layout::Rect, widgets::{stateful::{CheckBox, Button, ButtonState}, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (mut canvas, codex) = talos.render_ctx();
+    /// let (mut canvas, thoth) = talos.render_ctx();
     /// let mut button_state = ButtonState { clicked: true };
     /// let mut checkbox = CheckBox::new("Hello, world!", &mut button_state);
-    /// checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &codex);
+    /// checkbox.render(&mut canvas, Rect::new(0, 0, 10, 1), &thoth);
     /// # assert!(true);
     /// ```
     pub fn new(label: impl Into<String>, state: &'a mut ButtonState) -> Self {
@@ -89,11 +88,11 @@ impl Widget for CheckBox<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         let mut outer_block = Block::new().with_bg_fill();
         outer_block.style(self.style);
         outer_block.set_fat_border(self.fat_border);
-        outer_block.render(canvas, area, codex);
+        outer_block.render(canvas, area, thoth);
 
         let inner_rect = outer_block.inner(area);
         let layout = LayoutBuilder::new()
@@ -108,10 +107,10 @@ impl Widget for CheckBox<'_> {
         };
         let mut signal_box = SignalBox::new(&mut signal_state).use_classical_symbols();
         signal_box.style(self.style);
-        signal_box.render(canvas, layout[0], codex);
+        signal_box.render(canvas, layout[0], thoth);
 
-        let mut button = Button::new(&self.label, self.state, codex).with_style(self.style);
-        button.render(canvas, layout[1], codex);
+        let mut button = Button::new(&self.label, self.state, thoth).with_style(self.style);
+        button.render(canvas, layout[1], thoth);
     }
 }
 
@@ -121,18 +120,18 @@ mod tests {
 
     #[test]
     fn test_checkbox_render() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 5);
         let mut button_state = ButtonState { clicked: true };
         let mut checkbox = CheckBox::new("Test", &mut button_state);
         let area = Rect::new(0, 0, 20, 5);
 
-        checkbox.render(&mut canvas, area, &codex);
+        checkbox.render(&mut canvas, area, &thoth);
 
         // SignalBox should show '[X]' or similar.
         // In classical symbols, it should be 0x035E if clicked.
         // It is rendered in layout[0], which is at (1,1) if area is (0,0,20,3)
-        assert_eq!(canvas.get_ccell(1, 1).char, 0x035E);
+        assert_eq!(canvas.get_ccell(1, 1).char, crate::render::Grapheme::new("☑"));
 
         // Button text should be in layout[1].
         // layout[1] starts at x=2.
@@ -141,6 +140,6 @@ mod tests {
         // Button centers text: (15 - 4) / 2 + 1 = 6.
         // Start x = 3 + 6 = 9.
         // y = 1 (inner area start) + 1 (vertical center) = 2.
-        assert_eq!(canvas.get_ccell(9, 2).char, codex.lookup('T'));
+        assert_eq!(canvas.get_ccell(9, 2).char, crate::render::Grapheme::new("T"));
     }
 }

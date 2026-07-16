@@ -1,7 +1,6 @@
 use crate::{
-    codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
-    render::{CCell, Glyph, Style},
+    render::{CCell, Grapheme, Style},
     widgets::{Block, traits::Widget},
 };
 
@@ -31,21 +30,21 @@ use crate::{
 ///
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let mut list_state = ListState::default();
 ///     list_state.selected = Some(0);
 ///
 ///     let items: Vec<Box<dyn Widget>> = vec![
-///         Box::new(Text::new("Item 1", codex)) as Box<dyn Widget>,
-///         Box::new(Text::new("Item 2", codex)) as Box<dyn Widget>,
-///         Box::new(Text::new("Item 3", codex)) as Box<dyn Widget>,
+///         Box::new(Text::new("Item 1", thoth)) as Box<dyn Widget>,
+///         Box::new(Text::new("Item 2", thoth)) as Box<dyn Widget>,
+///         Box::new(Text::new("Item 3", thoth)) as Box<dyn Widget>,
 ///     ];
 ///
 ///     let mut list = List::new(&mut list_state, items);
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     list.render(canvas, rect, codex);
+///     list.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -59,7 +58,7 @@ pub struct List<'a> {
     state: &'a mut ListState,
     style: Style,
     selected_style: Style,
-    selected_symbol: Option<Glyph>,
+    selected_symbol: Option<Grapheme>,
     horizontal: bool,
     item_height: u16,
     as_buttons: bool,
@@ -108,7 +107,7 @@ impl<'a> List<'a> {
     /// use talos::{Talos, widgets::{traits::Widget, stateful::{List, ListState}}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut list_state = ListState::default();
     /// let items: Vec<Box<dyn Widget>> = Vec::new();
     /// let list = List::new(&mut list_state, items);
@@ -168,8 +167,8 @@ impl<'a> List<'a> {
 
     /// Sets the symbol of the selected item - this is rendered in front (to the left) of the
     /// selected item
-    pub fn with_selected_symbol(mut self, char: char, codex: &Codex) -> Self {
-        self.selected_symbol = Some(codex.lookup(char));
+    pub fn with_selected_symbol(mut self, char: char, _thoth: &thoth::Thoth) -> Self {
+        self.selected_symbol = Some(crate::render::Grapheme::new(char.encode_utf8(&mut [0; 4])));
         self
     }
 }
@@ -183,7 +182,7 @@ impl Widget for List<'_> {
         &mut self,
         canvas: &mut crate::render::Canvas,
         area: crate::layout::Rect,
-        codex: &crate::codex::Codex,
+        thoth: &thoth::Thoth,
     ) {
         if self.items.is_empty() {
             return;
@@ -226,7 +225,7 @@ impl Widget for List<'_> {
                             current_x.saturating_add(2),
                             area.y,
                             CCell {
-                                char: SPACE_GLYPH,
+                                char: crate::render::Grapheme::default(),
                                 style: self.selected_style,
                             },
                         );
@@ -259,11 +258,11 @@ impl Widget for List<'_> {
                     if is_selected {
                         block.style(self.selected_style);
                     }
-                    block.render(canvas, item_area, codex);
+                    block.render(canvas, item_area, thoth);
                     item_area = block.inner(item_area);
                 }
 
-                item.render(canvas, item_area, codex);
+                item.render(canvas, item_area, thoth);
 
                 // Scrolling the list if needed
                 if is_selected {
@@ -284,7 +283,7 @@ impl Widget for List<'_> {
                         space_x,
                         area.y,
                         CCell {
-                            char: SPACE_GLYPH,
+                            char: crate::render::Grapheme::default(),
                             style: self.style,
                         },
                     );
@@ -333,7 +332,7 @@ impl Widget for List<'_> {
                             area.x.saturating_add(2),
                             y,
                             CCell {
-                                char: SPACE_GLYPH,
+                                char: crate::render::Grapheme::default(),
                                 style: self.selected_style,
                             },
                         );
@@ -355,11 +354,11 @@ impl Widget for List<'_> {
                     if is_selected {
                         block.style(self.selected_style);
                     }
-                    block.render(canvas, item_area, codex);
+                    block.render(canvas, item_area, thoth);
                     item_area = block.inner(item_area);
                 }
 
-                item.render(canvas, item_area, codex);
+                item.render(canvas, item_area, thoth);
             }
         }
     }
@@ -372,69 +371,69 @@ mod tests {
 
     #[test]
     fn test_list_render_vertical() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = crate::render::Canvas::new(10, 5);
         let mut state = ListState::default();
         let items: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
-            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
-            Box::new(Text::new("Item 3", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &thoth)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 3", &thoth)) as Box<dyn Widget>,
         ];
         let mut list = List::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 5);
 
-        list.render(&mut canvas, area, &codex);
+        list.render(&mut canvas, area, &thoth);
 
         // Check if items are rendered line by line
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('I'));
-        assert_eq!(canvas.get_ccell(0, 1).char, codex.lookup('I'));
-        assert_eq!(canvas.get_ccell(0, 2).char, codex.lookup('I'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("I"));
+        assert_eq!(canvas.get_ccell(0, 1).char, crate::render::Grapheme::new("I"));
+        assert_eq!(canvas.get_ccell(0, 2).char, crate::render::Grapheme::new("I"));
     }
 
     #[test]
     fn test_list_selected_symbol() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = crate::render::Canvas::new(10, 5);
         let mut state = ListState::default();
         state.selected = Some(1);
         let items: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
-            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &thoth)) as Box<dyn Widget>,
         ];
-        let mut list = List::new(&mut state, items).with_selected_symbol('>', &codex);
+        let mut list = List::new(&mut state, items).with_selected_symbol('>', &thoth);
         let area = Rect::new(0, 0, 10, 5);
 
-        list.render(&mut canvas, area, &codex);
+        list.render(&mut canvas, area, &thoth);
 
         // Item 2 is at y=1. Symbol should be at x=1.
-        assert_eq!(canvas.get_ccell(1, 1).char, codex.lookup('>'));
+        assert_eq!(canvas.get_ccell(1, 1).char, crate::render::Grapheme::new(">"));
         // Text should be offset by 3.
-        assert_eq!(canvas.get_ccell(3, 1).char, codex.lookup('I'));
+        assert_eq!(canvas.get_ccell(3, 1).char, crate::render::Grapheme::new("I"));
     }
 
     #[test]
     fn test_list_scrolling() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = crate::render::Canvas::new(10, 2); // Only 2 lines high
         let mut state = ListState::default();
         state.selected = Some(2); // Third item selected
         let items: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>,
-            Box::new(Text::new("Item 2", &codex)) as Box<dyn Widget>,
-            Box::new(Text::new("Item 3", &codex)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 2", &thoth)) as Box<dyn Widget>,
+            Box::new(Text::new("Item 3", &thoth)) as Box<dyn Widget>,
         ];
         let mut list = List::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 2);
 
-        list.render(&mut canvas, area, &codex);
+        list.render(&mut canvas, area, &thoth);
         drop(list);
 
         // Should have scrolled to show Item 3 at some position.
         // If height is 2, and selected is 2 (index 2), scroll_offset becomes 1.
         // So Item 2 and Item 3 are shown.
         assert_eq!(state.scroll_offset, 1);
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('I')); // This is Item 2
-        assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('2'));
-        assert_eq!(canvas.get_ccell(5, 1).char, codex.lookup('3'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("I")); // This is Item 2
+        assert_eq!(canvas.get_ccell(5, 0).char, crate::render::Grapheme::new("2"));
+        assert_eq!(canvas.get_ccell(5, 1).char, crate::render::Grapheme::new("3"));
     }
 }

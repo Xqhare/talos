@@ -16,11 +16,11 @@
 //!     let mut talos = Talos::builder().build()?;
 //!
 //!     talos.begin_frame();
-//!     let (canvas, codex) = talos.render_ctx();
+//!     let (canvas, thoth) = talos.render_ctx();
 //!
 //!     let rect = Rect::new(0, 0, 10, 10);
 //!     let mut block = Block::new();
-//!     block.render(canvas, rect, codex);
+//!     block.render(canvas, rect, thoth);
 //!
 //!     talos.present()?;
 //!
@@ -44,7 +44,6 @@ pub mod stateful;
 /// Widget traits for creating custom widgets
 pub mod traits {
     use crate::{
-        codex::Codex,
         layout::Rect,
         render::{Canvas, Style},
     };
@@ -65,7 +64,7 @@ pub mod traits {
         /// * `canvas` - The canvas to render into
         /// * `area` - The area to render into. Only this area is available for the widget to draw
         ///   into.
-        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex);
+        fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth);
         /// Sets the primary style of the widget
         fn style(&mut self, style: Style);
 
@@ -83,8 +82,8 @@ pub mod traits {
     }
 
     impl Widget for &mut dyn Widget {
-        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-            (**self).render(canvas, area, codex);
+        fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
+            (**self).render(canvas, area, thoth);
         }
         fn style(&mut self, style: Style) {
             (**self).style(style);
@@ -92,8 +91,8 @@ pub mod traits {
     }
 
     impl<'a> Widget for Box<dyn Widget + 'a> {
-        fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-            (**self).render(canvas, area, codex);
+        fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
+            (**self).render(canvas, area, thoth);
         }
         fn style(&mut self, style: Style) {
             (**self).style(style);

@@ -25,17 +25,17 @@ use crate::{
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     let block = Block::new()
-///         .title("My Block", codex, true)
+///         .title("My Block", thoth, true)
 ///         .with_fat_border()
 ///         .with_bg_fill();
-///     let text = Text::new("Hello World!", codex);
+///     let text = Text::new("Hello World!", thoth);
 ///     let mut block_box = BlockBox::new(block, Box::new(text));
 ///
-///     block_box.render(canvas, rect, &codex);
+///     block_box.render(canvas, rect, &thoth);
 ///
 ///     talos.present()?;
 ///
@@ -64,9 +64,9 @@ impl<'a> BlockBox<'a> {
     /// ```rust
     /// use talos::widgets::{Block, stateful::BlockBox, Text};
     ///
-    /// let codex = talos::codex::Codex::new();
+    /// let thoth = thoth::Thoth::new().unwrap();
     /// let block = Block::new();
-    /// let text = Text::new("Hello World!", &codex);
+    /// let text = Text::new("Hello World!", &thoth);
     /// let block_box = BlockBox::new(block, Box::new(text));
     /// ```
     pub fn new(block: Block, content: Box<dyn Widget + 'a>) -> Self {
@@ -86,43 +86,42 @@ impl Widget for BlockBox<'_> {
         &mut self,
         canvas: &mut crate::render::Canvas,
         area: crate::layout::Rect,
-        codex: &crate::codex::Codex,
+        thoth: &thoth::Thoth,
     ) {
         if self.style != Style::default() {
             self.block.style(self.style);
             self.content.style(self.style);
         }
-        self.block.render(canvas, area, codex);
+        self.block.render(canvas, area, thoth);
         self.content
-            .render(canvas, self.block.inner(area), codex);
+            .render(canvas, self.block.inner(area), thoth);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::codex::Codex;
     use crate::layout::Rect;
     use crate::render::Canvas;
     use crate::widgets::Text;
 
     #[test]
     fn test_block_box_render() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(10, 3);
         let block = Block::new(); // Default has borders
-        let text = Text::new("OK", &codex);
+        let text = Text::new("OK", &thoth);
         let mut block_box = BlockBox::new(block, Box::new(text));
         let area = Rect::new(0, 0, 10, 3);
 
-        block_box.render(&mut canvas, area, &codex);
+        block_box.render(&mut canvas, area, &thoth);
 
         // Block border at (0,0)
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('┌'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("┌"));
         // Text inside at (1,1) - Text by default is not centered unless we call align_center()
         // But here we didn't call it on Text, so it should be at the top-left of the inner area.
         // Inner area starts at (1,1).
-        assert_eq!(canvas.get_ccell(1, 1).char, codex.lookup('O'));
-        assert_eq!(canvas.get_ccell(2, 1).char, codex.lookup('K'));
+        assert_eq!(canvas.get_ccell(1, 1).char, crate::render::Grapheme::new("O"));
+        assert_eq!(canvas.get_ccell(2, 1).char, crate::render::Grapheme::new("K"));
     }
 }

@@ -1,4 +1,3 @@
-use crate::codex::{Codex, pages::SPACE_GLYPH};
 use crate::content::text::{Sequence, TextContent};
 use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
@@ -16,8 +15,8 @@ pub struct InternalText {
 }
 
 impl InternalText {
-    pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
-        let content = TextContent::new(content, codex, None);
+    pub fn new(content: impl Into<String>, thoth: &thoth::Thoth) -> Self {
+        let content = TextContent::new(content, thoth, None);
         Self {
             content,
             style: Style::default(),
@@ -33,8 +32,8 @@ impl InternalText {
         self.highlight_style = style;
     }
 
-    pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
-        self.content.set_content(content, codex);
+    pub fn set_content(&mut self, content: impl Into<String>, thoth: &thoth::Thoth) {
+        self.content.set_content(content, thoth);
     }
 
     pub fn align_center(mut self) -> Self {
@@ -64,15 +63,15 @@ impl Widget for InternalText {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         // Update wrap limit
         if let Some(wrap_limit) = self.content.get_wrap_limit() {
             if wrap_limit > area.width {
-                self.content.set_wrap_limit(area.width, codex);
+                self.content.set_wrap_limit(area.width, thoth);
             }
         } else {
             // Assume first run - so set up wrap limit
-            self.content.set_wrap_limit(area.width, codex);
+            self.content.set_wrap_limit(area.width, thoth);
         }
 
         // After setup, each Sequence should be guaranteed to be at most
@@ -168,7 +167,7 @@ impl Widget for InternalText {
                     cursor_x,
                     cursor_y,
                     CCell {
-                        char: SPACE_GLYPH,
+                        char: crate::render::Grapheme::default(),
                         style,
                     },
                 );

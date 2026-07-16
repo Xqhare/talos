@@ -1,6 +1,5 @@
 use crate::{
     LayoutBuilder,
-    codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
     render::{CCell, Canvas, Style},
     widgets::traits::Widget,
@@ -27,7 +26,7 @@ use crate::{
 ///
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let mut table_state = TableState {
 ///         x_offset: 0,
@@ -38,12 +37,12 @@ use crate::{
 ///
 ///     let rows = vec![
 ///         vec![
-///             Box::new(Text::new("Row 1, Col 1", codex)) as Box<dyn Widget>,
-///             Box::new(Text::new("Row 1, Col 2", codex)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 1, Col 1", thoth)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 1, Col 2", thoth)) as Box<dyn Widget>,
 ///         ],
 ///         vec![
-///             Box::new(Text::new("Row 2, Col 1", codex)) as Box<dyn Widget>,
-///             Box::new(Text::new("Row 2, Col 2", codex)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 2, Col 1", thoth)) as Box<dyn Widget>,
+///             Box::new(Text::new("Row 2, Col 2", thoth)) as Box<dyn Widget>,
 ///         ],
 ///     ];
 ///
@@ -52,7 +51,7 @@ use crate::{
 ///         .with_row_height(2);
 ///
 ///     let rect = Rect::new(0, 0, 40, 10);
-///     table.render(canvas, rect, codex);
+///     table.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -84,7 +83,7 @@ pub struct Table<'a> {
 /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text}};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
+/// let (_, thoth) = talos.render_ctx();
 /// let table_state = TableState {
 ///     x_offset: 0,
 ///     y_offset: 0,
@@ -153,7 +152,7 @@ impl<'a> Table<'a> {
     /// use talos::{Talos, widgets::stateful::{Table, TableState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
@@ -210,7 +209,7 @@ impl<'a> Table<'a> {
     /// use talos::{Talos, widgets::stateful::{Table, TableState}, render::{Style, Colour, Normal}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
@@ -234,7 +233,7 @@ impl<'a> Table<'a> {
     /// use talos::{Talos, widgets::stateful::{Table, TableState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
@@ -256,14 +255,14 @@ impl<'a> Table<'a> {
     /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut table_state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
     ///     max_rows: None,
     ///     max_columns: None,
     /// };
-    /// let row = vec![Box::new(Text::new("Hello", codex)) as Box<dyn Widget>];
+    /// let row = vec![Box::new(Text::new("Hello", thoth)) as Box<dyn Widget>];
     /// let table = Table::new(&mut table_state)
     ///     .add_row(row);
     /// # assert!(true);
@@ -280,7 +279,7 @@ impl<'a> Table<'a> {
     /// use talos::{Talos, widgets::{stateful::{Table, TableState}, Text, traits::Widget}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut table_state = TableState {
     ///     x_offset: 0,
     ///     y_offset: 0,
@@ -288,8 +287,8 @@ impl<'a> Table<'a> {
     ///     max_columns: None,
     /// };
     /// let rows = vec![
-    ///     vec![Box::new(Text::new("Hello", codex)) as Box<dyn Widget>],
-    ///     vec![Box::new(Text::new("World", codex)) as Box<dyn Widget>],
+    ///     vec![Box::new(Text::new("Hello", thoth)) as Box<dyn Widget>],
+    ///     vec![Box::new(Text::new("World", thoth)) as Box<dyn Widget>],
     /// ];
     /// let table = Table::new(&mut table_state)
     ///     .with_rows(rows);
@@ -489,22 +488,22 @@ impl Widget for Table<'_> {
         self.style = style;
     }
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        let tl = codex.lookup('╔');
-        let tr = codex.lookup('╗');
-        let bl = codex.lookup('╚');
-        let br = codex.lookup('╝');
-        let h_out = codex.lookup('═');
-        let v_out = codex.lookup('║');
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
+        let tl = crate::render::Grapheme::new("╔");
+        let tr = crate::render::Grapheme::new("╗");
+        let bl = crate::render::Grapheme::new("╚");
+        let br = crate::render::Grapheme::new("╝");
+        let h_out = crate::render::Grapheme::new("═");
+        let v_out = crate::render::Grapheme::new("║");
 
-        let h_in = codex.lookup('─');
-        let v_in = codex.lookup('│');
-        let cross = codex.lookup('┼');
+        let h_in = crate::render::Grapheme::new("─");
+        let v_in = crate::render::Grapheme::new("│");
+        let cross = crate::render::Grapheme::new("┼");
 
-        let left_tee = codex.lookup('╟');
-        let right_tee = codex.lookup('╢');
-        let top_tee = codex.lookup('╤');
-        let bottom_tee = codex.lookup('╧');
+        let left_tee = crate::render::Grapheme::new("╟");
+        let right_tee = crate::render::Grapheme::new("╢");
+        let top_tee = crate::render::Grapheme::new("╤");
+        let bottom_tee = crate::render::Grapheme::new("╧");
 
         if self.draw_outer_border {
             let left = area.left();
@@ -804,7 +803,7 @@ impl Widget for Table<'_> {
                 }
                 col.style(col_style);
 
-                col.render(canvas, cell_area, codex);
+                col.render(canvas, cell_area, thoth);
             }
         }
     }
@@ -823,15 +822,15 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
         let r1: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R1C1", &codex)),
-            Box::new(Text::new("R1C2", &codex)),
+            Box::new(Text::new("R1C1", &thoth)),
+            Box::new(Text::new("R1C2", &thoth)),
         ];
         let r2: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R2C1", &codex)),
-            Box::new(Text::new("R2C2", &codex)),
+            Box::new(Text::new("R2C1", &thoth)),
+            Box::new(Text::new("R2C2", &thoth)),
         ];
         let rows = vec![r1, r2];
 
@@ -839,15 +838,15 @@ mod tests {
             .with_rows(rows)
             .draw_inner_border(InnerBorder::Rows);
 
-        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
         // Horizontal border should be at y=5 (because 2 rows in 10 lines -> split(10) -> [0..5, 5..10])
-        let h_in = codex.lookup('─');
+        let h_in = crate::render::Grapheme::new("─");
         assert_eq!(canvas.get_ccell(0, 5).char, h_in);
         assert_eq!(canvas.get_ccell(19, 5).char, h_in);
 
         // Vertical border should NOT be present
-        let v_in = codex.lookup('│');
+        let v_in = crate::render::Grapheme::new("│");
         assert_ne!(canvas.get_ccell(10, 0).char, v_in);
     }
 
@@ -859,11 +858,11 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
         let r1: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R1C1", &codex)),
-            Box::new(Text::new("R1C2", &codex)),
+            Box::new(Text::new("R1C1", &thoth)),
+            Box::new(Text::new("R1C2", &thoth)),
         ];
         let rows = vec![r1];
 
@@ -871,14 +870,14 @@ mod tests {
             .with_rows(rows)
             .draw_inner_border(InnerBorder::Columns);
 
-        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
         // Vertical border should be at x=10
-        let v_in = codex.lookup('│');
+        let v_in = crate::render::Grapheme::new("│");
         assert_eq!(canvas.get_ccell(10, 0).char, v_in);
 
         // Horizontal border should NOT be present
-        let h_in = codex.lookup('─');
+        let h_in = crate::render::Grapheme::new("─");
         assert_ne!(canvas.get_ccell(0, 5).char, h_in);
     }
 
@@ -890,15 +889,15 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
         let r1: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R1C1", &codex)),
-            Box::new(Text::new("R1C2", &codex)),
+            Box::new(Text::new("R1C1", &thoth)),
+            Box::new(Text::new("R1C2", &thoth)),
         ];
         let r2: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R2C1", &codex)),
-            Box::new(Text::new("R2C2", &codex)),
+            Box::new(Text::new("R2C1", &thoth)),
+            Box::new(Text::new("R2C2", &thoth)),
         ];
         let rows = vec![r1, r2];
 
@@ -906,11 +905,11 @@ mod tests {
             .with_rows(rows)
             .draw_inner_border(InnerBorder::All);
 
-        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
-        let h_in = codex.lookup('─');
-        let v_in = codex.lookup('│');
-        let cross = codex.lookup('┼');
+        let h_in = crate::render::Grapheme::new("─");
+        let v_in = crate::render::Grapheme::new("│");
+        let cross = crate::render::Grapheme::new("┼");
 
         assert_eq!(canvas.get_ccell(0, 5).char, h_in);
         assert_eq!(canvas.get_ccell(10, 0).char, v_in);
@@ -925,22 +924,22 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
-        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1C1", &codex))];
+        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1C1", &thoth))];
         let rows = vec![r1];
 
         let mut table = Table::new(&mut table_state)
             .with_rows(rows)
             .draw_outer_border();
 
-        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
         // Outer border corners
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('╔'));
-        assert_eq!(canvas.get_ccell(19, 0).char, codex.lookup('╗'));
-        assert_eq!(canvas.get_ccell(0, 9).char, codex.lookup('╚'));
-        assert_eq!(canvas.get_ccell(19, 9).char, codex.lookup('╝'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("╔"));
+        assert_eq!(canvas.get_ccell(19, 0).char, crate::render::Grapheme::new("╗"));
+        assert_eq!(canvas.get_ccell(0, 9).char, crate::render::Grapheme::new("╚"));
+        assert_eq!(canvas.get_ccell(19, 9).char, crate::render::Grapheme::new("╝"));
     }
 
     #[test]
@@ -951,10 +950,10 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
-        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1", &codex))];
-        let r2: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R2", &codex))];
+        let r1: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R1", &thoth))];
+        let r2: Vec<Box<dyn Widget>> = vec![Box::new(Text::new("R2", &thoth))];
         let rows = vec![r1, r2];
 
         let mut table = Table::new(&mut table_state)
@@ -962,21 +961,21 @@ mod tests {
             .with_row_height(2)
             .draw_inner_border(InnerBorder::Rows);
 
-        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &codex);
+        table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
         // Row 0: height 2 (y=0, y=1)
         // Row 1: border at y=2, height 2 (y=3, y=4)
-        let h_in = codex.lookup('─');
+        let h_in = crate::render::Grapheme::new("─");
         assert_eq!(canvas.get_ccell(0, 2).char, h_in);
 
         // R1 should be in y=0 or y=1
         // R2 should be in y=3 or y=4
         // Text::new("R1") will render "R1" starting at (0,0)
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('R'));
-        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('1'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("R"));
+        assert_eq!(canvas.get_ccell(1, 0).char, crate::render::Grapheme::new("1"));
 
-        assert_eq!(canvas.get_ccell(0, 3).char, codex.lookup('R'));
-        assert_eq!(canvas.get_ccell(1, 3).char, codex.lookup('2'));
+        assert_eq!(canvas.get_ccell(0, 3).char, crate::render::Grapheme::new("R"));
+        assert_eq!(canvas.get_ccell(1, 3).char, crate::render::Grapheme::new("2"));
     }
 
     #[test]
@@ -987,14 +986,14 @@ mod tests {
             max_rows: None,
             max_columns: None,
         };
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let r1: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R1C1", &codex)),
-            Box::new(Text::new("R1C2", &codex)),
+            Box::new(Text::new("R1C1", &thoth)),
+            Box::new(Text::new("R1C2", &thoth)),
         ];
         let r2: Vec<Box<dyn Widget>> = vec![
-            Box::new(Text::new("R2C1", &codex)),
-            Box::new(Text::new("R2C2", &codex)),
+            Box::new(Text::new("R2C1", &thoth)),
+            Box::new(Text::new("R2C2", &thoth)),
         ];
         let rows = vec![r1, r2];
 

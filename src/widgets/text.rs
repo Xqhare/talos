@@ -1,4 +1,3 @@
-use crate::codex::Codex;
 use crate::layout::Rect;
 use crate::render::{Canvas, Style};
 use crate::widgets::internal_text::InternalText;
@@ -23,10 +22,10 @@ use crate::widgets::traits::Widget;
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
-///     let mut text = Text::new("Hello, world!", codex)
+///     let mut text = Text::new("Hello, world!", thoth)
 ///         .align_center()
 ///         .align_vertically();
 ///
@@ -36,7 +35,7 @@ use crate::widgets::traits::Widget;
 ///         .build();
 ///
 ///     text.style(style);
-///     text.render(canvas, rect, codex);
+///     text.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -69,19 +68,19 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", &codex);
+    /// let (_, thoth) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &thoth);
     /// # assert!(true);
     /// ```
-    pub fn new(content: impl Into<String>, codex: &Codex) -> Self {
+    pub fn new(content: impl Into<String>, thoth: &thoth::Thoth) -> Self {
         Self {
-            content: InternalText::new(content, codex),
+            content: InternalText::new(content, thoth),
         }
     }
 
     /// Update the text content.
-    pub fn set_content(&mut self, content: impl Into<String>, codex: &Codex) {
-        self.content.set_content(content, codex);
+    pub fn set_content(&mut self, content: impl Into<String>, thoth: &thoth::Thoth) {
+        self.content.set_content(content, thoth);
     }
 
     /// Get the text content
@@ -104,8 +103,8 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", &codex).align_center();
+    /// let (_, thoth) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &thoth).align_center();
     /// # assert!(true);
     /// ```
     pub fn align_center(mut self) -> Self {
@@ -120,8 +119,8 @@ impl Text {
     /// use talos::{Talos, widgets::Text};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
-    /// let text = Text::new("Hello, world!", &codex).align_vertically();
+    /// let (_, thoth) = talos.render_ctx();
+    /// let text = Text::new("Hello, world!", &thoth).align_vertically();
     /// # assert!(true);
     /// ```
     pub fn align_vertically(mut self) -> Self {
@@ -152,8 +151,8 @@ impl Widget for Text {
     fn style(&mut self, style: Style) {
         self.content.style(style);
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
-        self.content.render(canvas, area, codex);
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
+        self.content.render(canvas, area, thoth);
     }
 }
 
@@ -164,18 +163,18 @@ mod tests {
 
     #[test]
     fn test_text_render_basic() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 5);
-        let mut text = Text::new("Hello", &codex);
+        let mut text = Text::new("Hello", &thoth);
         let area = Rect::new(0, 0, 20, 5);
 
-        text.render(&mut canvas, area, &codex);
+        text.render(&mut canvas, area, &thoth);
 
         // Check first 5 characters
-        let h = codex.lookup('H');
-        let e = codex.lookup('e');
-        let l = codex.lookup('l');
-        let o = codex.lookup('o');
+        let h = crate::render::Grapheme::new("H");
+        let e = crate::render::Grapheme::new("e");
+        let l = crate::render::Grapheme::new("l");
+        let o = crate::render::Grapheme::new("o");
 
         assert_eq!(canvas.get_ccell(0, 0).char, h);
         assert_eq!(canvas.get_ccell(1, 0).char, e);
@@ -186,49 +185,49 @@ mod tests {
 
     #[test]
     fn test_text_render_align_center() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(10, 1);
         // "ABC" is 3 chars. In width 10, (10-3)/2 = 3.5 -> 4 margin.
         // Wait, InternalText says:
         // if rest_width.is_multiple_of(2) { rest_width / 2 } else { rest_width / 2 + 1 }
         // (10-3) = 7. 7/2 + 1 = 4.
         // So it starts at x=4.
-        let mut text = Text::new("ABC", &codex).align_center();
+        let mut text = Text::new("ABC", &thoth).align_center();
         let area = Rect::new(0, 0, 10, 1);
 
-        text.render(&mut canvas, area, &codex);
+        text.render(&mut canvas, area, &thoth);
 
-        assert_eq!(canvas.get_ccell(4, 0).char, codex.lookup('A'));
-        assert_eq!(canvas.get_ccell(5, 0).char, codex.lookup('B'));
-        assert_eq!(canvas.get_ccell(6, 0).char, codex.lookup('C'));
+        assert_eq!(canvas.get_ccell(4, 0).char, crate::render::Grapheme::new("A"));
+        assert_eq!(canvas.get_ccell(5, 0).char, crate::render::Grapheme::new("B"));
+        assert_eq!(canvas.get_ccell(6, 0).char, crate::render::Grapheme::new("C"));
     }
 
     #[test]
     fn test_text_render_align_vertically() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(1, 5);
         // "A" is 1 line. In height 5, (5-1)/2 = 2.
         // InternalText says:
         // if rest.is_multiple_of(2) { (rest / 2) + area.top() } else { (rest / 2 + 1) + area.top() }
         // (5-1) = 4. 4/2 + 0 = 2.
-        let mut text = Text::new("A", &codex).align_vertically();
+        let mut text = Text::new("A", &thoth).align_vertically();
         let area = Rect::new(0, 0, 1, 5);
 
-        text.render(&mut canvas, area, &codex);
+        text.render(&mut canvas, area, &thoth);
 
-        assert_eq!(canvas.get_ccell(0, 2).char, codex.lookup('A'));
+        assert_eq!(canvas.get_ccell(0, 2).char, crate::render::Grapheme::new("A"));
     }
 
     #[test]
     fn test_text_style() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(5, 1);
         let style = Style::builder().set_fg(Colour::Normal(Normal::Red)).build();
-        let mut text = Text::new("A", &codex);
+        let mut text = Text::new("A", &thoth);
         text.style(style);
         let area = Rect::new(0, 0, 5, 1);
 
-        text.render(&mut canvas, area, &codex);
+        text.render(&mut canvas, area, &thoth);
 
         assert_eq!(canvas.get_ccell(0, 0).style, style);
     }

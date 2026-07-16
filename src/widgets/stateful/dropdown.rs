@@ -1,5 +1,4 @@
 use crate::{
-    codex::Codex,
     layout::Rect,
     render::{Canvas, Style},
     widgets::{
@@ -121,7 +120,7 @@ impl<'a> Widget for Dropdown<'a> {
         self.style = style;
     }
 
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         let display_text = if let Some(label) = &self.label {
             label.clone()
         } else if let Some(selected) = self.state.list_state.selected {
@@ -134,13 +133,13 @@ impl<'a> Widget for Dropdown<'a> {
         let mut button_state = ButtonState {
             clicked: self.state.expanded,
         };
-        let mut button = Button::new(display_text, &mut button_state, codex)
+        let mut button = Button::new(display_text, &mut button_state, thoth)
             .with_style(self.style)
             .with_clicked_style(self.active_style);
         if self.fat_border {
             button = button.with_fat_border();
         }
-        button.render(canvas, area, codex);
+        button.render(canvas, area, thoth);
 
         // Render the list if expanded
         if self.state.expanded {
@@ -167,7 +166,7 @@ impl<'a> Widget for Dropdown<'a> {
                 list = list.with_fat_border();
             }
 
-            list.render(canvas, list_area, codex);
+            list.render(canvas, list_area, thoth);
         }
     }
 }
@@ -179,22 +178,22 @@ mod tests {
 
     #[test]
     fn test_dropdown_render_collapsed() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
         let mut state = DropdownState::default();
         let items: Vec<Box<dyn Widget>> =
-            vec![Box::new(Text::new("Item 1", &codex)) as Box<dyn Widget>];
+            vec![Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>];
 
         let mut dropdown = Dropdown::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 3);
 
-        dropdown.render(&mut canvas, area, &codex);
+        dropdown.render(&mut canvas, area, &thoth);
 
         // Should show placeholder "Select..."
         // Let's just check if 'S' is somewhere.
         let mut found = false;
         for x in 0..10 {
-            if canvas.get_ccell(x, 1).char == codex.lookup('S') {
+            if canvas.get_ccell(x, 1).char == crate::render::Grapheme::new("S") {
                 found = true;
                 break;
             }
@@ -204,25 +203,25 @@ mod tests {
 
     #[test]
     fn test_dropdown_render_expanded() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 10);
         let mut state = DropdownState {
             expanded: true,
             list_state: ListState::default(),
         };
         let items: Vec<Box<dyn Widget>> =
-            vec![Box::new(Text::new("Option 1", &codex)) as Box<dyn Widget>];
+            vec![Box::new(Text::new("Option 1", &thoth)) as Box<dyn Widget>];
 
         let mut dropdown = Dropdown::new(&mut state, items);
         let area = Rect::new(0, 0, 10, 3); // 3 height button
 
-        dropdown.render(&mut canvas, area, &codex);
+        dropdown.render(&mut canvas, area, &thoth);
 
         // List should be rendered starting at y=3.
         // First item is at y=3,4,5.
         // It's a button, so it has borders.
         // Top border at y=3, bottom at y=5, left at x=0, right at x=9.
         // Text "Option 1" should be at y=4, starting at x=1.
-        assert_eq!(canvas.get_ccell(1, 4).char, codex.lookup('O'));
+        assert_eq!(canvas.get_ccell(1, 4).char, crate::render::Grapheme::new("O"));
     }
 }

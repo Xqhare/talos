@@ -1,5 +1,3 @@
-use crate::codex::Codex;
-use crate::codex::pages::SPACE_GLYPH;
 use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
 use crate::widgets::traits::Widget;
@@ -23,7 +21,7 @@ use crate::widgets::traits::Widget;
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     let mut area = Area::new();
@@ -32,7 +30,7 @@ use crate::widgets::traits::Widget;
 ///         .set_bg(Colour::Normal(Normal::Black))
 ///         .build());
 ///
-///     area.render(canvas, rect, codex);
+///     area.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -64,7 +62,7 @@ impl Widget for Area {
         self.style = style;
     }
 
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, _thoth: &thoth::Thoth) {
         let left = area.left();
         let right = area.right();
         let top = area.top();
@@ -76,7 +74,7 @@ impl Widget for Area {
                     x,
                     y,
                     CCell {
-                        char: SPACE_GLYPH,
+                        char: crate::render::Grapheme::default(),
                         style: self.style,
                     },
                 );
@@ -89,7 +87,6 @@ impl Widget for Area {
 mod tests {
     use super::*;
     use crate::TalosResult;
-    use crate::codex::Codex;
     use crate::render::Canvas;
 
     #[test]
@@ -107,17 +104,17 @@ mod tests {
     fn test_area_render_temporary() -> TalosResult<()> {
         use crate::render::{Colour, Normal};
         let mut canvas = Canvas::new(10, 10);
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let area_rect = Rect::new(2, 2, 3, 3);
         let style = Style::builder().set_fg(Colour::Normal(Normal::Red)).build();
 
-        Area::new().with_style(style).render(&mut canvas, area_rect, &codex);
+        Area::new().with_style(style).render(&mut canvas, area_rect, &thoth);
 
         // Check inside the area
         for y in 2..5 {
             for x in 2..5 {
                 let cell = canvas.get_ccell(x, y);
-                assert_eq!(cell.char, SPACE_GLYPH);
+                assert_eq!(cell.char, crate::render::Grapheme::default());
                 assert_eq!(cell.style, style);
             }
         }

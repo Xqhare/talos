@@ -1,7 +1,6 @@
 use crate::{
-    codex::Codex,
     layout::Rect,
-    render::{CCell, Canvas, Glyph, Style},
+    render::{CCell, Canvas, Style},
     widgets::traits::Widget,
 };
 
@@ -25,14 +24,14 @@ use crate::{
 ///
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let mut signal_box_state = SignalBoxState { signal: true };
 ///
 ///     let mut signal_box = SignalBox::new(&mut signal_box_state);
 ///
 ///     let rect = Rect::new(0, 0, 1, 1);
-///     signal_box.render(canvas, rect, codex);
+///     signal_box.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -43,8 +42,8 @@ use crate::{
 pub struct SignalBox<'a> {
     state: &'a mut SignalBoxState,
     style: Style,
-    signal_on_symbol: Glyph,
-    signal_off_symbol: Glyph,
+    signal_on_symbol: crate::render::Grapheme,
+    signal_off_symbol: crate::render::Grapheme,
 }
 
 /// The state of a signal box
@@ -80,7 +79,7 @@ impl<'a> SignalBox<'a> {
     /// use talos::{Talos, widgets::stateful::{SignalBox, SignalBoxState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut state = SignalBoxState { signal: true };
     /// let signal_box = SignalBox::new(&mut state);
     /// # assert!(true);
@@ -92,8 +91,8 @@ impl<'a> SignalBox<'a> {
             // The default symbols are from the "UTF Geometric Shapes" page (page 3).
             // The glyph is constructed by combining the page ID and the character ID.
             // For example, `0x0328` is `(3 << 8) | 40`.
-            signal_on_symbol: 0x0328,
-            signal_off_symbol: 0x0327,
+            signal_on_symbol: crate::render::Grapheme::new("◈"),
+            signal_off_symbol: crate::render::Grapheme::new("◇"),
         }
     }
 
@@ -103,21 +102,21 @@ impl<'a> SignalBox<'a> {
     }
 
     /// Sets the on symbol of the signal box
-    pub fn with_signal_on_symbol(mut self, char: char, codex: &Codex) -> Self {
-        self.signal_on_symbol = codex.lookup(char);
+    pub fn with_signal_on_symbol(mut self, char: char, _thoth: &thoth::Thoth) -> Self {
+        self.signal_on_symbol = crate::render::Grapheme::new(char.encode_utf8(&mut [0; 4]));
         self
     }
 
     /// Sets the off symbol of the signal box
-    pub fn with_signal_off_symbol(mut self, char: char, codex: &Codex) -> Self {
-        self.signal_off_symbol = codex.lookup(char);
+    pub fn with_signal_off_symbol(mut self, char: char, _thoth: &thoth::Thoth) -> Self {
+        self.signal_off_symbol = crate::render::Grapheme::new(char.encode_utf8(&mut [0; 4]));
         self
     }
 
     /// Uses `☐` and `☑` as the on and off symbols instead of the default diamond
     pub fn use_classical_symbols(mut self) -> Self {
-        self.signal_on_symbol = 0x035E;
-        self.signal_off_symbol = 0x035D;
+        self.signal_on_symbol = crate::render::Grapheme::new("☑");
+        self.signal_off_symbol = crate::render::Grapheme::new("☐");
         self
     }
 }
@@ -126,7 +125,7 @@ impl Widget for SignalBox<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, _codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, _thoth: &thoth::Thoth) {
         let state = &self.state;
         let symbol = if state.signal {
             self.signal_on_symbol
@@ -150,40 +149,40 @@ mod tests {
 
     #[test]
     fn test_signal_box_render_on() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(1, 1);
         let mut state = SignalBoxState { signal: true };
         let mut signal_box = SignalBox::new(&mut state);
         let area = Rect::new(0, 0, 1, 1);
 
-        signal_box.render(&mut canvas, area, &codex);
+        signal_box.render(&mut canvas, area, &thoth);
 
-        assert_eq!(canvas.get_ccell(0, 0).char, 0x0328);
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("◈"));
     }
 
     #[test]
     fn test_signal_box_render_off() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(1, 1);
         let mut state = SignalBoxState { signal: false };
         let mut signal_box = SignalBox::new(&mut state);
         let area = Rect::new(0, 0, 1, 1);
 
-        signal_box.render(&mut canvas, area, &codex);
+        signal_box.render(&mut canvas, area, &thoth);
 
-        assert_eq!(canvas.get_ccell(0, 0).char, 0x0327);
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("◇"));
     }
 
     #[test]
     fn test_signal_box_classical_symbols() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(1, 1);
         let mut state = SignalBoxState { signal: true };
         let mut signal_box = SignalBox::new(&mut state).use_classical_symbols();
         let area = Rect::new(0, 0, 1, 1);
 
-        signal_box.render(&mut canvas, area, &codex);
+        signal_box.render(&mut canvas, area, &thoth);
 
-        assert_eq!(canvas.get_ccell(0, 0).char, 0x035E);
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("☑"));
     }
 }

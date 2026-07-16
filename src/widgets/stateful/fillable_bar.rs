@@ -1,5 +1,4 @@
 use crate::{
-    codex::{Codex, pages::SPACE_GLYPH},
     layout::Rect,
     render::{CCell, Canvas, Style},
     widgets::{Number, traits::Widget},
@@ -25,7 +24,7 @@ use crate::{
 ///
 /// fn main() -> Result<(), talos::TalosError> {
 ///     let mut talos = Talos::builder().build()?;
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let mut fillable_bar_state = FillableBarState { fill: 0.5 };
 ///
@@ -34,7 +33,7 @@ use crate::{
 ///         .glow();
 ///
 ///     let rect = Rect::new(0, 0, 20, 1);
-///     fillable_bar.render(canvas, rect, codex);
+///     fillable_bar.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -92,7 +91,7 @@ impl<'a> FillableBar<'a> {
     /// use talos::{Talos, widgets::stateful::{FillableBar, FillableBarState}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut fillable_bar_state = FillableBarState { fill: 0.5 };
     /// let fillable_bar = FillableBar::new(&mut fillable_bar_state);
     /// # assert!(true);
@@ -136,7 +135,7 @@ impl Widget for FillableBar<'_> {
         self.style = style;
     }
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         let fill = self.state.fill;
         // BODGE: flip bg and fg
         let fg = self.style.get_fg();
@@ -157,18 +156,18 @@ impl Widget for FillableBar<'_> {
 
                 // Determine the character and style for this entire row
                 let (char, cell_style) = if y_off < empty_height {
-                    (SPACE_GLYPH, self.style)
+                    (crate::render::Grapheme::default(), self.style)
                 } else {
                     let depth = y_off - empty_height;
                     // Glow Logic
                     if self.glow && depth == 0 && fill_height > 0 && fill < 1.0 {
-                        (codex.lookup('░'), self.style)
+                        (crate::render::Grapheme::new("░"), self.style)
                     } else if self.glow && depth == 1 && fill_height > 1 && fill < 1.0 {
-                        (codex.lookup('▒'), self.style)
+                        (crate::render::Grapheme::new("▒"), self.style)
                     } else if self.glow && depth == 2 && fill_height > 2 && fill < 1.0 {
-                        (codex.lookup('▓'), self.style)
+                        (crate::render::Grapheme::new("▓"), self.style)
                     } else {
-                        (codex.lookup('█'), self.style)
+                        (crate::render::Grapheme::new("█"), self.style)
                     }
                 };
 
@@ -188,7 +187,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(&percentage, codex);
+                let mut number = Number::new(&percentage, thoth);
 
                 // Text Color Logic (Inverted if on top of filled part)
                 let mut number_style = self.style;
@@ -207,7 +206,7 @@ impl Widget for FillableBar<'_> {
                     height: 1,
                 };
 
-                number.render(canvas, number_area, codex);
+                number.render(canvas, number_area, thoth);
 
                 // Add '%' sign if it fits
                 if let Some((last_x, last_y)) = canvas.last_cell()
@@ -217,7 +216,7 @@ impl Widget for FillableBar<'_> {
                         last_x + 1,
                         last_y,
                         CCell {
-                            char: codex.lookup('%'),
+                            char: crate::render::Grapheme::new("%"),
                             style: number_style,
                         },
                     );
@@ -234,16 +233,16 @@ impl Widget for FillableBar<'_> {
                     let depth = fill_width.saturating_sub(1).saturating_sub(x_off);
 
                     if self.glow && depth == 0 && fill < 1.0 {
-                        (codex.lookup('░'), self.style)
+                        (crate::render::Grapheme::new("░"), self.style)
                     } else if self.glow && depth == 1 && fill < 1.0 {
-                        (codex.lookup('▒'), self.style)
+                        (crate::render::Grapheme::new("▒"), self.style)
                     } else if self.glow && depth == 2 && fill < 1.0 {
-                        (codex.lookup('▓'), self.style)
+                        (crate::render::Grapheme::new("▓"), self.style)
                     } else {
-                        (codex.lookup('█'), self.style)
+                        (crate::render::Grapheme::new("█"), self.style)
                     }
                 } else {
-                    (SPACE_GLYPH, self.style)
+                    (crate::render::Grapheme::default(), self.style)
                 };
 
                 for y_off in 0..area.height {
@@ -261,7 +260,7 @@ impl Widget for FillableBar<'_> {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             if self.show_percentage {
                 let percentage = (fill * 100.0).round() as u16;
-                let mut number = Number::new(&percentage, codex);
+                let mut number = Number::new(&percentage, thoth);
 
                 let mut number_style = self.style;
                 if fill_width > area.width / 2 {
@@ -278,7 +277,7 @@ impl Widget for FillableBar<'_> {
                     height: 1,
                 };
 
-                number.render(canvas, number_area, codex);
+                number.render(canvas, number_area, thoth);
                 if let Some((last_x, last_y)) = canvas.last_cell()
                     && last_x + 1 < area.right()
                 {
@@ -286,7 +285,7 @@ impl Widget for FillableBar<'_> {
                         last_x + 1,
                         last_y,
                         CCell {
-                            char: codex.lookup('%'),
+                            char: crate::render::Grapheme::new("%"),
                             style: number_style,
                         },
                     );
@@ -302,34 +301,34 @@ mod tests {
 
     #[test]
     fn test_fillable_bar_render_horizontal() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(10, 1);
         let mut state = FillableBarState { fill: 0.5 };
         let mut bar = FillableBar::new(&mut state);
         let area = Rect::new(0, 0, 10, 1);
 
-        bar.render(&mut canvas, area, &codex);
+        bar.render(&mut canvas, area, &thoth);
 
         // fill=0.5 of 10 is 5.
         // First 5 cells should be '█' (filled).
-        let full = codex.lookup('█');
+        let full = crate::render::Grapheme::new("█");
         for x in 0..5 {
             assert_eq!(canvas.get_ccell(x, 0).char, full);
         }
         for x in 5..10 {
-            assert_eq!(canvas.get_ccell(x, 0).char, SPACE_GLYPH);
+            assert_eq!(canvas.get_ccell(x, 0).char, crate::render::Grapheme::default());
         }
     }
 
     #[test]
     fn test_fillable_bar_render_glow() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(10, 1);
         let mut state = FillableBarState { fill: 0.5 };
         let mut bar = FillableBar::new(&mut state).glow();
         let area = Rect::new(0, 0, 10, 1);
 
-        bar.render(&mut canvas, area, &codex);
+        bar.render(&mut canvas, area, &thoth);
 
         // fill=0.5 of 10 is 5.
         // x=4 is depth 0 -> '░'
@@ -337,10 +336,10 @@ mod tests {
         // x=2 is depth 2 -> '▓'
         // x=1 is '█'
         // x=0 is '█'
-        assert_eq!(canvas.get_ccell(4, 0).char, codex.lookup('░'));
-        assert_eq!(canvas.get_ccell(3, 0).char, codex.lookup('▒'));
-        assert_eq!(canvas.get_ccell(2, 0).char, codex.lookup('▓'));
-        assert_eq!(canvas.get_ccell(1, 0).char, codex.lookup('█'));
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('█'));
+        assert_eq!(canvas.get_ccell(4, 0).char, crate::render::Grapheme::new("░"));
+        assert_eq!(canvas.get_ccell(3, 0).char, crate::render::Grapheme::new("▒"));
+        assert_eq!(canvas.get_ccell(2, 0).char, crate::render::Grapheme::new("▓"));
+        assert_eq!(canvas.get_ccell(1, 0).char, crate::render::Grapheme::new("█"));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("█"));
     }
 }

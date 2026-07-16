@@ -2,7 +2,6 @@ use std::cmp::min;
 
 use crate::{
     LayoutBuilder,
-    codex::Codex,
     layout::{Constraint, Direction, Layout, Rect},
     render::{Canvas, Style},
     widgets::{Area, Block, traits::Widget},
@@ -40,7 +39,7 @@ impl SequenceState {
 /// use talos::{Talos, widgets::{traits::Widget, stateful::{Sequence, SequenceState}}};
 ///
 /// let mut talos = Talos::builder().build().unwrap();
-/// let (_, codex) = talos.render_ctx();
+/// let (_, thoth) = talos.render_ctx();
 /// let mut sequence_state = SequenceState {
 ///     scroll_offset: 0,
 /// };
@@ -66,7 +65,7 @@ impl<'a> Sequence<'a> {
     /// use talos::{Talos, widgets::{traits::Widget, stateful::{Sequence, SequenceState}}};
     ///
     /// let mut talos = Talos::builder().build().unwrap();
-    /// let (_, codex) = talos.render_ctx();
+    /// let (_, thoth) = talos.render_ctx();
     /// let mut sequence_state = SequenceState {
     ///     scroll_offset: 0,
     /// };
@@ -161,22 +160,22 @@ impl Widget for Sequence<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         let mut area = area;
         if self.draw_border {
             let mut block = Block::new().with_bg_fill().with_style(self.style);
             block.set_fat_border(self.draw_fat_border);
-            block.render(canvas, area, codex);
+            block.render(canvas, area, thoth);
             area = block.inner(area);
         } else {
             Area::new()
                 .with_style(self.style)
-                .render(canvas, area, codex);
+                .render(canvas, area, thoth);
         }
         let layout = self.make_layout(area);
         for (index, rect) in layout.iter().enumerate() {
             if index + self.state.scroll_offset < self.items.len() {
-                self.items[index + self.state.scroll_offset].render(canvas, *rect, codex);
+                self.items[index + self.state.scroll_offset].render(canvas, *rect, thoth);
             }
         }
     }
@@ -189,11 +188,11 @@ mod tests {
 
     #[test]
     fn test_sequence_render_horizontal() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(20, 1);
         let state = SequenceState { scroll_offset: 0 };
-        let t1 = Text::new("A", &codex);
-        let t2 = Text::new("B", &codex);
+        let t1 = Text::new("A", &thoth);
+        let t2 = Text::new("B", &thoth);
         let items = vec![
             Box::new(t1) as Box<dyn Widget>,
             Box::new(t2) as Box<dyn Widget>,
@@ -201,21 +200,21 @@ mod tests {
         let mut sequence = Sequence::new(state, items);
         let area = Rect::new(0, 0, 20, 1);
 
-        sequence.render(&mut canvas, area, &codex);
+        sequence.render(&mut canvas, area, &thoth);
 
         // By default, it splits the area equally if no layout.
         // 2 items in 20 width -> 10 each.
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('A'));
-        assert_eq!(canvas.get_ccell(10, 0).char, codex.lookup('B'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("A"));
+        assert_eq!(canvas.get_ccell(10, 0).char, crate::render::Grapheme::new("B"));
     }
 
     #[test]
     fn test_sequence_scroll_offset() {
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         let mut canvas = Canvas::new(10, 1);
         let state = SequenceState { scroll_offset: 1 };
-        let t1 = Text::new("A", &codex);
-        let t2 = Text::new("B", &codex);
+        let t1 = Text::new("A", &thoth);
+        let t2 = Text::new("B", &thoth);
         let items = vec![
             Box::new(t1) as Box<dyn Widget>,
             Box::new(t2) as Box<dyn Widget>,
@@ -223,11 +222,11 @@ mod tests {
         let mut sequence = Sequence::new(state, items);
         let area = Rect::new(0, 0, 10, 1);
 
-        sequence.render(&mut canvas, area, &codex);
+        sequence.render(&mut canvas, area, &thoth);
 
         // scroll_offset = 1, so only "B" should be rendered.
-        assert_eq!(canvas.get_ccell(0, 0).char, codex.lookup('B'));
+        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("B"));
         // "A" should not be rendered.
-        assert_ne!(canvas.get_ccell(0, 0).char, codex.lookup('A'));
+        assert_ne!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("A"));
     }
 }

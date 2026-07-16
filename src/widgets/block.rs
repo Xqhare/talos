@@ -1,4 +1,3 @@
-use crate::codex::Codex;
 use crate::content::title::{TitleContents, TitlePosition};
 use crate::layout::Rect;
 use crate::render::{CCell, Canvas, Style};
@@ -23,11 +22,11 @@ use crate::widgets::traits::Widget;
 ///     let mut talos = Talos::builder().build()?;
 ///
 ///     talos.begin_frame();
-///     let (canvas, codex) = talos.render_ctx();
+///     let (canvas, thoth) = talos.render_ctx();
 ///
 ///     let rect = Rect::new(0, 0, 20, 10);
 ///     let mut block = Block::new()
-///         .title("My Block", codex, true)
+///         .title("My Block", thoth, true)
 ///         .with_fat_border()
 ///         .with_bg_fill();
 ///
@@ -37,7 +36,7 @@ use crate::widgets::traits::Widget;
 ///         .build();
 ///
 ///     block.style(style);
-///     block.render(canvas, rect, codex);
+///     block.render(canvas, rect, thoth);
 ///
 ///     talos.present()?;
 ///
@@ -95,13 +94,13 @@ impl Block {
     /// * `centered` - Whether the title should be centered
     ///
     /// if `centered` is false the title will be on the top left corner
-    pub fn title(mut self, title: impl Into<String>, codex: &Codex, centered: bool) -> Self {
+    pub fn title(mut self, title: impl Into<String>, thoth: &thoth::Thoth, centered: bool) -> Self {
         if centered {
             self.title
-                .set_position(&TitlePosition::TopCenter, title, codex);
+                .set_position(&TitlePosition::TopCenter, title, thoth);
         } else {
             self.title
-                .set_position(&TitlePosition::TopLeft, title, codex);
+                .set_position(&TitlePosition::TopLeft, title, thoth);
         }
         self
     }
@@ -111,10 +110,10 @@ impl Block {
     ///
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
-    /// * `codex` - The codex to use
-    pub fn top_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+    /// * `thoth` - The thoth to use
+    pub fn top_subtitle(mut self, subtitle: impl Into<String>, thoth: &thoth::Thoth) -> Self {
         self.title
-            .set_position(&TitlePosition::TopRight, subtitle, codex);
+            .set_position(&TitlePosition::TopRight, subtitle, thoth);
         self
     }
 
@@ -123,10 +122,10 @@ impl Block {
     ///
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
-    /// * `codex` - The codex to use
-    pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+    /// * `thoth` - The thoth to use
+    pub fn bottom_right_subtitle(mut self, subtitle: impl Into<String>, thoth: &thoth::Thoth) -> Self {
         self.title
-            .set_position(&TitlePosition::BottomRight, subtitle, codex);
+            .set_position(&TitlePosition::BottomRight, subtitle, thoth);
         self
     }
 
@@ -135,10 +134,10 @@ impl Block {
     ///
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
-    /// * `codex` - The codex to use
-    pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+    /// * `thoth` - The thoth to use
+    pub fn bottom_center_subtitle(mut self, subtitle: impl Into<String>, thoth: &thoth::Thoth) -> Self {
         self.title
-            .set_position(&TitlePosition::BottomCenter, subtitle, codex);
+            .set_position(&TitlePosition::BottomCenter, subtitle, thoth);
         self
     }
 
@@ -147,10 +146,10 @@ impl Block {
     ///
     /// # Arguments
     /// * `subtitle` - The string of the subtitle
-    /// * `codex` - The codex to use
-    pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, codex: &Codex) -> Self {
+    /// * `thoth` - The thoth to use
+    pub fn bottom_left_subtitle(mut self, subtitle: impl Into<String>, thoth: &thoth::Thoth) -> Self {
         self.title
-            .set_position(&TitlePosition::BottomLeft, subtitle, codex);
+            .set_position(&TitlePosition::BottomLeft, subtitle, thoth);
         self
     }
 
@@ -187,7 +186,7 @@ impl Widget for Block {
         self.style = style;
     }
     #[allow(clippy::too_many_lines)]
-    fn render(&mut self, canvas: &mut Canvas, area: Rect, codex: &Codex) {
+    fn render(&mut self, canvas: &mut Canvas, area: Rect, _thoth: &thoth::Thoth) {
         if area.width < 2 || area.height < 2 {
             return;
         }
@@ -198,34 +197,34 @@ impl Widget for Block {
         let bottom = area.bottom() - 1;
 
         let h_bar = if self.fat_border {
-            codex.lookup('═')
+            crate::render::Grapheme::new("═")
         } else {
-            codex.lookup('─')
+            crate::render::Grapheme::new("─")
         };
         let v_bar = if self.fat_border {
-            codex.lookup('║')
+            crate::render::Grapheme::new("║")
         } else {
-            codex.lookup('│')
+            crate::render::Grapheme::new("│")
         };
         let tl = if self.fat_border {
-            codex.lookup('╔')
+            crate::render::Grapheme::new("╔")
         } else {
-            codex.lookup('┌')
+            crate::render::Grapheme::new("┌")
         };
         let tr = if self.fat_border {
-            codex.lookup('╗')
+            crate::render::Grapheme::new("╗")
         } else {
-            codex.lookup('┐')
+            crate::render::Grapheme::new("┐")
         };
         let bl = if self.fat_border {
-            codex.lookup('╚')
+            crate::render::Grapheme::new("╚")
         } else {
-            codex.lookup('└')
+            crate::render::Grapheme::new("└")
         };
         let br = if self.fat_border {
-            codex.lookup('╝')
+            crate::render::Grapheme::new("╝")
         } else {
-            codex.lookup('┘')
+            crate::render::Grapheme::new("┘")
         };
 
         // Draw Corners
@@ -309,7 +308,7 @@ impl Widget for Block {
                         x,
                         y,
                         CCell {
-                            char: 0x0020,
+                            char: crate::render::Grapheme::default(),
                             style: self.style,
                         },
                     );
@@ -322,21 +321,21 @@ impl Widget for Block {
         // DIFFERENT BOTTOM STYLES
         let left_break = if self.beautfy_border_breaks {
             if self.fat_border {
-                codex.lookup('╗')
+                crate::render::Grapheme::new("╗")
             } else {
-                codex.lookup('┐')
+                crate::render::Grapheme::new("┐")
             }
         } else {
-            0
+            crate::render::Grapheme::default()
         };
         let right_break = if self.beautfy_border_breaks {
             if self.fat_border {
-                codex.lookup('╔')
+                crate::render::Grapheme::new("╔")
             } else {
-                codex.lookup('┌')
+                crate::render::Grapheme::new("┌")
             }
         } else {
-            0
+            crate::render::Grapheme::default()
         };
 
         if let Some(title) = &self.title.get_position(&TitlePosition::TopLeft) {
@@ -454,21 +453,21 @@ impl Widget for Block {
 
         let left_break = if self.beautfy_border_breaks {
             if self.fat_border {
-                codex.lookup('╝')
+                crate::render::Grapheme::new("╝")
             } else {
-                codex.lookup('┘')
+                crate::render::Grapheme::new("┘")
             }
         } else {
-            0
+            crate::render::Grapheme::default()
         };
         let right_break = if self.beautfy_border_breaks {
             if self.fat_border {
-                codex.lookup('╚')
+                crate::render::Grapheme::new("╚")
             } else {
-                codex.lookup('└')
+                crate::render::Grapheme::new("└")
             }
         } else {
-            0
+            crate::render::Grapheme::default()
         };
 
         if let Some(bottom_left_subtitle) = &self.title.get_position(&TitlePosition::BottomLeft) {
@@ -593,15 +592,13 @@ impl Widget for Block {
 mod tests {
     use super::*;
     use crate::TalosResult;
-    use crate::codex::Codex;
-    use crate::codex::pages::SPACE_GLYPH;
     use crate::render::Canvas;
 
     #[test]
     fn test_block_render_borders() -> TalosResult<()> {
         // 1. Setup Headless Environment
         let mut canvas = Canvas::new(10, 10); // 10x10 virtual grid
-        let codex = Codex::new(); // Standard glyph lookups (CP437/Windows1252)
+        let thoth = thoth::Thoth::new().unwrap(); // Standard glyph lookups (CP437/Windows1252)
 
         // 2. Define Area and Widget
         let area = Rect::new(0, 0, 5, 5); // 5x5 box at top-left
@@ -610,16 +607,16 @@ mod tests {
         // 3. Render (No terminal needed!)
         // Note: We need to import the Widget trait in the test module or parent to call .render()
         use crate::widgets::traits::Widget;
-        block.render(&mut canvas, area, &codex);
+        block.render(&mut canvas, area, &thoth);
 
         // 4. Verification
         // We expect the top-left corner (0,0) to be '┌'
-        let tl_glyph = codex.lookup('┌');
-        let tr_glyph = codex.lookup('┐');
-        let bl_glyph = codex.lookup('└');
-        let br_glyph = codex.lookup('┘');
-        let h_glyph = codex.lookup('─');
-        let v_glyph = codex.lookup('│');
+        let tl_glyph = crate::render::Grapheme::new("┌");
+        let tr_glyph = crate::render::Grapheme::new("┐");
+        let bl_glyph = crate::render::Grapheme::new("└");
+        let br_glyph = crate::render::Grapheme::new("┘");
+        let h_glyph = crate::render::Grapheme::new("─");
+        let v_glyph = crate::render::Grapheme::new("│");
 
         // Check Corners
         assert_eq!(
@@ -651,7 +648,7 @@ mod tests {
         // (1,1) is inside the block
         assert_eq!(
             canvas.get_ccell(1, 1).char,
-            SPACE_GLYPH,
+            crate::render::Grapheme::default(),
             "Inside should be empty (space)"
         );
 
@@ -662,24 +659,24 @@ mod tests {
     fn test_block_clipping() -> TalosResult<()> {
         // Test that block doesn't draw outside its Rect
         let mut canvas = Canvas::new(10, 10);
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         use crate::widgets::traits::Widget;
 
         // Draw a block starting at (2,2) with size 3x3
         // It covers (2,2) to (4,4)
         let area = Rect::new(2, 2, 3, 3);
         let mut block = Block::new();
-        block.render(&mut canvas, area, &codex);
+        block.render(&mut canvas, area, &thoth);
 
         // Check a point OUTSIDE the rect (e.g., 0,0)
         assert_eq!(
             canvas.get_ccell(0, 0).char,
-            SPACE_GLYPH,
+            crate::render::Grapheme::default(),
             "Block drew outside bounds at (0,0)!"
         );
 
         // Check a point INSIDE the rect (e.g., 2,2 - Top Left Corner of block)
-        let tl_glyph = codex.lookup('┌');
+        let tl_glyph = crate::render::Grapheme::new("┌");
         assert_eq!(
             canvas.get_ccell(2, 2).char,
             tl_glyph,
@@ -692,18 +689,18 @@ mod tests {
     #[test]
     fn test_block_title() -> TalosResult<()> {
         let mut canvas = Canvas::new(20, 5);
-        let codex = Codex::new();
+        let thoth = thoth::Thoth::new().unwrap();
         use crate::widgets::traits::Widget;
 
         let area = Rect::new(0, 0, 20, 5);
-        let mut block = Block::new().title("Test", &codex, false);
+        let mut block = Block::new().title("Test", &thoth, false);
 
-        block.render(&mut canvas, area, &codex);
+        block.render(&mut canvas, area, &thoth);
 
         // Title starts at x+1 (index 1)
         // "Test" -> 'T' at 1, 'e' at 2, 's' at 3, 't' at 4
-        let t_glyph = codex.lookup('T');
-        let e_glyph = codex.lookup('e');
+        let t_glyph = crate::render::Grapheme::new("T");
+        let e_glyph = crate::render::Grapheme::new("e");
 
         assert_eq!(canvas.get_ccell(1, 0).char, t_glyph, "Title 'T' missing");
         assert_eq!(canvas.get_ccell(2, 0).char, e_glyph, "Title 'e' missing");
