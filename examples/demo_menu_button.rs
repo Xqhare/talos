@@ -16,7 +16,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut talos = Talos::builder().build()?;
     let mut running = true;
 
-    let codex = talos.codex();
+    let thoth = talos.thoth();
 
     // The main button state
     let mut menu_open = ButtonState { clicked: false };
@@ -28,7 +28,7 @@ fn main() -> Result<(), talos::TalosError> {
     let mut path_text_state = TextBoxState {
         active: false,
         cursor: Some(0),
-        text: Text::new(&path_text, codex),
+        text: Text::new(&path_text, thoth),
     };
 
     // Track which menu item was last clicked
@@ -119,10 +119,10 @@ fn main() -> Result<(), talos::TalosError> {
         }
 
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
+        let (canvas, thoth) = talos.render_ctx();
 
         // Update TextBox text
-        path_text_state.text.set_content(&path_text, codex);
+        path_text_state.text.set_content(&path_text, thoth);
         path_text_state.cursor = if path_text_state.active {
             Some(path_text.len())
         } else {
@@ -138,8 +138,8 @@ fn main() -> Result<(), talos::TalosError> {
             .split(canvas.size_rect());
 
         let mut header =
-            Text::new("MenuButton Demo - Click File -> Load for sub-menu", codex).align_center();
-        header.render(canvas, chunks[0], codex);
+            Text::new("MenuButton Demo - Click File -> Load for sub-menu", thoth).align_center();
+        header.render(canvas, chunks[0], thoth);
 
         // Center the menu button horizontally
         let button_row = LayoutBuilder::new()
@@ -189,7 +189,7 @@ fn main() -> Result<(), talos::TalosError> {
 
         // Create the nested menu for "Load"
         let path_block = Block::new()
-            .title("enter a path", codex, true)
+            .title("enter a path", thoth, true)
             .with_bg_fill();
         let path_text_box =
             TextBox::new(&mut path_text_state).with_highlight_style(highlight_style);
@@ -212,8 +212,8 @@ fn main() -> Result<(), talos::TalosError> {
         // These also need a state even though they're not interactive in this demo
         let mut sub_menu_save = ButtonState { clicked: false };
         let mut sub_menu_exit = ButtonState { clicked: false };
-        let save_btn = Button::new("Save", &mut sub_menu_save, codex).with_style(menu_style);
-        let exit_btn = Button::new("Exit", &mut sub_menu_exit, codex).with_style(menu_style);
+        let save_btn = Button::new("Save", &mut sub_menu_save, thoth).with_style(menu_style);
+        let exit_btn = Button::new("Exit", &mut sub_menu_exit, thoth).with_style(menu_style);
 
         let file_items: Vec<Box<dyn Widget>> =
             vec![Box::new(save_btn), Box::new(load_menu), Box::new(exit_btn)];
@@ -225,11 +225,11 @@ fn main() -> Result<(), talos::TalosError> {
         )
         .with_style(main_style);
 
-        let mut footer = Text::new(format!("Last Action: {}", last_action), codex).align_center();
-        footer.render(canvas, chunks[2], codex);
+        let mut footer = Text::new(format!("Last Action: {}", last_action), thoth).align_center();
+        footer.render(canvas, chunks[2], thoth);
 
         // Rendering last to show the menu button overdrawing the footer
-        menu.render(canvas, menu_rect, codex);
+        menu.render(canvas, menu_rect, thoth);
         drop(menu);
 
         // Position of the sub-menu for hit testing

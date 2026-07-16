@@ -16,13 +16,13 @@ fn main() -> Result<(), talos::TalosError> {
     let mut talos = Talos::builder().build()?;
     let mut running = true;
 
-    let (_, codex) = talos.render_ctx();
+    let (_, thoth) = talos.render_ctx();
 
     let mut button_state = ButtonState { clicked: false };
     let mut text_box_state = TextBoxState {
         active: false,
         cursor: Some(0),
-        text: Text::new("", codex),
+        text: Text::new("", thoth),
     };
     let mut input_text = String::new();
 
@@ -74,12 +74,12 @@ fn main() -> Result<(), talos::TalosError> {
         }
 
         if text_changed {
-            text_box_state.text.set_content(&input_text, talos.codex());
+            text_box_state.text.set_content(&input_text, talos.thoth());
             text_box_state.cursor = Some(input_text.len());
         }
 
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
+        let (canvas, thoth) = talos.render_ctx();
 
         let root_rect = canvas.size_rect();
 
@@ -113,14 +113,14 @@ fn main() -> Result<(), talos::TalosError> {
                 "FOCUS TEXT BOX"
             },
             &mut button_state,
-            codex,
+            thoth,
         )
         .with_style(button_style);
 
-        button.render(canvas, button_rect, codex);
+        button.render(canvas, button_rect, thoth);
 
         let mut text_box_block = Block::new()
-            .title("Input", codex, false)
+            .title("Input", thoth, false)
             .with_beautify_border_breaks()
             .with_bg_fill();
 
@@ -132,11 +132,11 @@ fn main() -> Result<(), talos::TalosError> {
             Style::default()
         };
         text_box_block.style(text_box_style);
-        text_box_block.render(canvas, chunks[2], codex);
+        text_box_block.render(canvas, chunks[2], thoth);
 
         let inner_text_box = text_box_block.inner(chunks[2]);
         let mut text_box = TextBox::new(&mut text_box_state);
-        text_box.render(canvas, inner_text_box, codex);
+        text_box.render(canvas, inner_text_box, thoth);
 
         let mut help_text = Text::new(
             if text_box_state.active {
@@ -144,9 +144,9 @@ fn main() -> Result<(), talos::TalosError> {
             } else {
                 "Click the button to focus. Press 'q' or Esc to quit."
             },
-            codex,
+            thoth,
         );
-        help_text.render(canvas, chunks[3], codex);
+        help_text.render(canvas, chunks[3], thoth);
 
         talos.present()?;
         thread::sleep(Duration::from_millis(16));

@@ -34,8 +34,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
 - Coordinate calculations truncate to `u16::MAX`.
     - This caps structures like tables to around 65,000 rows and columns.
     - This also caps the Terminal size to around 65,000 rows and columns.
-- No full Unicode support.
-    - At most, `u16::MAX` Unicode code-points with a single cell display width are supported.
+- Unicode support is handled via the `thoth` grapheme cluster segmentation library.
 
 ## Features
 
@@ -63,14 +62,7 @@ Items marked in ~~strikethrough~~ are probably not happening, but might.
     - Style system: Supports foreground/background colors (Normal, Bright, Extended 256-color, and `TrueColor` / 8bit and 24bit RGB).
     - Text Attributes (Bold, Dim, Italic, Underline, Blink, Reverse, and Strikethrough)
     - Layout engine: Supports horizontal and vertical alignment and using Constraints to calculate the layout for seamless resizing
-    - Codex
-        - Emulation of old school code pages for character rendering
-        - Includes as default:
-            - Windows-1252
-            - CP437
-            - UTF Geometric Shapes block
-            - UTF Miscellaneous Technical Symbols block
-            - UTF General Punctuation block (rolled into the Geometric Shapes page)
+    - `thoth` grapheme cluster segmentation for proper Unicode rendering
 
 ### Widgets
 
@@ -192,18 +184,18 @@ fn main() -> Result<(), talos::TalosError> {
         }
         // 3. Render Frame
         talos.begin_frame();
-        let (canvas, codex) = talos.render_ctx();
+        let (canvas, thoth) = talos.render_ctx();
         let big_area = Rect::new(1, 1, canvas.max_width(), canvas.max_height());
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::Yellow))
             .set_bg(Colour::Normal(Normal::Blue))
             .build();
         let mut large_block: Block = Block::new()
-            .title("", codex, false)
+            .title("", thoth, false)
             .with_fat_border()
             .with_bg_fill();
         large_block.style(style);
-        large_block.render(canvas, big_area, codex);
+        large_block.render(canvas, big_area, thoth);
         let right_area = Rect::new(canvas.max_width().saturating_sub(60), 5, 30, 5);
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::White))
@@ -211,21 +203,21 @@ fn main() -> Result<(), talos::TalosError> {
             .build();
         let mut right_block: Block = Block::new()
             .with_fat_border()
-            .title("Right", codex, false)
+            .title("Right", thoth, false)
             .with_beautify_border_breaks()
             .with_bg_fill();
         right_block.style(style);
-        right_block.render(canvas, right_area, codex);
+        right_block.render(canvas, right_area, thoth);
         let drawing_over_right = Rect::new(canvas.max_width().saturating_sub(40), 8, 30, 5);
         let style = Style::builder()
             .set_fg(Colour::Normal(Normal::White))
             .set_bg(Colour::Normal(Normal::Green))
             .build();
         let mut next_right_block: Block = Block::new()
-            .title("Over Right", codex, false)
+            .title("Over Right", thoth, false)
             .with_bg_fill();
         next_right_block.style(style);
-        next_right_block.render(canvas, drawing_over_right, codex);
+        next_right_block.render(canvas, drawing_over_right, thoth);
         // Let's draw a white & black block in the middle
         let area = Rect::new(15, 15, 50, 10);
         let style = Style::builder()
@@ -233,11 +225,11 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bg(Colour::Normal(Normal::White))
             .build();
         let mut block: Block = Block::new()
-            .title(" Hello Talos ", codex, false)
+            .title(" Hello Talos ", thoth, false)
             .with_bg_fill();
 
         block.style(style);
-        block.render(canvas, area, codex);
+        block.render(canvas, area, thoth);
 
         // Lets add some styled text to the block
         let block_inner = block.inner(area);
@@ -248,12 +240,12 @@ fn main() -> Result<(), talos::TalosError> {
             .set_bold(true)
             .build();
 
-        let mut text = Text::new("Look mom! Text inside a block!", codex)
+        let mut text = Text::new("Look mom! Text inside a block!", thoth)
             .align_center()
             .align_vertically();
 
         text.style(text_style);
-        text.render(canvas, block_inner, codex);
+        text.render(canvas, block_inner, thoth);
 
         // 4. Present to Terminal
         talos.present()?;
@@ -274,18 +266,6 @@ This means, for example, that a `Table` may only ever have up to around 65,000 r
 
 However, it is very unlikely that this will cause any issues in practice.
 
-### Custom Code Pages
-
-There are a total of 256 possible code pages. The first sixteen are reserved for provided default code pages.
-
-Each code page has 256 entries and each entry represents a character.\
-Every entry must have a displayed width of 1 and must be stored in valid utf-8.
-
-Talos builds a cache of the code pages and checks if a char is in a code page before displaying it.\
-Should a char not be in a code page, it will be displayed as a question mark.
-
-It is recommended that any custom code pages use an ID of `16` or higher.\
-The range of `0` to `15` is softly reserved for the default code pages.
 
 ### Features to consider
 
@@ -300,7 +280,6 @@ The range of `0` to `15` is softly reserved for the default code pages.
     - [ ] Layers (right now there is only one layer - cells are drawn over each other sequentially if there are multiple widgets overlapping)
         - If performance suffers, implement a layer system - seems like a lot of work for not much benefit in most applications.
 - [ ] Probably never - Way too much work, but would be nice
-    - [ ] Unicode support & remove Code pages
     - [ ] Windows support
         - [ ] Read the damn win docs again and determine needed foreign functions needed
         - [ ] FFI for `kernel32.dll` at the very minimum needed (I/O)
