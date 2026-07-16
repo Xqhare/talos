@@ -1,24 +1,22 @@
-use crate::codex::pages::SPACE_GLYPH;
-
-use super::{Glyph, Style};
+use super::{Grapheme, Style};
 
 /// A single cell in a [Canvas](struct.Canvas.html)
 ///
-/// Contains a [Glyph](type.Glyph.html) and a [Style](struct.Style.html)
+/// Contains a [Grapheme](struct.Grapheme.html) and a [Style](struct.Style.html)
 ///
 /// # Example
 /// ```rust
-/// use talos::render::{CCell, Style};
+/// use talos::render::{CCell, Style, Grapheme};
 ///
 /// let cell = CCell {
-///    char: 'a' as u16,
+///    char: Grapheme::new("a"),
 ///    style: Style::default(),
 /// };
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CCell {
-    /// The glyph
-    pub char: Glyph,
+    /// The grapheme
+    pub char: Grapheme,
     /// The style
     pub style: Style,
 }
@@ -26,7 +24,7 @@ pub struct CCell {
 impl Default for CCell {
     fn default() -> Self {
         Self {
-            char: SPACE_GLYPH,
+            char: Grapheme::default(),
             style: Style::default(),
         }
     }
