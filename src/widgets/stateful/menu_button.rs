@@ -155,6 +155,33 @@ impl Widget for MenuButton<'_> {
             }
         }
     }
+
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        let mut regions = vec![area];
+        if self.state.clicked {
+            let child_width = self.child_width.unwrap_or(area.width);
+            let child_height = self.child_height.unwrap_or(area.height);
+
+            for num in 0..self.menu.len() {
+                let (x, y) = if self.vertical {
+                    let offset = (num as u16).saturating_mul(child_height);
+                    (area.x, area.bottom().saturating_add(offset))
+                } else {
+                    let offset = (num as u16).saturating_mul(child_width);
+                    (area.right().saturating_add(offset), area.y)
+                };
+
+                let child_area = Rect {
+                    x,
+                    y,
+                    width: child_width,
+                    height: child_height,
+                };
+                regions.push(child_area);
+            }
+        }
+        regions
+    }
 }
 
 #[cfg(test)]
@@ -223,4 +250,25 @@ mod tests {
         // It should be crate::render::Grapheme::default() (0) if not rendered and canvas was empty.
         assert_eq!(canvas.get_ccell(0, 1).char, crate::render::Grapheme::default());
     }
+
+    #[test]
+    fn test_menu_button_widget_inner() {
+        let thoth = thoth::Thoth::new().unwrap();
+        let mut main_state = ButtonState { clicked: true };
+        let mut item_state = ButtonState::default();
+        let item = Button::new("Item 1", &mut item_state, &thoth);
+
+        let menu: Vec<Box<dyn Widget + '_>> = vec![Box::new(item)];
+        let menu_button = MenuButton::new("Main", &mut main_state, menu);
+        let area = Rect::new(0, 0, 10, 2);
+
+        let widget_ref: &dyn Widget = &menu_button;
+        let regions = widget_ref.inner(area);
+
+        // Index 0: Main button, Index 1: Sub button 1
+        assert_eq!(regions.len(), 2);
+        assert_eq!(regions[0], area);
+        assert_eq!(regions[1], Rect::new(0, 2, 10, 2)); // Vertical offset
+    }
 }
+
