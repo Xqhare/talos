@@ -488,7 +488,16 @@ impl Widget for Table<'_> {
         self.style = style;
     }
     fn inner(&self, area: Rect) -> Vec<Rect> {
-        let mut regions = vec![area];
+        let size = {
+            let rows = self.rows.len();
+            if rows > 0 {
+                let cols = self.rows[0].len().max(1);
+                rows.saturating_mul(cols)
+            } else {
+                rows
+            }
+        };
+        let mut regions = Vec::with_capacity(size);
         for row in self.inner(area) {
             for cell in row {
                 regions.push(cell);
@@ -945,10 +954,22 @@ mod tests {
         table.render(&mut canvas, Rect::new(0, 0, 20, 10), &thoth);
 
         // Outer border corners
-        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("╔"));
-        assert_eq!(canvas.get_ccell(19, 0).char, crate::render::Grapheme::new("╗"));
-        assert_eq!(canvas.get_ccell(0, 9).char, crate::render::Grapheme::new("╚"));
-        assert_eq!(canvas.get_ccell(19, 9).char, crate::render::Grapheme::new("╝"));
+        assert_eq!(
+            canvas.get_ccell(0, 0).char,
+            crate::render::Grapheme::new("╔")
+        );
+        assert_eq!(
+            canvas.get_ccell(19, 0).char,
+            crate::render::Grapheme::new("╗")
+        );
+        assert_eq!(
+            canvas.get_ccell(0, 9).char,
+            crate::render::Grapheme::new("╚")
+        );
+        assert_eq!(
+            canvas.get_ccell(19, 9).char,
+            crate::render::Grapheme::new("╝")
+        );
     }
 
     #[test]
@@ -980,11 +1001,23 @@ mod tests {
         // R1 should be in y=0 or y=1
         // R2 should be in y=3 or y=4
         // Text::new("R1") will render "R1" starting at (0,0)
-        assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("R"));
-        assert_eq!(canvas.get_ccell(1, 0).char, crate::render::Grapheme::new("1"));
+        assert_eq!(
+            canvas.get_ccell(0, 0).char,
+            crate::render::Grapheme::new("R")
+        );
+        assert_eq!(
+            canvas.get_ccell(1, 0).char,
+            crate::render::Grapheme::new("1")
+        );
 
-        assert_eq!(canvas.get_ccell(0, 3).char, crate::render::Grapheme::new("R"));
-        assert_eq!(canvas.get_ccell(1, 3).char, crate::render::Grapheme::new("2"));
+        assert_eq!(
+            canvas.get_ccell(0, 3).char,
+            crate::render::Grapheme::new("R")
+        );
+        assert_eq!(
+            canvas.get_ccell(1, 3).char,
+            crate::render::Grapheme::new("2")
+        );
     }
 
     #[test]
