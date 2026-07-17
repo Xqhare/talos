@@ -68,6 +68,15 @@ pub mod traits {
         /// Sets the primary style of the widget
         fn style(&mut self, style: Style);
 
+        /// Returns the active, clickable sub-regions of the widget within the given area.
+        ///
+        /// Index `0` is conventionally the primary inner content or window area,
+        /// and indices `1..` represent interactive control sub-regions.
+        #[must_use]
+        fn inner(&self, area: Rect) -> Vec<Rect> {
+            vec![area]
+        }
+
         /// Returns the widget with the specified style set
         ///
         /// This is a convenience method for chaining
@@ -88,6 +97,9 @@ pub mod traits {
         fn style(&mut self, style: Style) {
             (**self).style(style);
         }
+        fn inner(&self, area: Rect) -> Vec<Rect> {
+            (**self).inner(area)
+        }
     }
 
     impl<'a> Widget for Box<dyn Widget + 'a> {
@@ -96,6 +108,9 @@ pub mod traits {
         }
         fn style(&mut self, style: Style) {
             (**self).style(style);
+        }
+        fn inner(&self, area: Rect) -> Vec<Rect> {
+            (**self).inner(area)
         }
     }
 
