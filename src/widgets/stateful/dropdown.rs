@@ -169,6 +169,34 @@ impl<'a> Widget for Dropdown<'a> {
             list.render(canvas, list_area, thoth);
         }
     }
+
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        let mut regions = vec![area];
+        if self.state.expanded {
+            let item_height = area.height;
+            let list_height = self.list_height.unwrap_or_else(|| {
+                (self.items.len() as u16)
+                    .saturating_mul(item_height)
+                    .min(10u16.saturating_mul(item_height))
+            });
+            let list_area = Rect::new(area.x, area.bottom(), area.width, list_height);
+            regions.push(list_area);
+
+            let max_visible = 10;
+            let visible_count = self.items.len().min(max_visible);
+            for i in 0..visible_count {
+                let offset = (i as u16).saturating_mul(item_height);
+                let item_rect = Rect::new(
+                    area.x,
+                    area.bottom().saturating_add(offset),
+                    area.width,
+                    item_height,
+                );
+                regions.push(item_rect);
+            }
+        }
+        regions
+    }
 }
 
 #[cfg(test)]
@@ -223,5 +251,27 @@ mod tests {
         // Top border at y=3, bottom at y=5, left at x=0, right at x=9.
         // Text "Option 1" should be at y=4, starting at x=1.
         assert_eq!(canvas.get_ccell(1, 4).char, crate::render::Grapheme::new("O"));
+    }
+
+    #[test]
+    fn test_dropdown_widget_inner() {
+        let thoth = thoth::Thoth::new().unwrap();
+        let list_state = crate::widgets::stateful::ListState::default();
+        let mut dropdown_state = DropdownState {
+            list_state,
+            expanded: true,
+        };
+        let item = Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>;
+        let dropdown = Dropdown::new(&mut dropdown_state, vec![item]).with_placeholder("Select");
+        let area = Rect::new(0, 0, 15, 2);
+        
+        let widget_ref: &dyn Widget = &dropdown;
+        let regions = widget_ref.inner(area);
+        
+        // Index 0: Main button, Index 1: Entire list area, Index 2: Item 1 area
+        assert_eq!(regions.len(), 3);
+        assert_eq!(regions[0], area);
+        assert_eq!(regions[1], Rect::new(0, 2, 15, 2)); // List area
+        assert_eq!(regions[2], Rect::new(0, 2, 15, 2)); // Item 1 area
     }
 }
