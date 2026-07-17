@@ -182,6 +182,10 @@ impl Block {
 }
 
 impl Widget for Block {
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        vec![self.inner(area)]
+    }
+
     fn style(&mut self, style: Style) {
         self.style = style;
     }
@@ -706,5 +710,19 @@ mod tests {
         assert_eq!(canvas.get_ccell(2, 0).char, e_glyph, "Title 'e' missing");
 
         Ok(())
+    }
+
+    #[test]
+    fn test_block_widget_inner() {
+        use crate::widgets::traits::Widget;
+        let block = Block::new().with_fat_border();
+        let area = Rect::new(0, 0, 10, 10);
+        let inner_regions = block.inner(area); // Calls inherent method first
+        assert_eq!(inner_regions, Rect::new(1, 1, 8, 8));
+
+        // Call via Widget trait to test the trait method
+        let widget_ref: &dyn Widget = &block;
+        let trait_regions = widget_ref.inner(area);
+        assert_eq!(trait_regions, vec![Rect::new(1, 1, 8, 8)]);
     }
 }
