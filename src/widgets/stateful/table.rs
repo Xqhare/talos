@@ -487,6 +487,15 @@ impl Widget for Table<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        let mut regions = vec![area];
+        for row in self.inner(area) {
+            for cell in row {
+                regions.push(cell);
+            }
+        }
+        regions
+    }
     #[allow(clippy::too_many_lines)]
     fn render(&mut self, canvas: &mut Canvas, area: Rect, thoth: &thoth::Thoth) {
         let tl = crate::render::Grapheme::new("╔");
@@ -1028,5 +1037,41 @@ mod tests {
         assert_eq!(inner_areas[1][0], Rect::new(1, 7, 9, 3));
         // Row 1, Col 1: x=10+1=11, y=6+1=7, w=9-1=8, h=4-1=3
         assert_eq!(inner_areas[1][1], Rect::new(11, 7, 8, 3));
+    }
+
+    #[test]
+    fn test_table_widget_inner() {
+        let mut table_state = TableState {
+            x_offset: 0,
+            y_offset: 0,
+            max_rows: None,
+            max_columns: None,
+        };
+        let thoth = thoth::Thoth::new().unwrap();
+        let r1: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R1C1", &thoth)),
+            Box::new(Text::new("R1C2", &thoth)),
+        ];
+        let r2: Vec<Box<dyn Widget>> = vec![
+            Box::new(Text::new("R2C1", &thoth)),
+            Box::new(Text::new("R2C2", &thoth)),
+        ];
+        let rows = vec![r1, r2];
+
+        let table = Table::new(&mut table_state)
+            .with_rows(rows)
+            .draw_inner_border(InnerBorder::All)
+            .draw_outer_border();
+
+        let area = Rect::new(0, 0, 21, 11);
+        let widget_ref: &dyn Widget = &table;
+        let regions = widget_ref.inner(area);
+
+        assert_eq!(regions.len(), 5); // 1 outer + 4 cells
+        assert_eq!(regions[0], area);
+        assert_eq!(regions[1], Rect::new(1, 1, 9, 5));
+        assert_eq!(regions[2], Rect::new(11, 1, 8, 5));
+        assert_eq!(regions[3], Rect::new(1, 7, 9, 3));
+        assert_eq!(regions[4], Rect::new(11, 7, 8, 3));
     }
 }
