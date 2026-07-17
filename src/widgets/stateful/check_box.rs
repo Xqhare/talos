@@ -112,6 +112,21 @@ impl Widget for CheckBox<'_> {
         let mut button = Button::new(&self.label, self.state, thoth).with_style(self.style);
         button.render(canvas, layout[1], thoth);
     }
+
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        let mut outer_block = Block::new();
+        outer_block.set_fat_border(self.fat_border);
+        let inner_rect = outer_block.inner(area);
+        
+        let layout = LayoutBuilder::new()
+            .direction(Direction::Horizontal)
+            .add_constraint(Constraint::Max(1))
+            .add_constraint(Constraint::Min(1))
+            .build()
+            .split(inner_rect);
+            
+        vec![layout[0], layout[1]]
+    }
 }
 
 #[cfg(test)]
@@ -141,5 +156,20 @@ mod tests {
         // Start x = 3 + 6 = 9.
         // y = 1 (inner area start) + 1 (vertical center) = 2.
         assert_eq!(canvas.get_ccell(9, 2).char, crate::render::Grapheme::new("T"));
+    }
+
+    #[test]
+    fn test_checkbox_widget_inner() {
+        let mut state = ButtonState::default();
+        let checkbox = CheckBox::new("Click me", &mut state);
+        let area = Rect::new(0, 0, 20, 5);
+        
+        let widget_ref: &dyn Widget = &checkbox;
+        let regions = widget_ref.inner(area);
+        
+        // Index 0: checkmark box, Index 1: label text button area
+        assert_eq!(regions.len(), 2);
+        assert_eq!(regions[0].width, 1);
+        assert_eq!(regions[1].width, 17); // 20 - 2 (borders) - 1 (checkmark) = 17
     }
 }
