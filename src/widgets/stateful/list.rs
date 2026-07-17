@@ -177,6 +177,35 @@ impl Widget for List<'_> {
     fn style(&mut self, style: Style) {
         self.style = style;
     }
+    fn inner(&self, area: Rect) -> Vec<Rect> {
+        let mut regions = vec![area];
+        if self.horizontal {
+            // Horizontal list item layouts are render-dependent (widths based on child render states),
+            // so we default to returning just the container boundary.
+            return regions;
+        }
+
+        let offset = self.state.scroll_offset;
+        let x_offset = if self.selected_symbol.is_some() { 3 } else { 0 };
+
+        for i in offset..self.items.len() {
+            let line_index = i - offset;
+            let y = area.y.saturating_add((line_index as u16).saturating_mul(self.item_height));
+
+            if y >= area.bottom() {
+                break;
+            }
+
+            let item_area = Rect::new(
+                area.x.saturating_add(x_offset),
+                y,
+                area.width.saturating_sub(x_offset),
+                self.item_height,
+            );
+            regions.push(item_area);
+        }
+        regions
+    }
     #[allow(clippy::too_many_lines)]
     fn render(
         &mut self,
@@ -435,5 +464,25 @@ mod tests {
         assert_eq!(canvas.get_ccell(0, 0).char, crate::render::Grapheme::new("I")); // This is Item 2
         assert_eq!(canvas.get_ccell(5, 0).char, crate::render::Grapheme::new("2"));
         assert_eq!(canvas.get_ccell(5, 1).char, crate::render::Grapheme::new("3"));
+    }
+
+    #[test]
+    fn test_list_widget_inner() {
+        let thoth = thoth::Thoth::new().unwrap();
+        let mut state = ListState::default();
+        let item1 = Box::new(Text::new("Item 1", &thoth)) as Box<dyn Widget>;
+        let item2 = Box::new(Text::new("Item 2", &thoth)) as Box<dyn Widget>;
+        
+        let list = List::new(&mut state, vec![item1, item2]).with_item_height(2);
+        let area = Rect::new(0, 0, 10, 10);
+        
+        let widget_ref: &dyn Widget = &list;
+        let regions = widget_ref.inner(area);
+        
+        // Index 0: List container bounds, Index 1: Item 1, Index 2: Item 2
+        assert_eq!(regions.len(), 3);
+        assert_eq!(regions[0], area);
+        assert_eq!(regions[1], Rect::new(0, 0, 10, 2));
+        assert_eq!(regions[2], Rect::new(0, 2, 10, 2));
     }
 }
