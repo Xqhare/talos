@@ -498,6 +498,7 @@ impl Widget for Table<'_> {
             }
         };
         let mut regions = Vec::with_capacity(size);
+        regions.push(area);
         for row in self.inner(area) {
             for cell in row {
                 regions.push(cell);
